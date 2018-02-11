@@ -200,6 +200,53 @@ class Utils{
         return $stripedCode;
     }
 
+    public static function codeOptimize(string $originalCode) : string{
+        static $ignoreBeforeList = [
+          '\\',
+          '::',
+          '->',
+          'function',
+        ];
+        $tokens = token_get_all($originalCode);
+        $stripedCode = "";
+        for ($i = 0, $count = count($tokens); $i < $count; $i++) {
+            if (is_array($tokens[$i])) {
+                if ($tokens[$i][0] === \T_STRING) {
+                    $beforeIndex = $i - 1;
+                    $before = null;
+                    while (isset($tokens[$beforeIndex])) {
+                        $token = $tokens[$beforeIndex--];
+                        if (is_array($token)) {
+                            if ($token[0] === \T_WHITESPACE or $token[0] === \T_COMMENT or $token[0] === \T_DOC_COMMENT) {
+                                continue;
+                            }
+                            $before = $token[1];
+                            break;
+                        } else {
+                            $before = $token;
+                            break;
+                        }
+                    }
+                    if ($before === null || !Utils::in_arrayi($before, $ignoreBeforeList)) {
+                        if (defined('\\' . $tokens[$i][1])) {
+                            $tokens[$i][1] = '\\' . $tokens[$i][1];
+                        } elseif (function_exists('\\' . $tokens[$i][1]) && isset($tokens[$i + 1]) && $tokens[$i + 1] === '(') {
+                            $tokens[$i][1] = '\\' . $tokens[$i][1];
+                        }
+                    }
+                } elseif ($tokens[$i][0] === T_LOGICAL_OR) {
+                    $tokens[$i][1] = '||';
+                } elseif ($tokens[$i][0] === T_LOGICAL_AND) {
+                    $tokens[$i][1] = '&&';
+                }
+                $stripedCode .= $tokens[$i][1];
+            } else {
+                $stripedCode .= $tokens[$i];
+            }
+        }
+        return $stripedCode;
+    }
+
     /**
      * @param string $directory
      *
