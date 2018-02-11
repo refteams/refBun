@@ -25,7 +25,7 @@ class Utils{
      *
      * @return string
      */
-    public static function compress_php_src(string $originalCode) : string{
+    public static function removeWhitespace(string $originalCode) : string{
         // Whitespaces left and right from this signs can be ignored
         static $ignoreWhitespaceTokenList = [
           T_CONCAT_EQUAL,
