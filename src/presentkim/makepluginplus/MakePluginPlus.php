@@ -88,7 +88,11 @@ class MakePluginPlus extends PluginBase{
         $setting = $this->getConfig()->getAll();
         $description = $plugin->getDescription();
         if (file_exists($pharPath)) {
-            \Phar::unlinkArchive($pharPath);
+            try{
+                \Phar::unlinkArchive($pharPath);
+            } catch (\Exception $e){
+                unlink($pharPath);
+            }
         }
         $phar = new \Phar($pharPath);
         $phar->setSignatureAlgorithm(\Phar::SHA1);
