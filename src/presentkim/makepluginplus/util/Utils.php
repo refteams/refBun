@@ -67,7 +67,6 @@ class Utils{
         $new = "";
         $c = sizeof($tokens);
         $iw = false; // ignore whitespace
-        $ih = false; // in HEREDOC
         $ls = "";    // last sign
         $ot = null;  // open tag
         for ($i = 0; $i < $c; $i++) {
@@ -117,11 +116,9 @@ class Utils{
                     } elseif ($tn == T_START_HEREDOC) {
                         $new .= "<<<S\n";
                         $iw = false;
-                        $ih = true; // in HEREDOC
                     } elseif ($tn == T_END_HEREDOC) {
                         $new .= "S;";
                         $iw = true;
-                        $ih = false; // in HEREDOC
                         for ($j = $i + 1; $j < $c; $j++) {
                             if (is_string($tokens[$j]) && $tokens[$j] == ";") {
                                 $i = $j;
@@ -135,9 +132,6 @@ class Utils{
                     } elseif ($tn == T_COMMENT || $tn == T_DOC_COMMENT) {
                         $iw = true;
                     } else {
-                        if (!$ih) {
-                            $ts = strtolower($ts);
-                        }
                         $new .= $ts;
                         $iw = false;
                     }
