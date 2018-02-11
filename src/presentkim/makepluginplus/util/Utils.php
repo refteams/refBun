@@ -138,8 +138,6 @@ class Utils{
                             }
                         }
                     }
-                } elseif ($tokenNumber == T_COMMENT || $tokenNumber == T_DOC_COMMENT) {
-                    $ignoreWhitespace = true;
                 } else {
                     $stripedCode .= $tokenString;
                     $ignoreWhitespace = false;
