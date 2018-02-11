@@ -2,6 +2,9 @@
 
 namespace presentkim\makepluginplus\util;
 
+use function is_dir;
+use function var_dump;
+
 class Utils{
 
     /**
@@ -253,20 +256,17 @@ class Utils{
      * @return bool
      */
     public static function removeDirectory(string $directory) : bool{
-        if (file_exists($directory)) {
-            if (is_dir($directory)) {
-                foreach (scandir($directory) as $key => $file) {
-                    $fileName = "{$directory}{$file}";
-                    if ($fileName !== "." && $fileName !== "..") {
-                        self::removeDirectory($fileName);
-                    }
-                }
-                return rmdir($directory);
+        $files = array_diff(scandir($directory), [
+          '.',
+          '..',
+        ]);
+        foreach ($files as $file) {
+            if (is_dir($fileName = "{$directory}/{$file}")) {
+                Utils::removeDirectory($fileName);
             } else {
-                return unlink($directory);
+                unlink($fileName);
             }
-        } else {
-            return false;
         }
+        return rmdir($directory);
     }
 }
