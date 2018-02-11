@@ -179,7 +179,7 @@ class Utils{
         $stripedCode = "";
         for ($i = 0, $count = count($tokens); $i < $count; $i++) {
             if (is_array($tokens[$i])) {
-                if ($tokens[$i][0] === \T_VARIABLE && !Utils::in_arrayi($tokens[$i - 1], $ignoreBeforeList)) {
+                if ($tokens[$i][0] === \T_VARIABLE && ($i === 0 || is_array($before = $tokens[$i - 1]) || !Utils::in_arrayi($before, $ignoreBeforeList))) {
                     if (!isset($variables[$tokens[$i][1]])) {
                         $variableName = '$' . $firstChars[$variableCount % $firstCharCount];
                         if ($variableCount) {
