@@ -140,4 +140,27 @@ class Utils{
         }
         return $stripedCode;
     }
+
+    /**
+     * @param string $directory
+     *
+     * @return bool
+     */
+    public static function removeDirectory(string $directory) : bool{
+        if (file_exists($directory)) {
+            if (is_dir($directory)) {
+                foreach (scandir($directory) as $key => $file) {
+                    $fileName = "{$directory}/{$file}";
+                    if ($fileName !== "." && $fileName !== "..") {
+                        self::removeDirectory($fileName);
+                    }
+                }
+                return rmdir($directory);
+            } else {
+                return unlink($directory);
+            }
+        } else {
+            return false;
+        }
+    }
 }
