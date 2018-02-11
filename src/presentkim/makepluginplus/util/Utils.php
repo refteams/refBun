@@ -214,7 +214,22 @@ class Utils{
         $stripedCode = "";
         for ($i = 0, $count = count($tokens); $i < $count; $i++) {
             if (is_array($tokens[$i])) {
-                if ($tokens[$i][0] === \T_VARIABLE && ($i === 0 || is_array($before = $tokens[$i - 1]) || !Utils::in_arrayi($before, $ignoreBeforeList))) {
+                $beforeIndex = $i - 1;
+                $before = null;
+                while (isset($tokens[$beforeIndex])) {
+                    $token = $tokens[$beforeIndex--];
+                    if (is_array($token)) {
+                        if ($token[0] === \T_WHITESPACE or $token[0] === \T_COMMENT or $token[0] === \T_DOC_COMMENT) {
+                            continue;
+                        }
+                        $before = $token[1];
+                        break;
+                    } else {
+                        $before = $token;
+                        break;
+                    }
+                }
+                if ($tokens[$i][0] === \T_VARIABLE && !Utils::in_arrayi($before, $ignoreBeforeList)) {
                     if (!isset($variables[$tokens[$i][1]])) {
                         $variableName = '$' . $firstChars[$variableCount % $firstCharCount];
                         if ($variableCount) {
