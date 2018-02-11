@@ -157,6 +157,38 @@ class Utils{
         return $stripedCode;
     }
 
+    public static function removeComment(string $originalCode) : string{
+        $tokens = token_get_all($originalCode);
+        $stripedCode = "";
+        for ($i = 0, $count = count($tokens); $i < $count; $i++) {
+            if (is_array($tokens[$i])) {
+                if ($tokens[$i][0] === T_COMMENT) {
+                    continue;
+                } elseif ($tokens[$i][0] === T_DOC_COMMENT) {
+                    $annotations = [];
+                    if (preg_match("/^[\t ]*\* @priority[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0) {
+                        $annotations[] = "@priority $matches[1]";
+                    }
+                    if (preg_match("/^[\t ]*\* @ignoreCancelled[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0) {
+                        $annotations[] = "@ignoreCancelled $matches[1]";
+                    }
+                    $tokens[$i][1] = '';
+                    if (!empty($annotations)) {
+                        $tokens[$i][1] .= '/** ' . PHP_EOL;
+                        foreach ($annotations as $value) {
+                            $tokens[$i][1] .= "* $value" . PHP_EOL;
+                        }
+                        $tokens[$i][1] .= '*/';
+                    }
+                }
+                $stripedCode .= $tokens[$i][1];
+            } else {
+                $stripedCode .= $tokens[$i];
+            }
+        }
+        return $stripedCode;
+    }
+
     public static function renameVariable(string $originalCode) : string{
         static $ignoreBeforeList = [
           'protected',
