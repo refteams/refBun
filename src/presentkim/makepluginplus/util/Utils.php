@@ -256,7 +256,7 @@ class Utils{
         if (file_exists($directory)) {
             if (is_dir($directory)) {
                 foreach (scandir($directory) as $key => $file) {
-                    $fileName = "{$directory}/{$file}";
+                    $fileName = "{$directory}{$file}";
                     if ($fileName !== "." && $fileName !== "..") {
                         self::removeDirectory($fileName);
                     }
