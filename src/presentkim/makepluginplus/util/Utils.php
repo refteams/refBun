@@ -60,7 +60,7 @@ class Utils{
         $tokens = token_get_all($originalCode);
 
         $stripedCode = "";
-        $c = sizeof($tokens);
+        $c = count($tokens);
         $ignoreWhitespace = false;
         $lastSign = "";
         $openTag = null;
@@ -68,68 +68,66 @@ class Utils{
             $token = $tokens[$i];
             if (is_array($token)) {
                 list($tokenNumber, $tokenString) = $token; // tokens: number, string, line
-                if ($tokenNumber == T_INLINE_HTML) {
+                if (in_array($tokenNumber, $ignoreWhitespaceTokenList)) {
+                    $stripedCode .= $tokenString;
+                    $ignoreWhitespace = true;
+                } elseif ($tokenNumber == T_INLINE_HTML) {
                     $stripedCode .= $tokenString;
                     $ignoreWhitespace = false;
-                } else {
-                    if (in_array($tokenNumber, $ignoreWhitespaceTokenList)) {
-                        $stripedCode .= $tokenString;
-                        $ignoreWhitespace = true;
-                    } elseif ($tokenNumber == T_OPEN_TAG) {
-                        if (strpos($tokenString, " ") || strpos($tokenString, "\n") || strpos($tokenString, "\t") || strpos($tokenString, "\r")) {
-                            $tokenString = rtrim($tokenString);
-                        }
-                        $tokenString .= " ";
-                        $stripedCode .= $tokenString;
-                        $openTag = T_OPEN_TAG;
-                        $ignoreWhitespace = true;
-                    } elseif ($tokenNumber == T_OPEN_TAG_WITH_ECHO) {
-                        $stripedCode .= $tokenString;
-                        $openTag = T_OPEN_TAG_WITH_ECHO;
-                        $ignoreWhitespace = true;
-                    } elseif ($tokenNumber == T_CLOSE_TAG) {
-                        if ($openTag == T_OPEN_TAG_WITH_ECHO) {
-                            $stripedCode = rtrim($stripedCode, "; ");
+                } elseif ($tokenNumber == T_OPEN_TAG) {
+                    if (strpos($tokenString, " ") || strpos($tokenString, "\n") || strpos($tokenString, "\t") || strpos($tokenString, "\r")) {
+                        $tokenString = rtrim($tokenString);
+                    }
+                    $tokenString .= " ";
+                    $stripedCode .= $tokenString;
+                    $openTag = T_OPEN_TAG;
+                    $ignoreWhitespace = true;
+                } elseif ($tokenNumber == T_OPEN_TAG_WITH_ECHO) {
+                    $stripedCode .= $tokenString;
+                    $openTag = T_OPEN_TAG_WITH_ECHO;
+                    $ignoreWhitespace = true;
+                } elseif ($tokenNumber == T_CLOSE_TAG) {
+                    if ($openTag == T_OPEN_TAG_WITH_ECHO) {
+                        $stripedCode = rtrim($stripedCode, "; ");
+                    } else {
+                        $tokenString = " " . $tokenString;
+                    }
+                    $stripedCode .= $tokenString;
+                    $openTag = null;
+                    $ignoreWhitespace = false;
+                } elseif ($tokenNumber == T_CONSTANT_ENCAPSED_STRING || $tokenNumber == T_ENCAPSED_AND_WHITESPACE) {
+                    if ($tokenString[0] == '"') {
+                        $tokenString = addcslashes($tokenString, "\n\t\r");
+                    }
+                    $stripedCode .= $tokenString;
+                    $ignoreWhitespace = true;
+                } elseif ($tokenNumber == T_WHITESPACE) {
+                    $nt = @$tokens[$i + 1];
+                    if (!$ignoreWhitespace && (!is_string($nt) || $nt == '$') && !in_array($nt[0], $ignoreWhitespaceTokenList)) {
+                        $stripedCode .= " ";
+                    }
+                    $ignoreWhitespace = false;
+                } elseif ($tokenNumber == T_START_HEREDOC) {
+                    $stripedCode .= "<<<S\n";
+                    $ignoreWhitespace = false;
+                } elseif ($tokenNumber == T_END_HEREDOC) {
+                    $stripedCode .= "S;";
+                    $ignoreWhitespace = true;
+                    for ($j = $i + 1; $j < $c; $j++) {
+                        if (is_string($tokens[$j]) && $tokens[$j] == ";") {
+                            $i = $j;
+                            break;
                         } else {
-                            $tokenString = " " . $tokenString;
-                        }
-                        $stripedCode .= $tokenString;
-                        $openTag = null;
-                        $ignoreWhitespace = false;
-                    } elseif ($tokenNumber == T_CONSTANT_ENCAPSED_STRING || $tokenNumber == T_ENCAPSED_AND_WHITESPACE) {
-                        if ($tokenString[0] == '"') {
-                            $tokenString = addcslashes($tokenString, "\n\t\r");
-                        }
-                        $stripedCode .= $tokenString;
-                        $ignoreWhitespace = true;
-                    } elseif ($tokenNumber == T_WHITESPACE) {
-                        $nt = @$tokens[$i + 1];
-                        if (!$ignoreWhitespace && (!is_string($nt) || $nt == '$') && !in_array($nt[0], $ignoreWhitespaceTokenList)) {
-                            $stripedCode .= " ";
-                        }
-                        $ignoreWhitespace = false;
-                    } elseif ($tokenNumber == T_START_HEREDOC) {
-                        $stripedCode .= "<<<S\n";
-                        $ignoreWhitespace = false;
-                    } elseif ($tokenNumber == T_END_HEREDOC) {
-                        $stripedCode .= "S;";
-                        $ignoreWhitespace = true;
-                        for ($j = $i + 1; $j < $c; $j++) {
-                            if (is_string($tokens[$j]) && $tokens[$j] == ";") {
-                                $i = $j;
+                            if ($tokens[$j][0] == T_CLOSE_TAG) {
                                 break;
-                            } else {
-                                if ($tokens[$j][0] == T_CLOSE_TAG) {
-                                    break;
-                                }
                             }
                         }
-                    } elseif ($tokenNumber == T_COMMENT || $tokenNumber == T_DOC_COMMENT) {
-                        $ignoreWhitespace = true;
-                    } else {
-                        $stripedCode .= $tokenString;
-                        $ignoreWhitespace = false;
                     }
+                } elseif ($tokenNumber == T_COMMENT || $tokenNumber == T_DOC_COMMENT) {
+                    $ignoreWhitespace = true;
+                } else {
+                    $stripedCode .= $tokenString;
+                    $ignoreWhitespace = false;
                 }
                 $lastSign = "";
             } else {
