@@ -137,6 +137,9 @@ class MakePluginPlus extends PluginBase{
                     if ($setting['rename-variable']) {
                         $contents = Utils::renameVariable($contents);
                     }
+                    if ($setting['remove-comment']) {
+                        $contents = Utils::removeComment($contents);
+                    }
                     if ($setting['remove-whitespace']) {
                         $contents = Utils::removeWhitespace($contents);
                     }

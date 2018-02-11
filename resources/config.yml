@@ -1,6 +1,7 @@
 ---
 code-optimize:        true
 rename-variable:      true
+remove-comment:       true
 remove-whitespace:    true
 skip-metadata:        true
 skip-stub:            true
