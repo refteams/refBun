@@ -156,6 +156,52 @@ class Utils{
         return $stripedCode;
     }
 
+    public static function renameVariable(string $originalCode) : string{
+        static $ignoreBeforeList = [
+          'protected',
+          'private',
+          'public',
+          'static',
+          'final',
+          '::',
+        ];
+        static $firstChars = [];
+        static $otherChars = [];
+        static $firstCharCount = 0;
+        if (empty($firstChars)) {
+            $firstChars = array_merge(range('a', 'z'), range('A', 'Z'));
+            $otherChars = array_merge(range('0', '9'), $firstChars);
+            array_unshift($firstChars, '_');
+            array_unshift($otherChars, '_');
+            $firstCharCount = count($firstChars);
+        }
+        $variables = ['$this' => '$this'];
+        $variableCount = 0;
+        $tokens = token_get_all($originalCode);
+        $stripedCode = "";
+        for ($i = 0, $count = count($tokens); $i < $count; $i++) {
+            if (is_array($tokens[$i])) {
+                if ($tokens[$i][0] === \T_VARIABLE && !Utils::in_arrayi($tokens[$i - 1], $ignoreBeforeList)) {
+                    if (!isset($variables[$tokens[$i][1]])) {
+                        $variableName = '$' . $firstChars[$variableCount % $firstCharCount];
+                        if ($variableCount) {
+                            if (($sub = floor($variableCount / $firstCharCount) - 1) > -1) {
+                                $variableName .= $otherChars[$sub];
+                            }
+                        }
+                        ++$variableCount;
+                        $variables[$tokens[$i][1]] = $variableName;
+                    }
+                    $tokens[$i][1] = $variables[$tokens[$i][1]];
+                }
+                $stripedCode .= $tokens[$i][1];
+            } else {
+                $stripedCode .= $tokens[$i];
+            }
+        }
+        return $stripedCode;
+    }
+
     /**
      * @param string $directory
      *
