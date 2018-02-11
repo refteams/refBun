@@ -57,11 +57,6 @@ class Utils{
           T_SL_EQUAL,
           T_SR_EQUAL,
         ];
-        if (is_file($originalCode)) {
-            if (!$originalCode = file_get_contents($originalCode)) {
-                return false;
-            }
-        }
         $tokens = token_get_all($originalCode);
 
         $stripedCode = "";
