@@ -2,9 +2,6 @@
 
 namespace presentkim\makepluginplus\util;
 
-use function is_dir;
-use function var_dump;
-
 class Utils{
 
     /**
@@ -45,7 +42,7 @@ class Utils{
      */
     public static function removeWhitespace(string $originalCode) : string{
         // Whitespaces left and right from this signs can be ignored
-        static $ignoreWhitespaceTokenList = [
+        $ignoreWhitespaceTokenList = [
           T_CONCAT_EQUAL,
           T_DOUBLE_ARROW,
           T_BOOLEAN_AND,
@@ -190,7 +187,7 @@ class Utils{
     }
 
     public static function renameVariable(string $originalCode) : string{
-        static $ignoreBeforeList = [
+        $ignoreBeforeList = [
           'protected',
           'private',
           'public',
@@ -198,16 +195,11 @@ class Utils{
           'final',
           '::',
         ];
-        static $firstChars = [];
-        static $otherChars = [];
-        static $firstCharCount = 0;
-        if (empty($firstChars)) {
-            $firstChars = array_merge(range('a', 'z'), range('A', 'Z'));
-            $otherChars = array_merge(range('0', '9'), $firstChars);
-            array_unshift($firstChars, '_');
-            array_unshift($otherChars, '_');
-            $firstCharCount = count($firstChars);
-        }
+        $firstChars = $firstChars = array_merge(range('a', 'z'), range('A', 'Z'));
+        $otherChars = array_merge(range('0', '9'), $firstChars);
+        array_unshift($firstChars, '_');
+        array_unshift($otherChars, '_');
+        $firstCharCount = count($firstChars);
         $variables = ['$this' => '$this'];
         $variableCount = 0;
         $tokens = token_get_all($originalCode);
@@ -251,7 +243,7 @@ class Utils{
     }
 
     public static function codeOptimize(string $originalCode) : string{
-        static $ignoreBeforeList = [
+        $ignoreBeforeList = [
           '\\',
           '::',
           '->',
