@@ -37,7 +37,7 @@ class CommandListener implements CommandExecutor{
             if ($args[0] === '*') {
                 foreach ($pluginManager->getPlugins() as $pluginName => $plugin) {
                     if ($plugin->getPluginLoader() instanceof FolderPluginLoader) {
-                        $plugins[] = $plugin;
+                        $plugins[$plugin->getName()] = $plugin;
                     }
                 }
             } else {
