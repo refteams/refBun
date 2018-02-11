@@ -124,6 +124,9 @@ class MakePluginPlus extends PluginBase{
                 }
                 if (substr($path, -4) == '.php') {
                     $contents = \file_get_contents($path);
+                    if ($setting['rename-variable']) {
+                        $contents = Utils::renameVariable($contents);
+                    }
                     if ($setting['remove-whitespace']) {
                         $contents = Utils::removeWhitespace($contents);
                     }

@@ -1,6 +1,6 @@
 ---
 add-backslash:        true
-rename-localvariable: true
+rename-variable:      true
 remove-whitespace:    true
 skip-metadata:        true
 skip-stub:            true
