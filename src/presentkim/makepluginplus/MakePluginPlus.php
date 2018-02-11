@@ -36,6 +36,8 @@ class MakePluginPlus extends PluginBase{
             mkdir($dataFolder, 0777, true);
         }
 
+        $this->reloadConfig();
+
         $langfilename = $dataFolder . 'lang.yml';
         if (!file_exists($langfilename)) {
             $resource = $this->getResource('lang/eng.yml');
