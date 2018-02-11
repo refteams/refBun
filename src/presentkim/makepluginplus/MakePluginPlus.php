@@ -116,7 +116,9 @@ class MakePluginPlus extends PluginBase{
             $phar->setStub('<?php __HALT_COMPILER();');
         }
 
-        Utils::removeDirectory($buildFolder = "{$this->getDataFolder()}build/");
+        if (file_exists($buildFolder = "{$this->getDataFolder()}build/")) {
+            Utils::removeDirectory($buildFolder);
+        }
         mkdir($buildFolder);
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo) {
             $fileName = $fileInfo->getFilename();
