@@ -5,7 +5,9 @@ namespace presentkim\makepluginplus;
 use pocketmine\command\PluginCommand;
 use pocketmine\plugin\PluginBase;
 use presentkim\makepluginplus\command\CommandListener;
-use presentkim\makepluginplus\util\Translation;
+use presentkim\makepluginplus\util\{
+  Translation, Utils
+};
 
 class MakePluginPlus extends PluginBase{
 
@@ -108,11 +110,35 @@ class MakePluginPlus extends PluginBase{
         } else {
             $phar->setStub('<?php __HALT_COMPILER();');
         }
+
+        Utils::removeDirectory($buildFolder = "{$this->getDataFolder()}build/");
+        mkdir($buildFolder);
+        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo) {
+            $fileName = $fileInfo->getFilename();
+            if ($fileName !== "." || $fileName !== "..") {
+                $inPath = substr($path, strlen($filePath));
+                $newFilePath = "{$buildFolder}{$inPath}";
+                $newFileDir = dirname($newFilePath);
+                if (!file_exists($newFileDir)) {
+                    mkdir($newFileDir, 0777, true);
+                }
+                if (substr($path, -4) == '.php') {
+                    $contents = \file_get_contents($path);
+                    if ($setting['remove-whitespace']) {
+                        $contents = Utils::removeWhitespace($contents);
+                    }
+                    file_put_contents($newFilePath, $contents);
+                } else {
+                    copy($path, $newFilePath);
+                }
+            }
+        }
         $phar->startBuffering();
         $phar->buildFromDirectory($filePath);
         if ($setting['compress'] && \Phar::canCompress(\Phar::GZ)) {
             $phar->compressFiles(\Phar::GZ);
         }
         $phar->stopBuffering();
+        Utils::removeDirectory($buildFolder = "{$this->getDataFolder()}build/");
     }
 }
