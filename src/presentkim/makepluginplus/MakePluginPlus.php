@@ -147,7 +147,7 @@ class MakePluginPlus extends PluginBase{
             }
         }
         $phar->startBuffering();
-        $phar->buildFromDirectory($filePath);
+        $phar->buildFromDirectory($buildFolder);
         if ($setting['compress'] && \Phar::canCompress(\Phar::GZ)) {
             $phar->compressFiles(\Phar::GZ);
         }
