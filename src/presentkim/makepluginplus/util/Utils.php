@@ -78,7 +78,10 @@ class Utils{
                     $new .= $ts;
                     $iw = false;
                 } else {
-                    if ($tn == T_OPEN_TAG) {
+                    if (in_array($tn, $IW)) {
+                        $new .= $ts;
+                        $iw = true;
+                    } elseif ($tn == T_OPEN_TAG) {
                         if (strpos($ts, " ") || strpos($ts, "\n") || strpos($ts, "\t") || strpos($ts, "\r")) {
                             $ts = rtrim($ts);
                         }
@@ -99,9 +102,6 @@ class Utils{
                         $new .= $ts;
                         $ot = null;
                         $iw = false;
-                    } elseif (in_array($tn, $IW)) {
-                        $new .= $ts;
-                        $iw = true;
                     } elseif ($tn == T_CONSTANT_ENCAPSED_STRING || $tn == T_ENCAPSED_AND_WHITESPACE) {
                         if ($ts[0] == '"') {
                             $ts = addcslashes($ts, "\n\t\r");
