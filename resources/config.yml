@@ -1,5 +1,5 @@
 ---
-add-backslash:        true
+code-optimize:        true
 rename-variable:      true
 remove-whitespace:    true
 skip-metadata:        true
