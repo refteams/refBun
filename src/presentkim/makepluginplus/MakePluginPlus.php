@@ -124,28 +124,30 @@ class MakePluginPlus extends PluginBase{
             $fileName = $fileInfo->getFilename();
             if ($fileName !== "." && $fileName !== "..") {
                 $inPath = substr($path, strlen($filePath));
-                $newFilePath = "{$buildFolder}{$inPath}";
-                $newFileDir = dirname($newFilePath);
-                if (!file_exists($newFileDir)) {
-                    mkdir($newFileDir, 0777, true);
-                }
-                if (substr($path, -4) == '.php') {
-                    $contents = \file_get_contents($path);
-                    if ($setting['code-optimize']) {
-                        $contents = Utils::codeOptimize($contents);
+                if (!$setting['include-minimal'] || $inPath === 'plugin.yml' || strpos($inPath, 'src\\') === 0 || strpos($inPath, 'resources\\') === 0) {
+                    $newFilePath = "{$buildFolder}{$inPath}";
+                    $newFileDir = dirname($newFilePath);
+                    if (!file_exists($newFileDir)) {
+                        mkdir($newFileDir, 0777, true);
                     }
-                    if ($setting['rename-variable']) {
-                        $contents = Utils::renameVariable($contents);
+                    if (substr($path, -4) == '.php') {
+                        $contents = \file_get_contents($path);
+                        if ($setting['code-optimize']) {
+                            $contents = Utils::codeOptimize($contents);
+                        }
+                        if ($setting['rename-variable']) {
+                            $contents = Utils::renameVariable($contents);
+                        }
+                        if ($setting['remove-comment']) {
+                            $contents = Utils::removeComment($contents);
+                        }
+                        if ($setting['remove-whitespace']) {
+                            $contents = Utils::removeWhitespace($contents);
+                        }
+                        file_put_contents($newFilePath, $contents);
+                    } else {
+                        copy($path, $newFilePath);
                     }
-                    if ($setting['remove-comment']) {
-                        $contents = Utils::removeComment($contents);
-                    }
-                    if ($setting['remove-whitespace']) {
-                        $contents = Utils::removeWhitespace($contents);
-                    }
-                    file_put_contents($newFilePath, $contents);
-                } else {
-                    copy($path, $newFilePath);
                 }
             }
         }
