@@ -76,4 +76,43 @@ class MakePluginPlus extends PluginBase{
     public function setCommand(PluginCommand $command) : void{
         $this->command = $command;
     }
+
+    /**
+     * @param PluginBase $plugin
+     * @param string     $pharPath
+     * @param string     $filePath
+     */
+    public function buildPhar(PluginBase $plugin, string $filePath, string $pharPath) : void{
+        $setting = $this->getConfig()->getAll();
+        $description = $plugin->getDescription();
+        if (file_exists($pharPath)) {
+            \Phar::unlinkArchive($pharPath);
+        }
+        $phar = new \Phar($pharPath);
+        $phar->setSignatureAlgorithm(\Phar::SHA1);
+        if (!$setting['skip-metadata']) {
+            $phar->setMetadata([
+              'name'         => $description->getName(),
+              'version'      => $description->getVersion(),
+              'main'         => $description->getMain(),
+              'api'          => $description->getCompatibleApis(),
+              'depend'       => $description->getDepend(),
+              'description'  => $description->getDescription(),
+              'authors'      => $description->getAuthors(),
+              'website'      => $description->getWebsite(),
+              'creationDate' => time(),
+            ]);
+        }
+        if ($setting['skip-stub']) {
+            $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$description->getName()}_v{$description->getVersion()}\nThis file has been generated using MakePluginPlus at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
+        } else {
+            $phar->setStub('<?php __HALT_COMPILER();');
+        }
+        $phar->startBuffering();
+        $phar->buildFromDirectory($filePath);
+        if ($setting['compress'] && \Phar::canCompress(\Phar::GZ)) {
+            $phar->compressFiles(\Phar::GZ);
+        }
+        $phar->stopBuffering();
+    }
 }
