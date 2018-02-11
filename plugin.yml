@@ -1,0 +1,15 @@
+---
+name:             MakePluginPlus
+main:             presentkim\makepluginplus\MakePluginPlus
+version:          1.0.0
+api:              [3.0.0, 3.0.0-ALPHA10, 3.0.0-ALPHA11]
+author:           PresentKim
+website:          https://github.com/PMMPPlugin/MakePluginPlus
+description:      A plugin for make plugin with more option
+depend:           ['DevTools']
+
+permissions:
+  makepluginplus.cmd:
+    description:  MakePluginPlus main command
+    default:      true
+...
