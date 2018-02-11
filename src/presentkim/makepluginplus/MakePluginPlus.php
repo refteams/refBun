@@ -8,6 +8,7 @@ use presentkim\makepluginplus\command\CommandListener;
 use presentkim\makepluginplus\util\{
   Translation, Utils
 };
+use function var_dump;
 
 class MakePluginPlus extends PluginBase{
 
@@ -119,7 +120,7 @@ class MakePluginPlus extends PluginBase{
         mkdir($buildFolder);
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo) {
             $fileName = $fileInfo->getFilename();
-            if ($fileName !== "." || $fileName !== "..") {
+            if ($fileName !== "." && $fileName !== "..") {
                 $inPath = substr($path, strlen($filePath));
                 $newFilePath = "{$buildFolder}{$inPath}";
                 $newFileDir = dirname($newFilePath);
