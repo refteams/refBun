@@ -9,7 +9,9 @@ use pocketmine\command\{
 use pocketmine\plugin\PluginBase;
 use FolderPluginLoader\FolderPluginLoader;
 use presentkim\makepluginplus\MakePluginPlus as Plugin;
-use presentkim\makepluginplus\util\Translation;
+use presentkim\makepluginplus\util\{
+  Translation, Utils
+};
 
 class CommandListener implements CommandExecutor{
 
@@ -42,13 +44,13 @@ class CommandListener implements CommandExecutor{
                 }
             } else {
                 foreach ($args as $key => $pluginName) {
-                    $plugin = $pluginManager->getPlugin($pluginName);
+                    $plugin = Utils::getPlugin($pluginName);
                     if ($plugin === null) {
                         $sender->sendMessage(Plugin::$prefix . Translation::translate('command-makepluginplus@failure-invalid', $pluginName));
                     } elseif (!($plugin->getPluginLoader() instanceof FolderPluginLoader)) {
                         $sender->sendMessage(Plugin::$prefix . Translation::translate('command-makepluginplus@failure-notfolder', $plugin->getName()));
                     } else {
-                        $plugins[$pluginName] = $plugin;
+                        $plugins[$plugin->getName()] = $plugin;
                     }
                 }
             }
