@@ -214,7 +214,7 @@ class Utils{
                 while (isset($tokens[$beforeIndex])) {
                     $token = $tokens[$beforeIndex--];
                     if (is_array($token)) {
-                        if ($token[0] === \T_WHITESPACE or $token[0] === \T_COMMENT or $token[0] === \T_DOC_COMMENT) {
+                        if ($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT) {
                             continue;
                         }
                         $before = $token[1];
@@ -224,7 +224,7 @@ class Utils{
                         break;
                     }
                 }
-                if ($tokens[$i][0] === \T_VARIABLE && !Utils::in_arrayi($before, $ignoreBeforeList)) {
+                if ($tokens[$i][0] === T_VARIABLE && !Utils::in_arrayi($before, $ignoreBeforeList)) {
                     if (!isset($variables[$tokens[$i][1]])) {
                         $variableName = '$' . $firstChars[$variableCount % $firstCharCount];
                         if ($variableCount) {
@@ -256,13 +256,13 @@ class Utils{
         $stripedCode = "";
         for ($i = 0, $count = count($tokens); $i < $count; $i++) {
             if (is_array($tokens[$i])) {
-                if ($tokens[$i][0] === \T_STRING) {
+                if ($tokens[$i][0] === T_STRING) {
                     $beforeIndex = $i - 1;
                     $before = null;
                     while (isset($tokens[$beforeIndex])) {
                         $token = $tokens[$beforeIndex--];
                         if (is_array($token)) {
-                            if ($token[0] === \T_WHITESPACE or $token[0] === \T_COMMENT or $token[0] === \T_DOC_COMMENT) {
+                            if ($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT) {
                                 continue;
                             }
                             $before = $token[1];
