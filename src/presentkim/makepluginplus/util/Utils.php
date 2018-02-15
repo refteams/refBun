@@ -2,6 +2,9 @@
 
 namespace presentkim\makepluginplus\util;
 
+use pocketmine\Server;
+use pocketmine\plugin\Plugin;
+
 class Utils{
 
     /**
@@ -307,5 +310,35 @@ class Utils{
             }
         }
         return rmdir($directory);
+    }
+
+
+    /**
+     * @param string $name
+     *
+     * @return null|Plugin
+     */
+    public static function getPlugin(string $name) : ?Plugin{
+        $plugins = Server::getInstance()->getPluginManager()->getPlugins();
+        if (isset($plugins[$name])) {
+            return $plugins[$name];
+        } else {
+            $found = null;
+            $length = strlen($name);
+            $minDiff = PHP_INT_MAX;
+            foreach ($plugins as $pluginName => $plugin) {
+                if (stripos($pluginName, $name) === 0) {
+                    $diff = strlen($pluginName) - $length;
+                    if ($diff < $minDiff) {
+                        $found = $plugin;
+                        if ($diff === 0) {
+                            break;
+                        }
+                        $minDiff = $diff;
+                    }
+                }
+            }
+            return $found;
+        }
     }
 }
