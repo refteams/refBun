@@ -12,14 +12,14 @@ use function var_dump;
 
 class MakePluginPlus extends PluginBase{
 
-    /** @var self */
+    /** @var MakePluginPlus */
     private static $instance = null;
 
     /** @var string */
     public static $prefix = '';
 
-    /** @return self */
-    public static function getInstance() : self{
+    /** @return MakePluginPlus */
+    public static function getInstance() : MakePluginPlus{
         return self::$instance;
     }
 
