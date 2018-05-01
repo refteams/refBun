@@ -97,7 +97,7 @@ class MakePluginPlus extends PluginBase implements CommandExecutor{
             }
             foreach ($plugins as $pluginName => $plugin) {
                 $description = $plugin->getDescription();
-                $pharPath = $dataFolder . $this->language->translate('phar-name', [
+                $pharPath = $dataFolder . $this->language->translate('phar.name', [
                     $pluginName,
                     $pluginVersion = $description->getVersion(),
                   ]);
