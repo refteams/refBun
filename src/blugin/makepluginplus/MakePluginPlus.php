@@ -19,9 +19,6 @@ class MakePluginPlus extends PluginBase implements CommandExecutor{
     /** @var MakePluginPlus */
     private static $instance = null;
 
-    /** @var string */
-    public static $prefix = '';
-
     /** @return MakePluginPlus */
     public static function getInstance() : MakePluginPlus{
         return self::$instance;
