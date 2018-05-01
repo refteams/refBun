@@ -8,7 +8,6 @@ use presentkim\makepluginplus\command\CommandListener;
 use presentkim\makepluginplus\util\{
   Translation, Utils
 };
-use function var_dump;
 
 class MakePluginPlus extends PluginBase{
 
