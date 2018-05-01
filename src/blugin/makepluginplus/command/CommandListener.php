@@ -46,15 +46,15 @@ class CommandListener implements CommandExecutor{
                 foreach ($args as $key => $pluginName) {
                     $plugin = Utils::getPlugin($pluginName);
                     if ($plugin === null) {
-                        $sender->sendMessage(MakePluginPlus::$prefix . Translation::translate('command-makepluginplus@failure-invalid', $pluginName));
+                        $sender->sendMessage(MakePluginPlus::$prefix . $this->owner->getLanguage()->translate('commands.makepluginplus.failure.invalid', [$pluginName]));
                     } elseif (!($plugin->getPluginLoader() instanceof FolderPluginLoader)) {
-                        $sender->sendMessage(MakePluginPlus::$prefix . Translation::translate('command-makepluginplus@failure-notfolder', $plugin->getName()));
+                        $sender->sendMessage(MakePluginPlus::$prefix . $this->owner->getLanguage()->translate('commands.makepluginplus.failure.notfolder', [$plugin->getName()]));
                     } else {
                         $plugins[$plugin->getName()] = $plugin;
                     }
                 }
             }
-            $sender->sendMessage(MakePluginPlus::$prefix . Translation::translate('command-makepluginplus@build-start', count($plugins)));
+            $sender->sendMessage(MakePluginPlus::$prefix . $this->owner->getLanguage()->translate('commands.makepluginplus.build-start', [count($plugins)]));
 
             $reflection = new \ReflectionClass(PluginBase::class);
             $fileProperty = $reflection->getProperty('file');
@@ -64,12 +64,19 @@ class CommandListener implements CommandExecutor{
             }
             foreach ($plugins as $pluginName => $plugin) {
                 $description = $plugin->getDescription();
-                $pharPath = $dataFolder . Translation::translate('phar-name', $pluginName, $pluginVersion = $description->getVersion());
+                $pharPath = $dataFolder . $this->owner->getLanguage()->translate('phar-name', [
+                    $pluginName,
+                    $pluginVersion = $description->getVersion(),
+                  ]);
                 $filePath = rtrim(str_replace("\\", '/', $fileProperty->getValue($plugin)), '/') . '/';
                 $this->owner->buildPhar($plugin, $filePath, $pharPath);
-                $sender->sendMessage(Translation::translate('command-makepluginplus@build', $pluginName, $pluginVersion, $pharPath));
+                $sender->sendMessage($this->owner->getLanguage()->translate('commands.makepluginplus.build', [
+                  $pluginName,
+                  $pluginVersion,
+                  $pharPath,
+                ]));
             }
-            $sender->sendMessage(MakePluginPlus::$prefix . Translation::translate('command-makepluginplus@built', count($plugins)));
+            $sender->sendMessage(MakePluginPlus::$prefix . $this->owner->getLanguage()->translate('commands.makepluginplus.built', [count($plugins)]));
             return true;
         }
         return false;
