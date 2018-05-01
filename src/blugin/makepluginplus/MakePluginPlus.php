@@ -2,12 +2,16 @@
 
 namespace blugin\makepluginplus;
 
-use pocketmine\command\PluginCommand;
+use pocketmine\Server;
+use pocketmine\command\{
+  Command, PluginCommand, CommandExecutor, CommandSender
+};
 use pocketmine\plugin\PluginBase;
+use FolderPluginLoader\FolderPluginLoader;
 use blugin\makepluginplus\lang\PluginLang;
 use blugin\makepluginplus\util\Utils;
 
-class MakePluginPlus extends PluginBase{
+class MakePluginPlus extends PluginBase implements CommandExecutor{
 
     /** @var MakePluginPlus */
     private static $instance = null;
@@ -50,6 +54,65 @@ class MakePluginPlus extends PluginBase{
             $this->command->setAliases($aliases);
         }
         $this->getServer()->getCommandMap()->register('makepluginplus', $this->command);
+    }
+
+    /**
+     * @param CommandSender $sender
+     * @param Command       $command
+     * @param string        $label
+     * @param string[]      $args
+     *
+     * @return bool
+     */
+    public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
+        if (!empty($args[0])) {
+            /** @var PluginBase[] $plugins */
+            $plugins = [];
+            $pluginManager = Server::getInstance()->getPluginManager();
+            if ($args[0] === '*') {
+                foreach ($pluginManager->getPlugins() as $pluginName => $plugin) {
+                    if ($plugin->getPluginLoader() instanceof FolderPluginLoader) {
+                        $plugins[$plugin->getName()] = $plugin;
+                    }
+                }
+            } else {
+                foreach ($args as $key => $pluginName) {
+                    $plugin = Utils::getPlugin($pluginName);
+                    if ($plugin === null) {
+                        $sender->sendMessage($this->language->translate('commands.makepluginplus.failure.invalid', [$pluginName]));
+                    } elseif (!($plugin->getPluginLoader() instanceof FolderPluginLoader)) {
+                        $sender->sendMessage($this->language->translate('commands.makepluginplus.failure.notfolder', [$plugin->getName()]));
+                    } else {
+                        $plugins[$plugin->getName()] = $plugin;
+                    }
+                }
+            }
+            $sender->sendMessage($this->language->translate('commands.makepluginplus.build-start', [count($plugins)]));
+
+            $reflection = new \ReflectionClass(PluginBase::class);
+            $fileProperty = $reflection->getProperty('file');
+            $fileProperty->setAccessible(true);
+            if (!file_exists($dataFolder = $this->getDataFolder())) {
+                mkdir($dataFolder, 0777, true);
+            }
+            foreach ($plugins as $pluginName => $plugin) {
+                $description = $plugin->getDescription();
+                $pharPath = $dataFolder . $this->language->translate('phar-name', [
+                    $pluginName,
+                    $pluginVersion = $description->getVersion(),
+                  ]);
+                $filePath = rtrim(str_replace("\\", '/', $fileProperty->getValue($plugin)), '/') . '/';
+                $this->buildPhar($plugin, $filePath, $pharPath);
+                $sender->sendMessage($this->language->translate('commands.makepluginplus.build', [
+                  $pluginName,
+                  $pluginVersion,
+                  $pharPath,
+                ]));
+            }
+            $sender->sendMessage($this->language->translate('commands.makepluginplus.built', [count($plugins)]));
+            return true;
+        }
+        return false;
     }
 
     /**
