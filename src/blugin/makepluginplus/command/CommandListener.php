@@ -8,18 +8,18 @@ use pocketmine\command\{
 };
 use pocketmine\plugin\PluginBase;
 use FolderPluginLoader\FolderPluginLoader;
-use blugin\makepluginplus\MakePluginPlus as Plugin;
+use blugin\makepluginplus\MakePluginPlus;
 use blugin\makepluginplus\util\{
   Translation, Utils
 };
 
 class CommandListener implements CommandExecutor{
 
-    /** @var Plugin */
+    /** @var MakePluginPlus */
     protected $owner;
 
-    /** @param Plugin $owner */
-    public function __construct(Plugin $owner){
+    /** @param MakePluginPlus $owner */
+    public function __construct(MakePluginPlus $owner){
         $this->owner = $owner;
     }
 
@@ -46,15 +46,15 @@ class CommandListener implements CommandExecutor{
                 foreach ($args as $key => $pluginName) {
                     $plugin = Utils::getPlugin($pluginName);
                     if ($plugin === null) {
-                        $sender->sendMessage(Plugin::$prefix . Translation::translate('command-makepluginplus@failure-invalid', $pluginName));
+                        $sender->sendMessage(MakePluginPlus::$prefix . Translation::translate('command-makepluginplus@failure-invalid', $pluginName));
                     } elseif (!($plugin->getPluginLoader() instanceof FolderPluginLoader)) {
-                        $sender->sendMessage(Plugin::$prefix . Translation::translate('command-makepluginplus@failure-notfolder', $plugin->getName()));
+                        $sender->sendMessage(MakePluginPlus::$prefix . Translation::translate('command-makepluginplus@failure-notfolder', $plugin->getName()));
                     } else {
                         $plugins[$plugin->getName()] = $plugin;
                     }
                 }
             }
-            $sender->sendMessage(Plugin::$prefix . Translation::translate('command-makepluginplus@build-start', count($plugins)));
+            $sender->sendMessage(MakePluginPlus::$prefix . Translation::translate('command-makepluginplus@build-start', count($plugins)));
 
             $reflection = new \ReflectionClass(PluginBase::class);
             $fileProperty = $reflection->getProperty('file');
@@ -69,7 +69,7 @@ class CommandListener implements CommandExecutor{
                 $this->owner->buildPhar($plugin, $filePath, $pharPath);
                 $sender->sendMessage(Translation::translate('command-makepluginplus@build', $pluginName, $pluginVersion, $pharPath));
             }
-            $sender->sendMessage(Plugin::$prefix . Translation::translate('command-makepluginplus@built', count($plugins)));
+            $sender->sendMessage(MakePluginPlus::$prefix . Translation::translate('command-makepluginplus@built', count($plugins)));
             return true;
         }
         return false;

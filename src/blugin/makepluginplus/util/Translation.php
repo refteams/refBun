@@ -2,7 +2,7 @@
 
 namespace blugin\makepluginplus\util;
 
-use blugin\makepluginplus\MakePluginPlus as Plugin;
+use blugin\makepluginplus\MakePluginPlus;
 
 class Translation{
 
@@ -54,10 +54,10 @@ class Translation{
         if (isset(self::$lang[$strId])) {
             $value = self::$lang[$strId];
         } elseif (isset(self::$default[$strId])) {
-            Plugin::getInstance()->getLogger()->debug("get $strId from default");
+            MakePluginPlus::getInstance()->getLogger()->debug("get $strId from default");
             $value = self::$default[$strId];
         } else {
-            Plugin::getInstance()->getLogger()->critical("get $strId failed");
+            MakePluginPlus::getInstance()->getLogger()->critical("get $strId failed");
             return "Undefined strId : $strId";
         }
 
@@ -80,10 +80,10 @@ class Translation{
         if (isset(self::$lang[$strId])) {
             $value = self::$lang[$strId];
         } elseif (isset(self::$default[$strId])) {
-            Plugin::getInstance()->getLogger()->debug("get $strId from default");
+            MakePluginPlus::getInstance()->getLogger()->debug("get $strId from default");
             $value = self::$default[$strId];
         } else {
-            Plugin::getInstance()->getLogger()->critical("get $strId failed");
+            MakePluginPlus::getInstance()->getLogger()->critical("get $strId failed");
             return null;
         }
         return is_array($value) ? $value : null;
