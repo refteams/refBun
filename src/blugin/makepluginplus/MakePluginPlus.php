@@ -1,11 +1,11 @@
 <?php
 
-namespace presentkim\makepluginplus;
+namespace blugin\makepluginplus;
 
 use pocketmine\command\PluginCommand;
 use pocketmine\plugin\PluginBase;
-use presentkim\makepluginplus\command\CommandListener;
-use presentkim\makepluginplus\util\{
+use blugin\makepluginplus\command\CommandListener;
+use blugin\makepluginplus\util\{
   Translation, Utils
 };
 

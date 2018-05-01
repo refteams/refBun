@@ -1,6 +1,6 @@
 <?php
 
-namespace presentkim\makepluginplus\util;
+namespace blugin\makepluginplus\util;
 
 use pocketmine\Server;
 use pocketmine\plugin\Plugin;

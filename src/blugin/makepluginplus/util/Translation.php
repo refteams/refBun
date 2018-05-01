@@ -1,8 +1,8 @@
 <?php
 
-namespace presentkim\makepluginplus\util;
+namespace blugin\makepluginplus\util;
 
-use presentkim\makepluginplus\MakePluginPlus as Plugin;
+use blugin\makepluginplus\MakePluginPlus as Plugin;
 
 class Translation{
 

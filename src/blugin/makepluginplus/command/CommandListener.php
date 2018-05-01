@@ -1,6 +1,6 @@
 <?php
 
-namespace presentkim\makepluginplus\command;
+namespace blugin\makepluginplus\command;
 
 use pocketmine\Server;
 use pocketmine\command\{
@@ -8,8 +8,8 @@ use pocketmine\command\{
 };
 use pocketmine\plugin\PluginBase;
 use FolderPluginLoader\FolderPluginLoader;
-use presentkim\makepluginplus\MakePluginPlus as Plugin;
-use presentkim\makepluginplus\util\{
+use blugin\makepluginplus\MakePluginPlus as Plugin;
+use blugin\makepluginplus\util\{
   Translation, Utils
 };
 
