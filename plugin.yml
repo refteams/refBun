@@ -1,6 +1,6 @@
 ---
 name:             MakePluginPlus
-main:             blugin\makepluginplus\MakePluginPlus
+main:             kim\present\makepluginplus\MakePluginPlus
 version:          1.0.0
 api:              [3.0.0, 3.0.0-ALPHA10, 3.0.0-ALPHA11, 3.0.0-ALPHA12]
 author:           PresentKim

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace blugin\makepluginplus\lang;
+namespace kim\present\makepluginplus\lang;
 
-use blugin\makepluginplus\MakePluginPlus;
+use kim\present\makepluginplus\MakePluginPlus;
 
 class PluginLang{
 
