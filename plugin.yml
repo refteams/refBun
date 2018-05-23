@@ -10,6 +10,6 @@ depend:           ['DevTools']
 
 permissions:
   makepluginplus.cmd:
-    description:  MakePluginPlus main command
-    default:      true
+    description: MakePluginPlus main command
+    default:      op
 ...
