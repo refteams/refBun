@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace blugin\makepluginplus\util;
+namespace kim\present\makepluginplus\util;
 
 use pocketmine\Server;
 use pocketmine\plugin\Plugin;

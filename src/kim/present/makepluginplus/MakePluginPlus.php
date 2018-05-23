@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace blugin\makepluginplus;
+namespace kim\present\makepluginplus;
 
 use pocketmine\Server;
 use pocketmine\command\{
@@ -11,8 +11,8 @@ use pocketmine\command\{
 };
 use pocketmine\plugin\PluginBase;
 use FolderPluginLoader\FolderPluginLoader;
-use blugin\makepluginplus\lang\PluginLang;
-use blugin\makepluginplus\util\Utils;
+use kim\present\makepluginplus\lang\PluginLang;
+use kim\present\makepluginplus\util\Utils;
 
 class MakePluginPlus extends PluginBase implements CommandExecutor{
 

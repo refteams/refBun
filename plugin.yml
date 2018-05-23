@@ -1,15 +1,15 @@
 ---
 name:             MakePluginPlus
-main:             blugin\makepluginplus\MakePluginPlus
+main:             kim\present\makepluginplus\MakePluginPlus
 version:          1.0.0
 api:              [3.0.0, 3.0.0-ALPHA10, 3.0.0-ALPHA11, 3.0.0-ALPHA12]
 author:           PresentKim
-website:          https://github.com/Blugin/MakePluginPlus-PMMP
-description:      A plugin for make plugin with more option
+website:          https://github.com/PresentKim/MakePluginPlus-PMMP
+description:     Make plugin with more option (more optimize)
 depend:           ['DevTools']
 
 permissions:
   makepluginplus.cmd:
-    description:  MakePluginPlus main command
-    default:      true
+    description: MakePluginPlus main command
+    default:      op
 ...
