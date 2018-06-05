@@ -225,7 +225,7 @@ class MakePluginPlus extends PluginBase implements CommandExecutor{
 	public function getSourceFolder() : string{
 		$pharPath = \Phar::running();
 		if(empty($pharPath)){
-			return dirname(__FILE__, 4) . DIRECTORY_SEPARATOR;
+			return dirname(__FILE__, 5) . DIRECTORY_SEPARATOR;
 		}else{
 			return $pharPath . DIRECTORY_SEPARATOR;
 		}
