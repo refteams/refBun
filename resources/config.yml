@@ -1,10 +1,10 @@
 ---
-code-optimize:        true
-rename-variable:      true
-remove-comment:       true
-remove-whitespace:    true
-skip-metadata:        true
-skip-stub:            true
-include-minimal:      true
-compress:             true
+code-optimize: true
+rename-variable: true
+remove-comment: true
+remove-whitespace: true
+skip-metadata: true
+skip-stub: true
+include-minimal: true
+compress: true
 ...
