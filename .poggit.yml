@@ -5,7 +5,7 @@ branches:
 
 projects:
   MakePluginPlus:
-    projectId: 2889
+    #projectId: 2889
     path: ""
     icon: assets/icon/512x512.png
 ...
