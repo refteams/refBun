@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-
 namespace kim\present\makepluginplus\util;
 
 use pocketmine\plugin\Plugin;
 use pocketmine\Server;
 
 class Utils{
-
 	/**
 	 * @url http://php.net/manual/en/function.php-strip-whitespace.php#82437
 	 *
@@ -131,6 +129,11 @@ class Utils{
 		return $stripedCode;
 	}
 
+	/**
+	 * @param string $originalCode
+	 *
+	 * @return string
+	 */
 	public static function removeComment(string $originalCode) : string{
 		$tokens = token_get_all($originalCode);
 		$stripedCode = "";
@@ -163,6 +166,11 @@ class Utils{
 		return $stripedCode;
 	}
 
+	/**
+	 * @param string $originalCode
+	 *
+	 * @return string
+	 */
 	public static function renameVariable(string $originalCode) : string{
 		$ignoreBeforeList = [
 			'protected',
@@ -234,6 +242,11 @@ class Utils{
 		return false;
 	}
 
+	/**
+	 * @param string $originalCode
+	 *
+	 * @return string
+	 */
 	public static function codeOptimize(string $originalCode) : string{
 		$ignoreBeforeList = [
 			'\\',

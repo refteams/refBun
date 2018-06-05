@@ -7,11 +7,10 @@ namespace kim\present\makepluginplus\lang;
 use kim\present\makepluginplus\MakePluginPlus;
 
 class PluginLang{
-
 	public const FALLBACK_LANGUAGE = "eng";
 
 	/**
-	 * @var DustBin
+	 * @var MakePluginPlus
 	 */
 	protected $plugin;
 
@@ -25,6 +24,11 @@ class PluginLang{
 	 */
 	protected $fallbackLang = [];
 
+	/**
+	 * PluginLang constructor.
+	 *
+	 * @param MakePluginPlus $plugin
+	 */
 	public function __construct(MakePluginPlus $plugin){
 		$this->plugin = $plugin;
 
@@ -67,9 +71,9 @@ class PluginLang{
 	}
 
 	/**
-	 * @return DustBin
+	 * @return MakePluginPlus
 	 */
-	public function getPlugin() : DustBin{
+	public function getPlugin() : MakePluginPlus{
 		return $this->plugin;
 	}
 

@@ -15,15 +15,24 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
 class MakePluginPlus extends PluginBase implements CommandExecutor{
+	/**
+	 * @var MakePluginPlus
+	 */
+	private static $instance;
 
-	/** @var MakePluginPlus */
-	private static $instance = null;
-	/** @var PluginCommand */
-	private $command = null;
-	/** @var PluginLang */
+	/**
+	 * @var PluginCommand
+	 */
+	private $command;
+
+	/**
+	 * @var PluginLang
+	 */
 	private $language;
 
-	/** @return MakePluginPlus */
+	/**
+	 * @return MakePluginPlus
+	 */
 	public static function getInstance() : MakePluginPlus{
 		return self::$instance;
 	}
@@ -61,6 +70,7 @@ class MakePluginPlus extends PluginBase implements CommandExecutor{
 	 * @param string[]      $args
 	 *
 	 * @return bool
+	 * @throws \ReflectionException
 	 */
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
 		if(!empty($args[0])){
