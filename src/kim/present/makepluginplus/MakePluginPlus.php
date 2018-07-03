@@ -15,19 +15,13 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
 class MakePluginPlus extends PluginBase implements CommandExecutor{
-	/**
-	 * @var MakePluginPlus
-	 */
+	/** @var MakePluginPlus */
 	private static $instance;
 
-	/**
-	 * @var PluginCommand
-	 */
+	/** @var PluginCommand */
 	private $command;
 
-	/**
-	 * @var PluginLang
-	 */
+	/** @var PluginLang */
 	private $language;
 
 	/**
