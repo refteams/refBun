@@ -15,19 +15,13 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
 class MakePluginPlus extends PluginBase implements CommandExecutor{
-	/**
-	 * @var MakePluginPlus
-	 */
+	/** @var MakePluginPlus */
 	private static $instance;
 
-	/**
-	 * @var PluginCommand
-	 */
+	/** @var PluginCommand */
 	private $command;
 
-	/**
-	 * @var PluginLang
-	 */
+	/** @var PluginLang */
 	private $language;
 
 	/**
@@ -37,11 +31,17 @@ class MakePluginPlus extends PluginBase implements CommandExecutor{
 		return self::$instance;
 	}
 
-	public function onLoad() : void{
+	/**
+	 * Called when the plugin is loaded, before calling onEnable()
+	 */
+	protected function onLoad() : void{
 		self::$instance = $this;
 	}
 
-	public function onEnable() : void{
+	/**
+	 * Called when the plugin is enabled
+	 */
+	protected function onEnable() : void{
 		$dataFolder = $this->getDataFolder();
 		if(!file_exists($dataFolder)){
 			mkdir($dataFolder, 0777, true);

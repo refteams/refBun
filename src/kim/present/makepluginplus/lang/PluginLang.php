@@ -9,19 +9,13 @@ use kim\present\makepluginplus\MakePluginPlus;
 class PluginLang{
 	public const FALLBACK_LANGUAGE = "eng";
 
-	/**
-	 * @var MakePluginPlus
-	 */
+	/** @var MakePluginPlus */
 	protected $plugin;
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	protected $lang = [];
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	protected $fallbackLang = [];
 
 	/**
