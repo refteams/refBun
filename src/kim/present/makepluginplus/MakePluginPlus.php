@@ -153,7 +153,7 @@ class MakePluginPlus extends PluginBase implements CommandExecutor{
 								   'creationDate' => time()
 							   ]);
 		}
-		if($setting['skip-stub']){
+		if(!$setting['skip-stub']){
 			$phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$description->getName()}_v{$description->getVersion()}\nThis file has been generated using MakePluginPlus at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
 		}else{
 			$phar->setStub('<?php __HALT_COMPILER();');
