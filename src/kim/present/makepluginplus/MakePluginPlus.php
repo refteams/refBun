@@ -9,12 +9,12 @@ use FolderPluginLoader\FolderPluginLoader;
 use kim\present\makepluginplus\lang\PluginLang;
 use kim\present\makepluginplus\util\Utils;
 use pocketmine\command\{
-	Command, CommandExecutor, CommandSender, PluginCommand
+	Command, CommandSender, PluginCommand
 };
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
-class MakePluginPlus extends PluginBase implements CommandExecutor{
+class MakePluginPlus extends PluginBase{
 	/** @var MakePluginPlus */
 	private static $instance;
 
