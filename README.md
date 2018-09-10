@@ -1,4 +1,4 @@
-# <img src="./assets/icon/index.svg" height="50" width="50"> MakePluginPlus  
+# <img src="https://rawgit.com/PresentKim/SVG-files/master/plugin-icons/makepluginplus.svg" height="50" width="50"> MakePluginPlus  
 __A plugin for [PMMP](https://pmmp.io) :: Make plugin with more option__  
   
 [![license](https://img.shields.io/github/license/Blugin/MakePluginPlus-PMMP.svg?label=License)](./LICENSE)
