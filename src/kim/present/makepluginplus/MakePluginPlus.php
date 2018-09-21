@@ -7,17 +7,13 @@ namespace kim\present\makepluginplus;
 
 use FolderPluginLoader\FolderPluginLoader;
 use kim\present\makepluginplus\util\Utils;
-use pocketmine\command\{
-	Command, CommandSender, PluginCommand
-};
-use pocketmine\plugin\PluginBase;
-use pocketmine\Server;
+use pocketmine\{command, plugin, Server};
 
-class MakePluginPlus extends PluginBase{
+class MakePluginPlus extends plugin\PluginBase{
 	/** @var MakePluginPlus */
 	private static $instance;
 
-	/** @var PluginCommand */
+	/** @var command\PluginCommand */
 	private $command;
 
 	/**
@@ -48,7 +44,7 @@ class MakePluginPlus extends PluginBase{
 		if($this->command !== null){
 			$this->getServer()->getCommandMap()->unregister($this->command);
 		}
-		$this->command = new PluginCommand("makepluginplus", $this);
+		$this->command = new command\PluginCommand("makepluginplus", $this);
 		$this->command->setPermission("makepluginplus.cmd");
 		$this->command->setDescription("Build the plugin with optimizing");
 		$this->command->setUsage("/makepluginplus <plugin name>");
@@ -57,17 +53,17 @@ class MakePluginPlus extends PluginBase{
 	}
 
 	/**
-	 * @param CommandSender $sender
-	 * @param Command       $command
-	 * @param string        $label
-	 * @param string[]      $args
+	 * @param command\CommandSender $sender
+	 * @param command\Command       $command
+	 * @param string                $label
+	 * @param string[]              $args
 	 *
 	 * @return bool
 	 * @throws \ReflectionException
 	 */
-	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
+	public function onCommand(command\CommandSender $sender, command\Command $command, string $label, array $args) : bool{
 		if(!empty($args[0])){
-			/** @var PluginBase[] $plugins */
+			/** @var plugin\PluginBase[] $plugins */
 			$plugins = [];
 			$pluginManager = Server::getInstance()->getPluginManager();
 			if($args[0] === "*"){
@@ -91,7 +87,7 @@ class MakePluginPlus extends PluginBase{
 			$pluginCount = count($plugins);
 			$sender->sendMessage("Build the {$pluginCount} plugins");
 
-			$reflection = new \ReflectionClass(PluginBase::class);
+			$reflection = new \ReflectionClass(plugin\PluginBase::class);
 			$fileProperty = $reflection->getProperty("file");
 			$fileProperty->setAccessible(true);
 			if(!file_exists($dataFolder = $this->getDataFolder())){
@@ -111,11 +107,11 @@ class MakePluginPlus extends PluginBase{
 	}
 
 	/**
-	 * @param PluginBase $plugin
-	 * @param string     $pharPath
-	 * @param string     $filePath
+	 * @param plugin\PluginBase $plugin
+	 * @param string            $pharPath
+	 * @param string            $filePath
 	 */
-	public function buildPhar(PluginBase $plugin, string $filePath, string $pharPath) : void{
+	public function buildPhar(plugin\PluginBase $plugin, string $filePath, string $pharPath) : void{
 		$setting = $this->getConfig()->getAll();
 		$description = $plugin->getDescription();
 		if(file_exists($pharPath)){
@@ -193,9 +189,9 @@ class MakePluginPlus extends PluginBase{
 	/**
 	 * @param string $name = ""
 	 *
-	 * @return PluginCommand
+	 * @return command\PluginCommand
 	 */
-	public function getCommand(string $name = "") : PluginCommand{
+	public function getCommand(string $name = "") : command\PluginCommand{
 		return $this->command;
 	}
 }
