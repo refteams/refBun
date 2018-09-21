@@ -86,14 +86,14 @@ class Utils{
 					$openTag = null;
 					$ignoreWhitespace = false;
 				}elseif($tokenNumber == T_CONSTANT_ENCAPSED_STRING || $tokenNumber == T_ENCAPSED_AND_WHITESPACE){
-					if($tokenString[0] == '"'){
+					if($tokenString[0] == "\""){
 						$tokenString = addcslashes($tokenString, "\n\t\r");
 					}
 					$stripedCode .= $tokenString;
 					$ignoreWhitespace = true;
 				}elseif($tokenNumber == T_WHITESPACE){
 					$nt = @$tokens[$i + 1];
-					if(!$ignoreWhitespace && (!is_string($nt) || $nt == '$') && !in_array($nt[0], $ignoreWhitespaceTokenList)){
+					if(!$ignoreWhitespace && (!is_string($nt) || $nt == "\$") && !in_array($nt[0], $ignoreWhitespaceTokenList)){
 						$stripedCode .= " ";
 					}
 					$ignoreWhitespace = false;
@@ -149,13 +149,13 @@ class Utils{
 					if(preg_match("/^[\t ]*\* @ignoreCancelled[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
 						$annotations[] = "@ignoreCancelled $matches[1]";
 					}
-					$tokens[$i][1] = '';
+					$tokens[$i][1] = "";
 					if(!empty($annotations)){
-						$tokens[$i][1] .= '/** ' . PHP_EOL;
+						$tokens[$i][1] .= "/** " . PHP_EOL;
 						foreach($annotations as $value){
 							$tokens[$i][1] .= "* $value" . PHP_EOL;
 						}
-						$tokens[$i][1] .= '*/';
+						$tokens[$i][1] .= "*/";
 					}
 				}
 				$stripedCode .= $tokens[$i][1];
@@ -173,19 +173,19 @@ class Utils{
 	 */
 	public static function renameVariable(string $originalCode) : string{
 		$ignoreBeforeList = [
-			'protected',
-			'private',
-			'public',
-			'static',
-			'final',
-			'::'
+			"protected",
+			"private",
+			"public",
+			"static",
+			"final",
+			"::"
 		];
-		$firstChars = $firstChars = array_merge(range('a', 'z'), range('A', 'Z'));
-		$otherChars = array_merge(range('0', '9'), $firstChars);
-		array_unshift($firstChars, '_');
-		array_unshift($otherChars, '_');
+		$firstChars = $firstChars = array_merge(range("a", "z"), range("A", "Z"));
+		$otherChars = array_merge(range("0", "9"), $firstChars);
+		array_unshift($firstChars, "_");
+		array_unshift($otherChars, "_");
 		$firstCharCount = count($firstChars);
-		$variables = ['$this' => '$this'];
+		$variables = ["\$this" => "\$this"];
 		$variableCount = 0;
 		$tokens = token_get_all($originalCode);
 		$stripedCode = "";
@@ -208,7 +208,7 @@ class Utils{
 				}
 				if($tokens[$i][0] === T_VARIABLE && !Utils::in_arrayi($before, $ignoreBeforeList)){
 					if(!isset($variables[$tokens[$i][1]])){
-						$variableName = '$' . $firstChars[$variableCount % $firstCharCount];
+						$variableName = "\${$firstChars[$variableCount % $firstCharCount]}";
 						if($variableCount){
 							if(($sub = floor($variableCount / $firstCharCount) - 1) > -1){
 								$variableName .= $otherChars[$sub];
@@ -249,10 +249,10 @@ class Utils{
 	 */
 	public static function codeOptimize(string $originalCode) : string{
 		$ignoreBeforeList = [
-			'\\',
-			'::',
-			'->',
-			'function'
+			"\\",
+			"::",
+			"->",
+			"function"
 		];
 		$tokens = token_get_all($originalCode);
 		$stripedCode = "";
@@ -275,16 +275,16 @@ class Utils{
 						}
 					}
 					if($before === null || !Utils::in_arrayi($before, $ignoreBeforeList)){
-						if(defined('\\' . $tokens[$i][1])){
-							$tokens[$i][1] = '\\' . $tokens[$i][1];
-						}elseif(function_exists('\\' . $tokens[$i][1]) && isset($tokens[$i + 1]) && $tokens[$i + 1] === '('){
-							$tokens[$i][1] = '\\' . $tokens[$i][1];
+						if(defined("\\" . $tokens[$i][1])){
+							$tokens[$i][1] = "\\" . $tokens[$i][1];
+						}elseif(function_exists("\\" . $tokens[$i][1]) && isset($tokens[$i + 1]) && $tokens[$i + 1] === "("){
+							$tokens[$i][1] = "\\" . $tokens[$i][1];
 						}
 					}
 				}elseif($tokens[$i][0] === T_LOGICAL_OR){
-					$tokens[$i][1] = '||';
+					$tokens[$i][1] = "||";
 				}elseif($tokens[$i][0] === T_LOGICAL_AND){
-					$tokens[$i][1] = '&&';
+					$tokens[$i][1] = "&&";
 				}
 				$stripedCode .= $tokens[$i][1];
 			}else{
@@ -301,8 +301,8 @@ class Utils{
 	 */
 	public static function removeDirectory(string $directory) : bool{
 		$files = array_diff(scandir($directory), [
-			'.',
-			'..'
+			".",
+			".."
 		]);
 		foreach($files as $file){
 			if(is_dir($fileName = "{$directory}/{$file}")){

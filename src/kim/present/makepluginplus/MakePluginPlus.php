@@ -48,12 +48,12 @@ class MakePluginPlus extends PluginBase{
 		if($this->command !== null){
 			$this->getServer()->getCommandMap()->unregister($this->command);
 		}
-		$this->command = new PluginCommand('makepluginplus', $this);
-		$this->command->setPermission('makepluginplus.cmd');
-		$this->command->setDescription('Build the plugin with optimizing');
-		$this->command->setUsage('/makepluginplus <plugin name>');
-		$this->command->setAliases(['build', 'mpp']);
-		$this->getServer()->getCommandMap()->register('makepluginplus', $this->command);
+		$this->command = new PluginCommand("makepluginplus", $this);
+		$this->command->setPermission("makepluginplus.cmd");
+		$this->command->setDescription("Build the plugin with optimizing");
+		$this->command->setUsage("/makepluginplus <plugin name>");
+		$this->command->setAliases(["build", "mpp"]);
+		$this->getServer()->getCommandMap()->register("makepluginplus", $this->command);
 	}
 
 	/**
@@ -70,7 +70,7 @@ class MakePluginPlus extends PluginBase{
 			/** @var PluginBase[] $plugins */
 			$plugins = [];
 			$pluginManager = Server::getInstance()->getPluginManager();
-			if($args[0] === '*'){
+			if($args[0] === "*"){
 				foreach($pluginManager->getPlugins() as $pluginName => $plugin){
 					if($plugin->getPluginLoader() instanceof FolderPluginLoader){
 						$plugins[$plugin->getName()] = $plugin;
@@ -92,7 +92,7 @@ class MakePluginPlus extends PluginBase{
 			$sender->sendMessage("Build the {$pluginCount} plugins");
 
 			$reflection = new \ReflectionClass(PluginBase::class);
-			$fileProperty = $reflection->getProperty('file');
+			$fileProperty = $reflection->getProperty("file");
 			$fileProperty->setAccessible(true);
 			if(!file_exists($dataFolder = $this->getDataFolder())){
 				mkdir($dataFolder, 0777, true);
@@ -100,7 +100,7 @@ class MakePluginPlus extends PluginBase{
 			foreach($plugins as $pluginName => $plugin){
 				$pluginVersion = $plugin->getDescription()->getVersion();
 				$pharName = "{$pluginName}_v{$pluginVersion}.phar";
-				$filePath = rtrim(str_replace("\\", '/', $fileProperty->getValue($plugin)), '/') . '/';
+				$filePath = rtrim(str_replace("\\", "/", $fileProperty->getValue($plugin)), "/") . "/";
 				$this->buildPhar($plugin, $filePath, "{$dataFolder}{$pharName}");
 				$sender->sendMessage("Phar plugin {$pharName} has been created on {$dataFolder}");
 			}
@@ -127,23 +127,23 @@ class MakePluginPlus extends PluginBase{
 		}
 		$phar = new \Phar($pharPath);
 		$phar->setSignatureAlgorithm(\Phar::SHA1);
-		if(!$setting['skip-metadata']){
+		if(!$setting["skip-metadata"]){
 			$phar->setMetadata([
-								   'name' => $description->getName(),
-								   'version' => $description->getVersion(),
-								   'main' => $description->getMain(),
-								   'api' => $description->getCompatibleApis(),
-								   'depend' => $description->getDepend(),
-								   'description' => $description->getDescription(),
-								   'authors' => $description->getAuthors(),
-								   'website' => $description->getWebsite(),
-								   'creationDate' => time()
+								   "name" => $description->getName(),
+								   "version" => $description->getVersion(),
+								   "main" => $description->getMain(),
+								   "api" => $description->getCompatibleApis(),
+								   "depend" => $description->getDepend(),
+								   "description" => $description->getDescription(),
+								   "authors" => $description->getAuthors(),
+								   "website" => $description->getWebsite(),
+								   "creationDate" => time()
 							   ]);
 		}
-		if(!$setting['skip-stub']){
+		if(!$setting["skip-stub"]){
 			$phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$description->getName()}_v{$description->getVersion()}\nThis file has been generated using MakePluginPlus at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
 		}else{
-			$phar->setStub('<?php __HALT_COMPILER();');
+			$phar->setStub("<?php __HALT_COMPILER();");
 		}
 
 		if(file_exists($buildFolder = "{$this->getDataFolder()}build/")){
@@ -154,24 +154,24 @@ class MakePluginPlus extends PluginBase{
 			$fileName = $fileInfo->getFilename();
 			if($fileName !== "." && $fileName !== ".."){
 				$inPath = substr($path, strlen($filePath));
-				if(!$setting['include-minimal'] || $inPath === 'plugin.yml' || strpos($inPath, 'src\\') === 0 || strpos($inPath, 'resources\\') === 0){
+				if(!$setting["include-minimal"] || $inPath === "plugin.yml" || strpos($inPath, "src\\") === 0 || strpos($inPath, "resources\\") === 0){
 					$newFilePath = "{$buildFolder}{$inPath}";
 					$newFileDir = dirname($newFilePath);
 					if(!file_exists($newFileDir)){
 						mkdir($newFileDir, 0777, true);
 					}
-					if(substr($path, -4) == '.php'){
+					if(substr($path, -4) == ".php"){
 						$contents = \file_get_contents($path);
-						if($setting['code-optimize']){
+						if($setting["code-optimize"]){
 							$contents = Utils::codeOptimize($contents);
 						}
-						if($setting['rename-variable']){
+						if($setting["rename-variable"]){
 							$contents = Utils::renameVariable($contents);
 						}
-						if($setting['remove-comment']){
+						if($setting["remove-comment"]){
 							$contents = Utils::removeComment($contents);
 						}
-						if($setting['remove-whitespace']){
+						if($setting["remove-whitespace"]){
 							$contents = Utils::removeWhitespace($contents);
 						}
 						file_put_contents($newFilePath, $contents);
@@ -183,7 +183,7 @@ class MakePluginPlus extends PluginBase{
 		}
 		$phar->startBuffering();
 		$phar->buildFromDirectory($buildFolder);
-		if($setting['compress'] && \Phar::canCompress(\Phar::GZ)){
+		if($setting["compress"] && \Phar::canCompress(\Phar::GZ)){
 			$phar->compressFiles(\Phar::GZ);
 		}
 		$phar->stopBuffering();
@@ -191,11 +191,11 @@ class MakePluginPlus extends PluginBase{
 	}
 
 	/**
-	 * @param string $name = ''
+	 * @param string $name = ""
 	 *
 	 * @return PluginCommand
 	 */
-	public function getCommand(string $name = '') : PluginCommand{
+	public function getCommand(string $name = "") : PluginCommand{
 		return $this->command;
 	}
 }
