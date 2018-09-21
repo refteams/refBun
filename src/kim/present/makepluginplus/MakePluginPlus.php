@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace kim\present\makepluginplus;
 
 use FolderPluginLoader\FolderPluginLoader;
-use kim\present\makepluginplus\lang\PluginLang;
 use kim\present\makepluginplus\util\Utils;
 use pocketmine\command\{
 	Command, CommandSender, PluginCommand
@@ -20,9 +19,6 @@ class MakePluginPlus extends PluginBase{
 
 	/** @var PluginCommand */
 	private $command;
-
-	/** @var PluginLang */
-	private $language;
 
 	/**
 	 * @return MakePluginPlus
@@ -48,18 +44,15 @@ class MakePluginPlus extends PluginBase{
 		}
 		$this->saveDefaultConfig();
 		$this->reloadConfig();
-		$this->language = new PluginLang($this);
 
 		if($this->command !== null){
 			$this->getServer()->getCommandMap()->unregister($this->command);
 		}
-		$this->command = new PluginCommand($this->language->translate('commands.makepluginplus'), $this);
+		$this->command = new PluginCommand('makepluginplus', $this);
 		$this->command->setPermission('makepluginplus.cmd');
-		$this->command->setDescription($this->language->translate('commands.makepluginplus.description'));
-		$this->command->setUsage($this->language->translate('commands.makepluginplus.usage'));
-		if(is_array($aliases = $this->language->getArray('commands.makepluginplus.aliases'))){
-			$this->command->setAliases($aliases);
-		}
+		$this->command->setDescription('Build the plugin with optimizing');
+		$this->command->setUsage('/makepluginplus <plugin name>');
+		$this->command->setAliases(['build', 'mpp']);
 		$this->getServer()->getCommandMap()->register('makepluginplus', $this->command);
 	}
 
@@ -87,15 +80,16 @@ class MakePluginPlus extends PluginBase{
 				foreach($args as $key => $pluginName){
 					$plugin = Utils::getPlugin($pluginName);
 					if($plugin === null){
-						$sender->sendMessage($this->language->translate('commands.makepluginplus.failure.invalid', [$pluginName]));
+						$sender->sendMessage("{$pluginName} is invalid plugin name");
 					}elseif(!($plugin->getPluginLoader() instanceof FolderPluginLoader)){
-						$sender->sendMessage($this->language->translate('commands.makepluginplus.failure.notfolder', [$plugin->getName()]));
+						$sender->sendMessage("{$plugin->getName()} is not in folder plugin");
 					}else{
 						$plugins[$plugin->getName()] = $plugin;
 					}
 				}
 			}
-			$sender->sendMessage($this->language->translate('commands.makepluginplus.build-start', [count($plugins)]));
+			$pluginCount = count($plugins);
+			$sender->sendMessage("Build the {$pluginCount} plugins");
 
 			$reflection = new \ReflectionClass(PluginBase::class);
 			$fileProperty = $reflection->getProperty('file');
@@ -104,20 +98,13 @@ class MakePluginPlus extends PluginBase{
 				mkdir($dataFolder, 0777, true);
 			}
 			foreach($plugins as $pluginName => $plugin){
-				$description = $plugin->getDescription();
-				$pharPath = $dataFolder . $this->language->translate('phar.name', [
-						$pluginName,
-						$pluginVersion = $description->getVersion(),
-					]);
+				$pluginVersion = $plugin->getDescription()->getVersion();
+				$pharName = "{$pluginName}_v{$pluginVersion}.phar";
 				$filePath = rtrim(str_replace("\\", '/', $fileProperty->getValue($plugin)), '/') . '/';
-				$this->buildPhar($plugin, $filePath, $pharPath);
-				$sender->sendMessage($this->language->translate('commands.makepluginplus.build', [
-					$pluginName,
-					$pluginVersion,
-					$pharPath,
-				]));
+				$this->buildPhar($plugin, $filePath, "{$dataFolder}{$pharName}");
+				$sender->sendMessage("Phar plugin {$pharName} has been created on {$dataFolder}");
 			}
-			$sender->sendMessage($this->language->translate('commands.makepluginplus.built', [count($plugins)]));
+			$sender->sendMessage("Built the {$pluginCount} plugins");
 			return true;
 		}
 		return false;
@@ -210,24 +197,5 @@ class MakePluginPlus extends PluginBase{
 	 */
 	public function getCommand(string $name = '') : PluginCommand{
 		return $this->command;
-	}
-
-	/**
-	 * @return PluginLang
-	 */
-	public function getLanguage() : PluginLang{
-		return $this->language;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getSourceFolder() : string{
-		$pharPath = \Phar::running();
-		if(empty($pharPath)){
-			return dirname(__FILE__, 5) . DIRECTORY_SEPARATOR;
-		}else{
-			return $pharPath . DIRECTORY_SEPARATOR;
-		}
 	}
 }
