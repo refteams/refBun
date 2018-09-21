@@ -13,9 +13,6 @@ class MakePluginPlus extends plugin\PluginBase{
 	/** @var MakePluginPlus */
 	private static $instance;
 
-	/** @var command\PluginCommand */
-	private $command;
-
 	/**
 	 * @return MakePluginPlus
 	 */
@@ -41,15 +38,12 @@ class MakePluginPlus extends plugin\PluginBase{
 		$this->saveDefaultConfig();
 		$this->reloadConfig();
 
-		if($this->command !== null){
-			$this->getServer()->getCommandMap()->unregister($this->command);
-		}
-		$this->command = new command\PluginCommand("makepluginplus", $this);
-		$this->command->setPermission("makepluginplus.cmd");
-		$this->command->setDescription("Build the plugin with optimizing");
-		$this->command->setUsage("/makepluginplus <plugin name>");
-		$this->command->setAliases(["build", "mpp"]);
-		$this->getServer()->getCommandMap()->register("makepluginplus", $this->command);
+		$command = new command\PluginCommand("makepluginplus", $this);
+		$command->setPermission("makepluginplus.cmd");
+		$command->setDescription("Build the plugin with optimizing");
+		$command->setUsage("/makepluginplus <plugin name>");
+		$command->setAliases(["build", "mpp"]);
+		$this->getServer()->getCommandMap()->register("makepluginplus", $command);
 	}
 
 	/**
@@ -184,14 +178,5 @@ class MakePluginPlus extends plugin\PluginBase{
 		}
 		$phar->stopBuffering();
 		Utils::removeDirectory($buildFolder = "{$this->getDataFolder()}build/");
-	}
-
-	/**
-	 * @param string $name = ""
-	 *
-	 * @return command\PluginCommand
-	 */
-	public function getCommand(string $name = "") : command\PluginCommand{
-		return $this->command;
 	}
 }
