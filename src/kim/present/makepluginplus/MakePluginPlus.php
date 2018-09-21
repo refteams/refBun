@@ -98,7 +98,7 @@ class MakePluginPlus extends plugin\PluginBase{
 				}
 			}
 			$pluginCount = count($plugins);
-			$sender->sendMessage("Build the {$pluginCount} plugins");
+			$sender->sendMessage("Start build the {$pluginCount} plugins");
 
 			$reflection = new \ReflectionClass(plugin\PluginBase::class);
 			$fileProperty = $reflection->getProperty("file");
@@ -111,9 +111,9 @@ class MakePluginPlus extends plugin\PluginBase{
 				$pharName = "{$pluginName}_v{$pluginVersion}.phar";
 				$filePath = rtrim(str_replace("\\", "/", $fileProperty->getValue($plugin)), "/") . "/";
 				$this->buildPhar($plugin, $filePath, "{$dataFolder}{$pharName}");
-				$sender->sendMessage("Phar plugin {$pharName} has been created on {$dataFolder}");
+				$sender->sendMessage("{$pharName} has been created on {$dataFolder}");
 			}
-			$sender->sendMessage("Built the {$pluginCount} plugins");
+			$sender->sendMessage("Complete built the {$pluginCount} plugins");
 			return true;
 		}
 		return false;
