@@ -57,7 +57,7 @@ class MakePluginPlus extends plugin\PluginBase{
 		$this->saveDefaultConfig();
 		$this->reloadConfig();
 
-		$command = new command\PluginCommand("makepluginplus", $this);
+		$command = new command\PluginCommand("makepluginplus", $this, $this);
 		$command->setPermission("makepluginplus.cmd");
 		$command->setDescription("Build the plugin with optimizing");
 		$command->setUsage("/makepluginplus <plugin name>");
