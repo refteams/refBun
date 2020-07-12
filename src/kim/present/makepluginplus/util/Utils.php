@@ -163,11 +163,20 @@ class Utils{
                     continue;
                 }elseif($tokens[$i][0] === T_DOC_COMMENT){
                     $annotations = [];
+                    if(preg_match("/^[\t ]*\* @notHandler/m", $tokens[$i][1], $matches) > 0){
+                        $annotations[] = "@notHandler";
+                    }
+                    if(preg_match("/^[\t ]*\* @softDepend[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
+                        $annotations[] = "@softDepend $matches[1]";
+                    }
+                    if(preg_match("/^[\t ]*\* @ignoreCancelled/m", $tokens[$i][1], $matches) > 0){
+                        $annotations[] = "@ignoreCancelled";
+                    }
+                    if(preg_match("/^[\t ]*\* @handleCancelled/m", $tokens[$i][1], $matches) > 0){
+                        $annotations[] = "@handleCancelled";
+                    }
                     if(preg_match("/^[\t ]*\* @priority[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
                         $annotations[] = "@priority $matches[1]";
-                    }
-                    if(preg_match("/^[\t ]*\* @ignoreCancelled[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
-                        $annotations[] = "@ignoreCancelled $matches[1]";
                     }
                     $tokens[$i][1] = "";
                     if(!empty($annotations)){
