@@ -31,23 +31,16 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
+use pocketmine\utils\SingletonTrait;
 
 class MakePluginPlus extends PluginBase{
-    /** @var MakePluginPlus */
-    private static $instance;
-
-    /**
-     * @return MakePluginPlus
-     */
-    public static function getInstance() : MakePluginPlus{
-        return self::$instance;
-    }
+    use SingletonTrait;
 
     /**
      * Called when the plugin is loaded, before calling onEnable()
      */
     public function onLoad() : void{
-        self::$instance = $this;
+        self::setInstance($this);
     }
 
     /**
