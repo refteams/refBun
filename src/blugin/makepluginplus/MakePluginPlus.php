@@ -31,7 +31,6 @@ use blugin\makepluginplus\util\Utils;
 use FolderPluginLoader\FolderPluginLoader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
@@ -44,18 +43,6 @@ class MakePluginPlus extends PluginBase{
      */
     public function onLoad() : void{
         self::setInstance($this);
-    }
-
-    /**
-     * Called when the plugin is enabled
-     */
-    public function onEnable() : void{
-        $dataFolder = $this->getDataFolder();
-        if(!file_exists($dataFolder)){
-            mkdir($dataFolder, 0777, true);
-        }
-        $this->saveDefaultConfig();
-        $this->reloadConfig();
     }
 
     /**
