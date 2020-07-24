@@ -56,13 +56,6 @@ class MakePluginPlus extends PluginBase{
         }
         $this->saveDefaultConfig();
         $this->reloadConfig();
-
-        $command = new PluginCommand("makepluginplus", $this, $this);
-        $command->setPermission("makepluginplus.cmd");
-        $command->setDescription("Build the plugin with optimizing");
-        $command->setUsage("/makepluginplus <plugin name>");
-        $command->setAliases(["build", "mpp"]);
-        $this->getServer()->getCommandMap()->register("makepluginplus", $command);
     }
 
     /**

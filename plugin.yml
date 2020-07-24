@@ -7,6 +7,13 @@ author: PresentKim
 description: Make plugin with more option (more optimize)
 depend: ['DevTools']
 
+commands:
+  makepluginplus:
+    description: Make plugin with more option
+    usage: /makepluginplus <plugin name>
+    aliases: [build, mpp]
+    permission: makepluginplus.cmd
+
 permissions:
   makepluginplus.cmd:
     description: MakePluginPlus main command
