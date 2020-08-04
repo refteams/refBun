@@ -205,12 +205,12 @@ class Utils{
      */
     public static function renameVariable(string $originalCode) : string{
         $ignoreBeforeList = [
-            "protected",
-            "private",
-            "public",
-            "static",
-            "final",
-            "::"
+            T_PROTECTED,    // protected
+            T_PRIVATE,      // private
+            T_PUBLIC,       // public
+            T_STATIC,       // static
+            T_FINAL,        // final
+            T_DOUBLE_COLON  // ::
         ];
         $firstChars = $firstChars = array_merge(range("a", "z"), range("A", "Z"));
         $otherChars = array_merge(range("0", "9"), $firstChars);
@@ -231,7 +231,7 @@ class Utils{
                         if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
                             continue;
                         }
-                        $before = $token[1];
+                        $before = $token[0];
                         break;
                     }else{
                         $before = $token;
@@ -281,10 +281,11 @@ class Utils{
      */
     public static function codeOptimize(string $originalCode) : string{
         $ignoreBeforeList = [
-            "\\",       //T_NS_SEPARATOR
-            "::",       //T_DOUBLE_COLON
-            "->",       //T_OBJECT_OPERATOR
-            "function"  //T_FUNCTION
+            T_SL,               // <<
+            T_NS_SEPARATOR,     // \\
+            T_DOUBLE_COLON,     // ::
+            T_OBJECT_OPERATOR,  // ->
+            T_FUNCTION          // function
         ];
         $tokens = token_get_all($originalCode);
         $stripedCode = "";
@@ -299,7 +300,7 @@ class Utils{
                             if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
                                 continue;
                             }
-                            $before = $token[1];
+                            $before = $token[0];
                             break;
                         }else{
                             $before = $token;
