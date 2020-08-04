@@ -41,34 +41,34 @@ class Utils{
     public static function removeWhitespace(string $originalCode) : string{
         // Whitespaces left and right from this signs can be ignored
         $ignoreWhitespaceTokenList = [
-            T_CONCAT_EQUAL,
-            T_DOUBLE_ARROW,
-            T_BOOLEAN_AND,
-            T_BOOLEAN_OR,
-            T_IS_EQUAL,
-            T_IS_NOT_EQUAL,
-            T_IS_SMALLER_OR_EQUAL,
-            T_IS_GREATER_OR_EQUAL,
-            T_INC,
-            T_DEC,
-            T_PLUS_EQUAL,
-            T_MINUS_EQUAL,
-            T_MUL_EQUAL,
-            T_DIV_EQUAL,
-            T_IS_IDENTICAL,
-            T_IS_NOT_IDENTICAL,
-            T_DOUBLE_COLON,
-            T_PAAMAYIM_NEKUDOTAYIM,
-            T_OBJECT_OPERATOR,
-            T_DOLLAR_OPEN_CURLY_BRACES,
-            T_AND_EQUAL,
-            T_MOD_EQUAL,
-            T_XOR_EQUAL,
-            T_OR_EQUAL,
-            T_SL,
-            T_SR,
-            T_SL_EQUAL,
-            T_SR_EQUAL
+            T_CONCAT_EQUAL,             // .=
+            T_DOUBLE_ARROW,             // =>
+            T_BOOLEAN_AND,              // &&
+            T_BOOLEAN_OR,               // ||
+            T_IS_EQUAL,                 // ==
+            T_IS_NOT_EQUAL,             // != or <>
+            T_IS_SMALLER_OR_EQUAL,      // <=
+            T_IS_GREATER_OR_EQUAL,      // >=
+            T_INC,                      // ++
+            T_DEC,                      // --
+            T_PLUS_EQUAL,               // +=
+            T_MINUS_EQUAL,              // -=
+            T_MUL_EQUAL,                // *=
+            T_DIV_EQUAL,                // /=
+            T_IS_IDENTICAL,             // ===
+            T_IS_NOT_IDENTICAL,         // !==
+            T_DOUBLE_COLON,             // ::
+            T_PAAMAYIM_NEKUDOTAYIM,     // ::
+            T_OBJECT_OPERATOR,          // ->
+            T_DOLLAR_OPEN_CURLY_BRACES, // ${
+            T_AND_EQUAL,                // &=
+            T_MOD_EQUAL,                // %=
+            T_XOR_EQUAL,                // ^=
+            T_OR_EQUAL,                 // |=
+            T_SL,                       // <<
+            T_SR,                       // >>
+            T_SL_EQUAL,                 // <<=
+            T_SR_EQUAL,                 // >>=
         ];
         $tokens = token_get_all($originalCode);
 
@@ -281,10 +281,10 @@ class Utils{
      */
     public static function codeOptimize(string $originalCode) : string{
         $ignoreBeforeList = [
-            "\\",
-            "::",
-            "->",
-            "function"
+            "\\",       //T_NS_SEPARATOR
+            "::",       //T_DOUBLE_COLON
+            "->",       //T_OBJECT_OPERATOR
+            "function"  //T_FUNCTION
         ];
         $tokens = token_get_all($originalCode);
         $stripedCode = "";
