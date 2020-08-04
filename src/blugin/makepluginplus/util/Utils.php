@@ -31,6 +31,8 @@ use pocketmine\plugin\Plugin;
 use pocketmine\Server;
 
 class Utils{
+    public const BARRIOR = "\u{20E0}";
+
     /**
      * @url http://php.net/manual/en/function.php-strip-whitespace.php#82437
      *
@@ -214,11 +216,6 @@ class Utils{
             T_FINAL,        // final
             T_DOUBLE_COLON  // ::
         ];
-        $firstChars = $firstChars = array_merge(range("a", "z"), range("A", "Z"));
-        $otherChars = array_merge(range("0", "9"), $firstChars);
-        array_unshift($firstChars, "_");
-        array_unshift($otherChars, "_");
-        $firstCharCount = count($firstChars);
         $variables = ["\$this" => "\$this"];
         $variableCount = 0;
         $tokens = token_get_all($originalCode);
@@ -241,13 +238,8 @@ class Utils{
             }
             if($tokens[$i][0] === T_VARIABLE && !in_array($before, $ignoreBeforeList)){
                 if(!isset($variables[$tokens[$i][1]])){
-                    $variableName = "\${$firstChars[$variableCount % $firstCharCount]}";
-                    if($variableCount){
-                        if(($sub = floor($variableCount / $firstCharCount) - 1) > -1){
-                            $variableName .= $otherChars[$sub];
-                        }
-                    }
-                    ++$variableCount;
+                    $variableName = "\$" . str_repeat(self::BARRIOR, ++$variableCount);
+
                     $variables[$tokens[$i][1]] = $variableName;
                 }
                 $tokens[$i][1] = $variables[$tokens[$i][1]];
