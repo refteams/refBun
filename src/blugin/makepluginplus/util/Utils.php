@@ -239,7 +239,7 @@ class Utils{
                 $before = $token[0];
                 break;
             }
-            if($tokens[$i][0] === T_VARIABLE && !Utils::in_arrayi($before, $ignoreBeforeList)){
+            if($tokens[$i][0] === T_VARIABLE && !in_array($before, $ignoreBeforeList)){
                 if(!isset($variables[$tokens[$i][1]])){
                     $variableName = "\${$firstChars[$variableCount % $firstCharCount]}";
                     if($variableCount){
@@ -302,12 +302,12 @@ class Utils{
                 $before = null;
                 while($token = $tokens[$beforeIndex] ?? false){
                     --$beforeIndex;
-                    if(!Utils::in_arrayi($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])){
+                    if(!in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])){
                         $before = $token[0];
                         break;
                     }
                 }
-                if($before === null || !Utils::in_arrayi($before, $ignoreBeforeList)){
+                if($before === null || !in_array($before, $ignoreBeforeList)){
                     if(defined("\\" . $tokens[$i][1])){
                         $tokens[$i][1] = "\\" . $tokens[$i][1];
                     }elseif(function_exists("\\" . $tokens[$i][1]) && isset($tokens[$i + 1]) && $tokens[$i + 1] === "("){
