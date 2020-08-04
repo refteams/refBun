@@ -174,7 +174,7 @@ class Utils{
                 if(preg_match("/^[\t ]*\* @notHandler/m", $tokens[$i][1], $matches) > 0){
                     $annotations[] = "@notHandler";
                 }
-                if(preg_match("/^[\t ]*\* @softDepend[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
+                if(preg_match("/^[\t ]*\* @softDepend[\t ]+([a-zA-Z]+)/m", $tokens[$i][1], $matches) > 0){
                     $annotations[] = "@softDepend $matches[1]";
                 }
                 if(preg_match("/^[\t ]*\* @ignoreCancelled/m", $tokens[$i][1], $matches) > 0){
@@ -183,7 +183,7 @@ class Utils{
                 if(preg_match("/^[\t ]*\* @handleCancelled/m", $tokens[$i][1], $matches) > 0){
                     $annotations[] = "@handleCancelled";
                 }
-                if(preg_match("/^[\t ]*\* @priority[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
+                if(preg_match("/^[\t ]*\* @priority[\t ]+([a-zA-Z]+)/m", $tokens[$i][1], $matches) > 0){
                     $annotations[] = "@priority $matches[1]";
                 }
                 $tokens[$i][1] = "";
