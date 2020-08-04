@@ -227,16 +227,11 @@ class Utils{
                 $before = null;
                 while(isset($tokens[$beforeIndex])){
                     $token = $tokens[$beforeIndex--];
-                    if(is_array($token)){
-                        if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
-                            continue;
-                        }
-                        $before = $token[0];
-                        break;
-                    }else{
-                        $before = $token;
-                        break;
+                    if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
+                        continue;
                     }
+                    $before = $token[0];
+                    break;
                 }
                 if($tokens[$i][0] === T_VARIABLE && !Utils::in_arrayi($before, $ignoreBeforeList)){
                     if(!isset($variables[$tokens[$i][1]])){
@@ -296,16 +291,11 @@ class Utils{
                     $before = null;
                     while(isset($tokens[$beforeIndex])){
                         $token = $tokens[$beforeIndex--];
-                        if(is_array($token)){
-                            if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
-                                continue;
-                            }
-                            $before = $token[0];
-                            break;
-                        }else{
-                            $before = $token;
-                            break;
+                        if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
+                            continue;
                         }
+                        $before = $token[0];
+                        break;
                     }
                     if($before === null || !Utils::in_arrayi($before, $ignoreBeforeList)){
                         if(defined("\\" . $tokens[$i][1])){
