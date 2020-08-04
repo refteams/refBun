@@ -79,75 +79,75 @@ class Utils{
         $openTag = null;
         for($i = 0; $i < $c; $i++){
             $token = $tokens[$i];
-            if(is_array($token)){
-                list($tokenNumber, $tokenString) = $token; // tokens: number, string, line
-                if(in_array($tokenNumber, $ignoreWhitespaceTokenList)){
-                    $stripedCode .= $tokenString;
-                    $ignoreWhitespace = true;
-                }elseif($tokenNumber == T_INLINE_HTML){
-                    $stripedCode .= $tokenString;
-                    $ignoreWhitespace = false;
-                }elseif($tokenNumber == T_OPEN_TAG){
-                    if(strpos($tokenString, " ") || strpos($tokenString, "\n") || strpos($tokenString, "\t") || strpos($tokenString, "\r")){
-                        $tokenString = rtrim($tokenString);
-                    }
-                    $tokenString .= " ";
-                    $stripedCode .= $tokenString;
-                    $openTag = T_OPEN_TAG;
-                    $ignoreWhitespace = true;
-                }elseif($tokenNumber == T_OPEN_TAG_WITH_ECHO){
-                    $stripedCode .= $tokenString;
-                    $openTag = T_OPEN_TAG_WITH_ECHO;
-                    $ignoreWhitespace = true;
-                }elseif($tokenNumber == T_CLOSE_TAG){
-                    if($openTag == T_OPEN_TAG_WITH_ECHO){
-                        $stripedCode = rtrim($stripedCode, "; ");
-                    }else{
-                        $tokenString = " " . $tokenString;
-                    }
-                    $stripedCode .= $tokenString;
-                    $openTag = null;
-                    $ignoreWhitespace = false;
-                }elseif($tokenNumber == T_CONSTANT_ENCAPSED_STRING || $tokenNumber == T_ENCAPSED_AND_WHITESPACE){
-                    if($tokenString[0] == "\""){
-                        $tokenString = addcslashes($tokenString, "\n\t\r");
-                    }
-                    $stripedCode .= $tokenString;
-                    $ignoreWhitespace = true;
-                }elseif($tokenNumber == T_WHITESPACE){
-                    $nt = @$tokens[$i + 1];
-                    if(!$ignoreWhitespace && (!is_string($nt) || $nt == "\$") && !in_array($nt[0], $ignoreWhitespaceTokenList)){
-                        $stripedCode .= " ";
-                    }
-                    $ignoreWhitespace = false;
-                }elseif($tokenNumber == T_START_HEREDOC){
-                    $stripedCode .= "<<<S\n";
-                    $ignoreWhitespace = false;
-                }elseif($tokenNumber == T_END_HEREDOC){
-                    $stripedCode .= "S;";
-                    $ignoreWhitespace = true;
-                    for($j = $i + 1; $j < $c; $j++){
-                        if(is_string($tokens[$j]) && $tokens[$j] == ";"){
-                            $i = $j;
-                            break;
-                        }else{
-                            if($tokens[$j][0] == T_CLOSE_TAG){
-                                break;
-                            }
-                        }
-                    }
-                }else{
-                    $stripedCode .= $tokenString;
-                    $ignoreWhitespace = false;
-                }
-                $lastSign = "";
-            }else{
+            if(!is_array($token)){
                 if(($token != ";" && $token != ":") || $lastSign != $token){
                     $stripedCode .= $token;
                     $lastSign = $token;
                 }
                 $ignoreWhitespace = true;
+                continue;
             }
+
+            list($tokenNumber, $tokenString) = $token; // tokens: number, string, line
+            if(in_array($tokenNumber, $ignoreWhitespaceTokenList)){
+                $stripedCode .= $tokenString;
+                $ignoreWhitespace = true;
+            }elseif($tokenNumber == T_INLINE_HTML){
+                $stripedCode .= $tokenString;
+                $ignoreWhitespace = false;
+            }elseif($tokenNumber == T_OPEN_TAG){
+                if(strpos($tokenString, " ") || strpos($tokenString, "\n") || strpos($tokenString, "\t") || strpos($tokenString, "\r")){
+                    $tokenString = rtrim($tokenString);
+                }
+                $tokenString .= " ";
+                $stripedCode .= $tokenString;
+                $openTag = T_OPEN_TAG;
+                $ignoreWhitespace = true;
+            }elseif($tokenNumber == T_OPEN_TAG_WITH_ECHO){
+                $stripedCode .= $tokenString;
+                $openTag = T_OPEN_TAG_WITH_ECHO;
+                $ignoreWhitespace = true;
+            }elseif($tokenNumber == T_CLOSE_TAG){
+                if($openTag == T_OPEN_TAG_WITH_ECHO){
+                    $stripedCode = rtrim($stripedCode, "; ");
+                }else{
+                    $tokenString = " " . $tokenString;
+                }
+                $stripedCode .= $tokenString;
+                $openTag = null;
+                $ignoreWhitespace = false;
+            }elseif($tokenNumber == T_CONSTANT_ENCAPSED_STRING || $tokenNumber == T_ENCAPSED_AND_WHITESPACE){
+                if($tokenString[0] == "\""){
+                    $tokenString = addcslashes($tokenString, "\n\t\r");
+                }
+                $stripedCode .= $tokenString;
+                $ignoreWhitespace = true;
+            }elseif($tokenNumber == T_WHITESPACE){
+                $nt = @$tokens[$i + 1];
+                if(!$ignoreWhitespace && (!is_string($nt) || $nt == "\$") && !in_array($nt[0], $ignoreWhitespaceTokenList)){
+                    $stripedCode .= " ";
+                }
+                $ignoreWhitespace = false;
+            }elseif($tokenNumber == T_START_HEREDOC){
+                $stripedCode .= "<<<S\n";
+                $ignoreWhitespace = false;
+            }elseif($tokenNumber == T_END_HEREDOC){
+                $stripedCode .= "S;";
+                $ignoreWhitespace = true;
+                for($j = $i + 1; $j < $c; $j++){
+                    if(is_string($tokens[$j]) && $tokens[$j] == ";"){
+                        $i = $j;
+                        break;
+                    }
+
+                    if($tokens[$j][0] == T_CLOSE_TAG)
+                        break;
+                }
+            }else{
+                $stripedCode .= $tokenString;
+                $ignoreWhitespace = false;
+            }
+            $lastSign = "";
         }
         return $stripedCode;
     }
@@ -161,39 +161,41 @@ class Utils{
         $tokens = token_get_all($originalCode);
         $stripedCode = "";
         for($i = 0, $count = count($tokens); $i < $count; $i++){
-            if(is_array($tokens[$i])){
-                if($tokens[$i][0] === T_COMMENT){
-                    continue;
-                }elseif($tokens[$i][0] === T_DOC_COMMENT){
-                    $annotations = [];
-                    if(preg_match("/^[\t ]*\* @notHandler/m", $tokens[$i][1], $matches) > 0){
-                        $annotations[] = "@notHandler";
-                    }
-                    if(preg_match("/^[\t ]*\* @softDepend[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
-                        $annotations[] = "@softDepend $matches[1]";
-                    }
-                    if(preg_match("/^[\t ]*\* @ignoreCancelled/m", $tokens[$i][1], $matches) > 0){
-                        $annotations[] = "@ignoreCancelled";
-                    }
-                    if(preg_match("/^[\t ]*\* @handleCancelled/m", $tokens[$i][1], $matches) > 0){
-                        $annotations[] = "@handleCancelled";
-                    }
-                    if(preg_match("/^[\t ]*\* @priority[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
-                        $annotations[] = "@priority $matches[1]";
-                    }
-                    $tokens[$i][1] = "";
-                    if(!empty($annotations)){
-                        $tokens[$i][1] .= "/** " . PHP_EOL;
-                        foreach($annotations as $value){
-                            $tokens[$i][1] .= "* $value" . PHP_EOL;
-                        }
-                        $tokens[$i][1] .= "*/";
-                    }
-                }
-                $stripedCode .= $tokens[$i][1];
-            }else{
+            if(!is_array($tokens[$i])){
                 $stripedCode .= $tokens[$i];
+                continue;
             }
+
+            if($tokens[$i][0] === T_COMMENT)
+                continue;
+
+            if($tokens[$i][0] === T_DOC_COMMENT){
+                $annotations = [];
+                if(preg_match("/^[\t ]*\* @notHandler/m", $tokens[$i][1], $matches) > 0){
+                    $annotations[] = "@notHandler";
+                }
+                if(preg_match("/^[\t ]*\* @softDepend[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
+                    $annotations[] = "@softDepend $matches[1]";
+                }
+                if(preg_match("/^[\t ]*\* @ignoreCancelled/m", $tokens[$i][1], $matches) > 0){
+                    $annotations[] = "@ignoreCancelled";
+                }
+                if(preg_match("/^[\t ]*\* @handleCancelled/m", $tokens[$i][1], $matches) > 0){
+                    $annotations[] = "@handleCancelled";
+                }
+                if(preg_match("/^[\t ]*\* @priority[\t ]{1,}([a-zA-Z]{1,})/m", $tokens[$i][1], $matches) > 0){
+                    $annotations[] = "@priority $matches[1]";
+                }
+                $tokens[$i][1] = "";
+                if(!empty($annotations)){
+                    $tokens[$i][1] .= "/** " . PHP_EOL;
+                    foreach($annotations as $value){
+                        $tokens[$i][1] .= "* $value" . PHP_EOL;
+                    }
+                    $tokens[$i][1] .= "*/";
+                }
+            }
+            $stripedCode .= $tokens[$i][1];
         }
         return $stripedCode;
     }
@@ -222,34 +224,35 @@ class Utils{
         $tokens = token_get_all($originalCode);
         $stripedCode = "";
         for($i = 0, $count = count($tokens); $i < $count; $i++){
-            if(is_array($tokens[$i])){
-                $beforeIndex = $i - 1;
-                $before = null;
-                while(isset($tokens[$beforeIndex])){
-                    $token = $tokens[$beforeIndex--];
-                    if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
-                        continue;
-                    }
-                    $before = $token[0];
-                    break;
-                }
-                if($tokens[$i][0] === T_VARIABLE && !Utils::in_arrayi($before, $ignoreBeforeList)){
-                    if(!isset($variables[$tokens[$i][1]])){
-                        $variableName = "\${$firstChars[$variableCount % $firstCharCount]}";
-                        if($variableCount){
-                            if(($sub = floor($variableCount / $firstCharCount) - 1) > -1){
-                                $variableName .= $otherChars[$sub];
-                            }
-                        }
-                        ++$variableCount;
-                        $variables[$tokens[$i][1]] = $variableName;
-                    }
-                    $tokens[$i][1] = $variables[$tokens[$i][1]];
-                }
-                $stripedCode .= $tokens[$i][1];
-            }else{
+            if(!is_array($tokens[$i])){
                 $stripedCode .= $tokens[$i];
+                continue;
             }
+
+            $beforeIndex = $i - 1;
+            $before = null;
+            while(isset($tokens[$beforeIndex])){
+                $token = $tokens[$beforeIndex--];
+                if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
+                    continue;
+                }
+                $before = $token[0];
+                break;
+            }
+            if($tokens[$i][0] === T_VARIABLE && !Utils::in_arrayi($before, $ignoreBeforeList)){
+                if(!isset($variables[$tokens[$i][1]])){
+                    $variableName = "\${$firstChars[$variableCount % $firstCharCount]}";
+                    if($variableCount){
+                        if(($sub = floor($variableCount / $firstCharCount) - 1) > -1){
+                            $variableName .= $otherChars[$sub];
+                        }
+                    }
+                    ++$variableCount;
+                    $variables[$tokens[$i][1]] = $variableName;
+                }
+                $tokens[$i][1] = $variables[$tokens[$i][1]];
+            }
+            $stripedCode .= $tokens[$i][1];
         }
         return $stripedCode;
     }
@@ -285,34 +288,34 @@ class Utils{
         $tokens = token_get_all($originalCode);
         $stripedCode = "";
         for($i = 0, $count = count($tokens); $i < $count; $i++){
-            if(is_array($tokens[$i])){
-                if($tokens[$i][0] === T_STRING){
-                    $beforeIndex = $i - 1;
-                    $before = null;
-                    while(isset($tokens[$beforeIndex])){
-                        $token = $tokens[$beforeIndex--];
-                        if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
-                            continue;
-                        }
+            if(!is_array($tokens[$i])){
+                $stripedCode .= $tokens[$i];
+                continue;
+            }
+
+            if($tokens[$i][0] === T_LOGICAL_OR){
+                $tokens[$i][1] = "||";
+            }elseif($tokens[$i][0] === T_LOGICAL_AND){
+                $tokens[$i][1] = "&&";
+            }elseif($tokens[$i][0] === T_STRING){
+                $beforeIndex = $i - 1;
+                $before = null;
+                while($token = $tokens[$beforeIndex] ?? false){
+                    --$beforeIndex;
+                    if(!Utils::in_arrayi($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])){
                         $before = $token[0];
                         break;
                     }
-                    if($before === null || !Utils::in_arrayi($before, $ignoreBeforeList)){
-                        if(defined("\\" . $tokens[$i][1])){
-                            $tokens[$i][1] = "\\" . $tokens[$i][1];
-                        }elseif(function_exists("\\" . $tokens[$i][1]) && isset($tokens[$i + 1]) && $tokens[$i + 1] === "("){
-                            $tokens[$i][1] = "\\" . $tokens[$i][1];
-                        }
-                    }
-                }elseif($tokens[$i][0] === T_LOGICAL_OR){
-                    $tokens[$i][1] = "||";
-                }elseif($tokens[$i][0] === T_LOGICAL_AND){
-                    $tokens[$i][1] = "&&";
                 }
-                $stripedCode .= $tokens[$i][1];
-            }else{
-                $stripedCode .= $tokens[$i];
+                if($before === null || !Utils::in_arrayi($before, $ignoreBeforeList)){
+                    if(defined("\\" . $tokens[$i][1])){
+                        $tokens[$i][1] = "\\" . $tokens[$i][1];
+                    }elseif(function_exists("\\" . $tokens[$i][1]) && isset($tokens[$i + 1]) && $tokens[$i + 1] === "("){
+                        $tokens[$i][1] = "\\" . $tokens[$i][1];
+                    }
+                }
             }
+            $stripedCode .= $tokens[$i][1];
         }
         return $stripedCode;
     }
@@ -323,12 +326,10 @@ class Utils{
      * @return bool
      */
     public static function removeDirectory(string $directory) : bool{
-        $files = array_diff(scandir($directory), [
-            ".",
-            ".."
-        ]);
+        $files = array_diff(scandir($directory), [".", ".."]);
         foreach($files as $file){
-            if(is_dir($fileName = "{$directory}/{$file}")){
+            $fileName = "{$directory}/{$file}";
+            if(is_dir($fileName)){
                 Utils::removeDirectory($fileName);
             }else{
                 unlink($fileName);
@@ -344,25 +345,24 @@ class Utils{
      */
     public static function getPlugin(string $name) : ?Plugin{
         $plugins = Server::getInstance()->getPluginManager()->getPlugins();
-        if(isset($plugins[$name])){
+        if(isset($plugins[$name]))
             return $plugins[$name];
-        }else{
-            $found = null;
-            $length = strlen($name);
-            $minDiff = PHP_INT_MAX;
-            foreach($plugins as $pluginName => $plugin){
-                if(stripos($pluginName, $name) === 0){
-                    $diff = strlen($pluginName) - $length;
-                    if($diff < $minDiff){
-                        $found = $plugin;
-                        if($diff === 0){
-                            break;
-                        }
-                        $minDiff = $diff;
-                    }
+
+        $found = null;
+        $length = strlen($name);
+        $minDiff = PHP_INT_MAX;
+        foreach($plugins as $pluginName => $plugin){
+            if(stripos($pluginName, $name) === 0){
+                $diff = strlen($pluginName) - $length;
+                if($diff < $minDiff){
+                    $found = $plugin;
+                    if($diff === 0)
+                        break;
+
+                    $minDiff = $diff;
                 }
             }
-            return $found;
         }
+        return $found;
     }
 }
