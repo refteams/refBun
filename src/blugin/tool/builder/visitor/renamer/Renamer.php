@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\builder\visitor;
+namespace blugin\tool\builder\visitor\renamer;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClosureUse;
@@ -33,11 +33,8 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\StaticVar;
-use PhpParser\NodeVisitorAbstract;
 
-class VariableReplacingVisitor extends NodeVisitorAbstract{
-    private const BARRIOR = "\u{20E0}";
-
+abstract class Renamer{
     /** @const string[] list of ignore name, The global variables and $this */
     private const IGNORE_LIST = [
         "this",
@@ -50,54 +47,33 @@ class VariableReplacingVisitor extends NodeVisitorAbstract{
         "_ENV",
         "_FILES"
     ];
-    private $nameTable = [];
 
-    /**
-     * Reset name table on before traverse
-     *
-     * @param array $nodes
-     *
-     * @return Node[]|null
-     */
-    public function beforeTraverse(array $nodes){
+    /** @var string[] original name => new name */
+    protected $nameTable = [];
+
+    public function init() : void{
         $this->nameTable = [];
-        return null;
     }
 
+    /** @param Node $node */
+    public abstract function generateName(Node $node) : void;
+
     /**
-     * Register new name of variable on enter traverse
-     *
      * @param Node $node
      *
-     * @return Node|null
+     * @return Variable|null
      */
-    public function enterNode(Node $node){
+    public function renameVariable(Node $node) : ?Variable{
         $variable = $this->getVariableFromNode($node);
         if($variable === null || !$this->isValidVariable($variable))
             return null;
 
-        if(!isset($this->nameTable[$variable->name])){
-            $this->nameTable[$variable->name] = str_repeat(self::BARRIOR, count($this->nameTable) + 1);
-        }
-        return $node;
-    }
-
-    /**
-     * Rename variable on leave traverse
-     *
-     * @param Node $node
-     *
-     * @return Node|null
-     */
-    public function leaveNode(Node $node){
-        $variable = $this->getVariableFromNode($node);
-        if($variable === null || !$this->isValidVariable($variable))
+        $newName = $this->nameTable[$variable->name] ?? null;
+        if(!$newName)
             return null;
 
-        if(isset($this->nameTable[$variable->name])){
-            $variable->name = $this->nameTable[$variable->name];
-        }
-        return $node;
+        $variable->name = $newName;
+        return $variable;
     }
 
     /**
@@ -119,7 +95,7 @@ class VariableReplacingVisitor extends NodeVisitorAbstract{
      *
      * @return bool
      */
-    protected function isValidVariable(Variable $variable) : bool{
+    public function isValidVariable(Variable $variable) : bool{
         //Ignore to rename if it not string or global variable or $this(ex: $$varname, $_GET, $this)
         return is_string($variable->name) && !in_array($variable->name, self::IGNORE_LIST);
     }

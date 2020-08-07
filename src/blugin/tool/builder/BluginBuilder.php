@@ -29,7 +29,10 @@ namespace blugin\tool\builder;
 
 use blugin\tool\builder\util\Utils;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
-use blugin\tool\builder\visitor\VariableReplacingVisitor;
+use blugin\tool\builder\visitor\renamer\ProtectRenamer;
+use blugin\tool\builder\visitor\renamer\SerialRenamer;
+use blugin\tool\builder\visitor\renamer\ShortenRenamer;
+use blugin\tool\builder\visitor\VariableRenamingVisitor;
 use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
@@ -42,11 +45,15 @@ use pocketmine\Server;
 
 class BluginBuilder extends PluginBase{
     public const RENAMING_VISITOR_PROECT = "protect";
+    public const RENAMING_VISITOR_SHORTEN = "shorten";
+    public const RENAMING_VISITOR_SERIAL = "serial";
     /** @var NodeVisitorAbstract[] */
     private $renamingVisitors = [];
 
     public function onLoad(){
-        $this->renamingVisitors[self::RENAMING_VISITOR_PROECT] = new VariableReplacingVisitor();
+        $this->renamingVisitors[self::RENAMING_VISITOR_PROECT] = new VariableRenamingVisitor(new ProtectRenamer());
+        $this->renamingVisitors[self::RENAMING_VISITOR_SHORTEN] = new VariableRenamingVisitor(new ShortenRenamer());
+        $this->renamingVisitors[self::RENAMING_VISITOR_SERIAL] = new VariableRenamingVisitor(new SerialRenamer());
     }
 
     /**

@@ -5,8 +5,8 @@
 #Pre-processing settings
 preprocessing:
   #Variable name rename mode
-  #Modes Supported : protect(Hide variable), disable
-  variable-renaming: protect
+  #Modes Supported : protect(Hide variable), shorten, serial(Sequential variable), disable
+  variable-renaming: serial
 
   #Minor code optimization
   minor-optimizating: true
