@@ -95,8 +95,7 @@ class BluginBuilder extends PluginBase{
      * @param string     $filePath
      */
     public function buildPhar(PluginBase $plugin, string $filePath, string $pharPath) : void{
-        $setting = $this->getConfig()->getAll();
-        $description = $plugin->getDescription();
+        //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
                 \Phar::unlinkArchive($pharPath);
@@ -104,37 +103,22 @@ class BluginBuilder extends PluginBase{
                 unlink($pharPath);
             }
         }
-        $phar = new \Phar($pharPath);
-        $phar->setSignatureAlgorithm(\Phar::SHA1);
-        if(!$setting["skip-metadata"]){
-            $phar->setMetadata([
-                "name" => $description->getName(),
-                "version" => $description->getVersion(),
-                "main" => $description->getMain(),
-                "api" => $description->getCompatibleApis(),
-                "depend" => $description->getDepend(),
-                "description" => $description->getDescription(),
-                "authors" => $description->getAuthors(),
-                "website" => $description->getWebsite(),
-                "creationDate" => time()
-            ]);
-        }
-        if(!$setting["skip-stub"]){
-            $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$description->getName()}_v{$description->getVersion()}\nThis file has been generated using MakePluginPlus at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
-        }else{
-            $phar->setStub("<?php __HALT_COMPILER();");
-        }
 
-        if(file_exists($buildFolder = "{$this->getDataFolder()}build/")){
-            Utils::removeDirectory($buildFolder);
+        //Remove the existing build folder and remake
+        $buildPath = "{$this->getDataFolder()}build/";
+        if(file_exists($buildPath)){
+            Utils::removeDirectory($buildPath);
         }
-        mkdir($buildFolder);
+        mkdir($buildPath, 0777, true);
+
+        //Pre-build processing execution
+        $setting = $this->getConfig()->getAll();
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
             if($fileName !== "." && $fileName !== ".."){
                 $inPath = substr($path, strlen($filePath));
                 if(!$setting["include-minimal"] || $inPath === "plugin.yml" || strpos($inPath, "src\\") === 0 || strpos($inPath, "resources\\") === 0){
-                    $newFilePath = "{$buildFolder}{$inPath}";
+                    $newFilePath = "{$buildPath}{$inPath}";
                     $newFileDir = dirname($newFilePath);
                     if(!file_exists($newFileDir)){
                         mkdir($newFileDir, 0777, true);
@@ -160,8 +144,31 @@ class BluginBuilder extends PluginBase{
                 }
             }
         }
+
+        //Build the plugin with .phar file
+        $phar = new \Phar($pharPath);
+        $phar->setSignatureAlgorithm(\Phar::SHA1);
+        $description = $plugin->getDescription();
+        if(!$setting["skip-metadata"]){
+            $phar->setMetadata([
+                "name" => $description->getName(),
+                "version" => $description->getVersion(),
+                "main" => $description->getMain(),
+                "api" => $description->getCompatibleApis(),
+                "depend" => $description->getDepend(),
+                "description" => $description->getDescription(),
+                "authors" => $description->getAuthors(),
+                "website" => $description->getWebsite(),
+                "creationDate" => time()
+            ]);
+        }
+        if(!$setting["skip-stub"]){
+            $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$description->getName()}_v{$description->getVersion()}\nThis file has been generated using MakePluginPlus at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
+        }else{
+            $phar->setStub("<?php __HALT_COMPILER();");
+        }
         $phar->startBuffering();
-        $phar->buildFromDirectory($buildFolder);
+        $phar->buildFromDirectory($buildPath);
         if($setting["compress"] && \Phar::canCompress(\Phar::GZ)){
             $phar->compressFiles(\Phar::GZ);
         }
