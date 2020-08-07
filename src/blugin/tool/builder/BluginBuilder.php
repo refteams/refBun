@@ -215,4 +215,32 @@ class BluginBuilder extends PluginBase{
         }
         $phar->stopBuffering();
     }
+
+    /**
+     * @Override for multilingual support of the config file
+     * @url https://github.com/Blugin/libTranslator-PMMP/blob/master/src/blugin/lib/translator/MultilingualConfigTrait.php
+     * @return bool
+     */
+    public function saveDefaultConfig() : bool{
+        $configFile = "{$this->getDataFolder()}config.yml";
+        if(file_exists($configFile))
+            return false;
+
+        $resource = $this->getResource("locale/{$this->getServer()->getLanguage()->getLang()}.yml");
+        if($resource === null){
+            foreach($this->getResources() as $filePath => $info){
+                if(preg_match('/^locale\/[a-zA-Z]{3}\.yml$/', $filePath)){
+                    $resource = $this->getResource($filePath);
+                    break;
+                }
+            }
+        }
+        if($resource === null)
+            return false;
+
+        $ret = stream_copy_to_stream($resource, $fp = fopen($configFile, "wb")) > 0;
+        fclose($fp);
+        fclose($resource);
+        return $ret;
+    }
 }

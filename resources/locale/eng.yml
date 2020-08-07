@@ -1,0 +1,33 @@
+# Advanced configuration file for BluginBuilder plugin
+# Some of these settings are safe, others can break your server if modified incorrectly
+# New settings/defaults won't appear automatically on this file when upgrading
+
+#Pre-processing settings
+preprocessing:
+  #Variable name rename mode
+  #Modes Supported : protect(Hide variable), disable
+  variable-renaming: protect
+
+  #Minor code optimization
+  minor-optimizating: true
+
+  #Meaningless comment cleanup
+  comment-optimizing: true
+
+  #Remove import statement (Remove 'use')
+  resolve-importing: true
+
+#Build settings
+build:
+  #Code output format setting
+  #Modes Supported : pretty(Default code style), shorten(Short code style)
+  print-format: shorten
+
+  #Set whether to include only minimal files
+  include-minimal: true
+
+  #Whether to write Phar metadata
+  skip-metadata: true
+
+  #Whether to write Phar stub
+  skip-stub: true
