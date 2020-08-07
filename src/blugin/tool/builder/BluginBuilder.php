@@ -72,18 +72,13 @@ class BluginBuilder extends PluginBase{
         $pluginCount = count($plugins);
         $sender->sendMessage("Start build the {$pluginCount} plugins");
 
-        $reflection = new \ReflectionClass(PluginBase::class);
-        $fileProperty = $reflection->getProperty("file");
-        $fileProperty->setAccessible(true);
         if(!file_exists($dataFolder = $this->getDataFolder())){
             mkdir($dataFolder, 0777, true);
         }
         foreach($plugins as $pluginName => $plugin){
-            $pluginVersion = $plugin->getDescription()->getVersion();
-            $pharName = "{$pluginName}_v{$pluginVersion}.phar";
-            $filePath = rtrim(str_replace("\\", "/", $fileProperty->getValue($plugin)), "/") . "/";
-            $this->buildPhar($plugin, $filePath, "{$dataFolder}{$pharName}");
-            $sender->sendMessage("{$pharName} has been created on {$dataFolder}");
+            $pharName = "{$pluginName}_v{$plugin->getDescription()->getVersion()}.phar";
+            $this->buildPlugin($plugin);
+            $sender->sendMessage("$pharName has been created on $dataFolder");
         }
         $sender->sendMessage("Complete built the {$pluginCount} plugins");
         return true;
@@ -91,10 +86,38 @@ class BluginBuilder extends PluginBase{
 
     /**
      * @param PluginBase $plugin
-     * @param string     $pharPath
-     * @param string     $filePath
+     *
+     * @throws \ReflectionException
      */
-    public function buildPhar(PluginBase $plugin, string $filePath, string $pharPath) : void{
+    public function buildPlugin(PluginBase $plugin) : void{
+        $reflection = new \ReflectionClass(PluginBase::class);
+        $fileProperty = $reflection->getProperty("file");
+        $fileProperty->setAccessible(true);
+        $sourcePath = rtrim(realpath($fileProperty->getValue($plugin)), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        $pharPath = "{$this->getDataFolder()}{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar";
+
+        $description = $plugin->getDescription();
+        $metadata = [
+            "name" => $description->getName(),
+            "version" => $description->getVersion(),
+            "main" => $description->getMain(),
+            "api" => $description->getCompatibleApis(),
+            "depend" => $description->getDepend(),
+            "description" => $description->getDescription(),
+            "authors" => $description->getAuthors(),
+            "website" => $description->getWebsite(),
+            "creationDate" => time()
+        ];
+        $this->buildPhar($sourcePath, $pharPath, $metadata);
+    }
+
+    /**
+     * @param string $pharPath
+     * @param string $filePath
+     * @param array  $metadata
+     */
+    public function buildPhar(string $filePath, string $pharPath, array $metadata) : void{
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
@@ -148,22 +171,11 @@ class BluginBuilder extends PluginBase{
         //Build the plugin with .phar file
         $phar = new \Phar($pharPath);
         $phar->setSignatureAlgorithm(\Phar::SHA1);
-        $description = $plugin->getDescription();
         if(!$setting["skip-metadata"]){
-            $phar->setMetadata([
-                "name" => $description->getName(),
-                "version" => $description->getVersion(),
-                "main" => $description->getMain(),
-                "api" => $description->getCompatibleApis(),
-                "depend" => $description->getDepend(),
-                "description" => $description->getDescription(),
-                "authors" => $description->getAuthors(),
-                "website" => $description->getWebsite(),
-                "creationDate" => time()
-            ]);
+            $phar->setMetadata($metadata);
         }
         if(!$setting["skip-stub"]){
-            $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$description->getName()}_v{$description->getVersion()}\nThis file has been generated using MakePluginPlus at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
+            $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$metadata["name"]}_v{$metadata["version"]}\nThis file has been generated using MakePluginPlus at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
         }else{
             $phar->setStub("<?php __HALT_COMPILER();");
         }
