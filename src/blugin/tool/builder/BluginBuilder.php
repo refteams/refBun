@@ -203,7 +203,7 @@ class BluginBuilder extends PluginBase{
         }
         $phar->startBuffering();
         $phar->buildFromDirectory($buildPath);
-        if($setting["compress"] && \Phar::canCompress(\Phar::GZ)){
+        if(\Phar::canCompress(\Phar::GZ)){
             $phar->compressFiles(\Phar::GZ);
         }
         $phar->stopBuffering();
