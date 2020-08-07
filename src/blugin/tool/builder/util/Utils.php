@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace blugin\makepluginplus\util;
+namespace blugin\tool\builder\util;
 
 use pocketmine\plugin\Plugin;
 use pocketmine\Server;

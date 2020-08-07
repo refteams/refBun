@@ -1,21 +1,21 @@
 ---
-name: MakePluginPlus
-main: blugin\makepluginplus\MakePluginPlus
-version: 1.1.0
+name: BluginBuilder
+main: blugin\tool\builder\BluginBuilder
+version: 0.0.1
 api: [4.0.0]
-author: PresentKim
-description: Make plugin with more option (more optimize)
+authors: ['Blugin-team', 'PresentKim']
+description: '[tool] Plugin builder plugin for Blugin-team'
 depend: ['DevTools']
 
 commands:
-  makepluginplus:
-    description: Make plugin with more option
-    usage: /makepluginplus <plugin name>
-    aliases: [build, mpp]
-    permission: makepluginplus.cmd
+  bluginbuilder:
+    description: Plugin builder with more option
+    usage: /bluginbuilder <plugin name | *>
+    aliases: [build, bb]
+    permission: bluginbuilder.cmd
 
 permissions:
-  makepluginplus.cmd:
-    description: MakePluginPlus main command
+  bluginbuilder.cmd:
+    description: '[BluginBuilder] Build folder plugin with mre option'
     default: op
 ...

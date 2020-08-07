@@ -25,9 +25,9 @@
 
 declare(strict_types=1);
 
-namespace blugin\makepluginplus;
+namespace blugin\tool\builder;
 
-use blugin\makepluginplus\util\Utils;
+use blugin\tool\builder\util\Utils;
 use FolderPluginLoader\FolderPluginLoader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -35,7 +35,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 
-class MakePluginPlus extends PluginBase{
+class BluginBuilder extends PluginBase{
     use SingletonTrait;
 
     /**
