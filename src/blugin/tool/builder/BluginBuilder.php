@@ -173,6 +173,5 @@ class BluginBuilder extends PluginBase{
             $phar->compressFiles(\Phar::GZ);
         }
         $phar->stopBuffering();
-        Utils::removeDirectory("{$this->getDataFolder()}build/");
     }
 }
