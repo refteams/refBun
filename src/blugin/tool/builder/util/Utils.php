@@ -31,8 +31,6 @@ use pocketmine\plugin\Plugin;
 use pocketmine\Server;
 
 class Utils{
-    public const BARRIOR = "\u{20E0}";
-
     /**
      * @url http://php.net/manual/en/function.php-strip-whitespace.php#82437
      *
