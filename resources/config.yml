@@ -1,10 +1,13 @@
 ---
-code-optimize: true
-rename-variable: true
-remove-comment: true
-remove-whitespace: true
-remove-import: true
-skip-metadata: true
-skip-stub: true
-include-minimal: true
+preprocessing:
+  variable-renaming: protect
+  minor-optimizating: true
+  comment-optimizing: true
+  resolve-importing: true
+
+build:
+  print-format: shorten
+  include-minimal: true
+  skip-metadata: true
+  skip-stub: true
 ...

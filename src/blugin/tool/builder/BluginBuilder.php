@@ -32,6 +32,7 @@ use blugin\tool\builder\visitor\ImportRemovingVisitor;
 use blugin\tool\builder\visitor\VariableReplacingVisitor;
 use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
 use pocketmine\command\Command;
@@ -40,6 +41,14 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
 class BluginBuilder extends PluginBase{
+    public const RENAMING_VISITOR_PROECT = "protect";
+    /** @var NodeVisitorAbstract[] */
+    private $renamingVisitors = [];
+
+    public function onLoad(){
+        $this->renamingVisitors[self::RENAMING_VISITOR_PROECT] = new VariableReplacingVisitor();
+    }
+
     /**
      * @param CommandSender $sender
      * @param Command       $command
@@ -140,22 +149,23 @@ class BluginBuilder extends PluginBase{
         mkdir($buildPath, 0777, true);
 
         //Pre-build processing execution
-        $setting = $this->getConfig()->getAll();
+        $config = $this->getConfig();
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $traverser = new NodeTraverser();
         $prettyPrinter = new Standard();
-        if($setting["remove-import"]){
+        if($config->getNested("preprocessing.resolve-importing", true)){
             $traverser->addVisitor(new ImportRemovingVisitor());
         }
-        if($setting["rename-variable"]){
-            $traverser->addVisitor(new VariableReplacingVisitor());
+        $renamingOption = $config->getNested("preprocessing.variable-renaming", "protect");
+        if(isset($this->renamingVisitors[$renamingOption])){
+            $traverser->addVisitor($this->renamingVisitors[$renamingOption]);
         }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
             if($fileName === "." || $fileName === "..")
                 continue;
 
-            if($setting["include-minimal"]){
+            if($config->getNested("build.include-minimal", true)){
                 $inPath = substr($path, strlen($filePath));
                 if($inPath !== "plugin.yml" && strpos($inPath, "src\\") !== 0 && strpos($inPath, "resources\\") !== 0)
                     continue;
@@ -172,14 +182,11 @@ class BluginBuilder extends PluginBase{
                     $stmts = $parser->parse($contents);
                     $stmts = $traverser->traverse($stmts);
                     $contents = $prettyPrinter->prettyPrintFile($stmts);
-                    if($setting["code-optimize"]){
+                    if($config->getNested("preprocessing.minor-optimizating", true)){
                         $contents = Utils::codeOptimize($contents);
                     }
-                    if($setting["remove-comment"]){
+                    if($config->getNested("preprocessing.comment-optimizing", true)){
                         $contents = Utils::removeComment($contents);
-                    }
-                    if($setting["remove-whitespace"]){
-                        $contents = Utils::removeWhitespace($contents);
                     }
                     file_put_contents($out, $contents);
                 }catch(\Error $e){
@@ -193,10 +200,10 @@ class BluginBuilder extends PluginBase{
         //Build the plugin with .phar file
         $phar = new \Phar($pharPath);
         $phar->setSignatureAlgorithm(\Phar::SHA1);
-        if(!$setting["skip-metadata"]){
+        if($config->getNested("build.skip-metadata", true)){
             $phar->setMetadata($metadata);
         }
-        if(!$setting["skip-stub"]){
+        if($config->getNested("build.skip-stub", true)){
             $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$metadata["name"]}_v{$metadata["version"]}\nThis file has been generated using BluginBuilder at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
         }else{
             $phar->setStub("<?php __HALT_COMPILER();");
