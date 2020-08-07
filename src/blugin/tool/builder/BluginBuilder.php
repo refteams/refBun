@@ -33,18 +33,8 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
-use pocketmine\utils\SingletonTrait;
 
 class BluginBuilder extends PluginBase{
-    use SingletonTrait;
-
-    /**
-     * Called when the plugin is loaded, before calling onEnable()
-     */
-    public function onLoad() : void{
-        self::setInstance($this);
-    }
-
     /**
      * @param CommandSender $sender
      * @param Command       $command
