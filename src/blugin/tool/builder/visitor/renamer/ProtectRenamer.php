@@ -35,7 +35,7 @@ class ProtectRenamer extends Renamer{
     /** @param Node $node */
     public function generateName(Node $node) : void{
         $variable = $this->getVariableFromNode($node);
-        if($variable !== null && $this->isValidVariable($variable))
+        if($variable !== null && $this->isValidVariable($variable) && !isset($this->nameTable[$variable->name]))
             $this->nameTable[$variable->name] = str_repeat(self::BARRIOR, count($this->nameTable) + 1);
     }
 }
