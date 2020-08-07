@@ -5,7 +5,7 @@ version: 0.0.1
 api: [4.0.0]
 authors: ['Blugin-team', 'PresentKim']
 description: '[tool] Plugin builder plugin for Blugin-team'
-depend: ['DevTools']
+depend: ['DevTools', 'libPhpParser']
 
 commands:
   bluginbuilder:

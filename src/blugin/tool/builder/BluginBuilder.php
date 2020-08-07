@@ -29,6 +29,9 @@ namespace blugin\tool\builder;
 
 use blugin\tool\builder\util\Utils;
 use FolderPluginLoader\FolderPluginLoader;
+use PhpParser\NodeTraverser;
+use PhpParser\ParserFactory;
+use PhpParser\PrettyPrinter\Standard;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
@@ -134,8 +137,13 @@ class BluginBuilder extends PluginBase{
         }
         mkdir($buildPath, 0777, true);
 
-        //Pre-build processing execution
+        //Create PHP-Parser instance
+        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $traverser = new NodeTraverser();
+        $prettyPrinter = new Standard();
+
         $setting = $this->getConfig()->getAll();
+        //Pre-build processing execution
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
             if($fileName !== "." && $fileName !== ".."){
@@ -148,6 +156,9 @@ class BluginBuilder extends PluginBase{
                     }
                     if(substr($path, -4) == ".php"){
                         $contents = \file_get_contents($path);
+                        $stmts = $parser->parse($contents);
+                        $stmts = $traverser->traverse($stmts);
+                        $contents = $prettyPrinter->prettyPrintFile($stmts);
                         if($setting["code-optimize"]){
                             $contents = Utils::codeOptimize($contents);
                         }
