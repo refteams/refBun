@@ -207,53 +207,6 @@ class Utils{
      *
      * @return string
      */
-    public static function renameVariable(string $originalCode) : string{
-        $ignoreBeforeList = [
-            T_PROTECTED,    // protected
-            T_PRIVATE,      // private
-            T_PUBLIC,       // public
-            T_STATIC,       // static
-            T_FINAL,        // final
-            T_DOUBLE_COLON  // ::
-        ];
-        $variables = ["\$this" => "\$this"];
-        $variableCount = 0;
-        $tokens = token_get_all($originalCode);
-        $stripedCode = "";
-        for($i = 0, $count = count($tokens); $i < $count; $i++){
-            if(!is_array($tokens[$i])){
-                $stripedCode .= $tokens[$i];
-                continue;
-            }
-
-            $beforeIndex = $i - 1;
-            $before = null;
-            while(isset($tokens[$beforeIndex])){
-                $token = $tokens[$beforeIndex--];
-                if($token[0] === T_WHITESPACE or $token[0] === T_COMMENT or $token[0] === T_DOC_COMMENT){
-                    continue;
-                }
-                $before = $token[0];
-                break;
-            }
-            if($tokens[$i][0] === T_VARIABLE && !in_array($before, $ignoreBeforeList)){
-                if(!isset($variables[$tokens[$i][1]])){
-                    $variableName = "\$" . str_repeat(self::BARRIOR, ++$variableCount);
-
-                    $variables[$tokens[$i][1]] = $variableName;
-                }
-                $tokens[$i][1] = $variables[$tokens[$i][1]];
-            }
-            $stripedCode .= $tokens[$i][1];
-        }
-        return $stripedCode;
-    }
-
-    /**
-     * @param string $originalCode
-     *
-     * @return string
-     */
     public static function codeOptimize(string $originalCode) : string{
         $ignoreBeforeList = [
             T_SL,               // <<

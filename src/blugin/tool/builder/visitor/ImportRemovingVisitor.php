@@ -29,7 +29,6 @@ namespace blugin\tool\builder\visitor;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\GroupUse;
-use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;

@@ -28,6 +28,8 @@ declare(strict_types=1);
 namespace blugin\tool\builder;
 
 use blugin\tool\builder\util\Utils;
+use blugin\tool\builder\visitor\ImportRemovingVisitor;
+use blugin\tool\builder\visitor\VariableReplacingVisitor;
 use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
@@ -145,6 +147,9 @@ class BluginBuilder extends PluginBase{
         if($setting["remove-import"]){
             $traverser->addVisitor(new ImportRemovingVisitor());
         }
+        if($setting["rename-variable"]){
+            $traverser->addVisitor(new VariableReplacingVisitor());
+        }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
             if($fileName === "." || $fileName === "..")
@@ -169,9 +174,6 @@ class BluginBuilder extends PluginBase{
                     $contents = $prettyPrinter->prettyPrintFile($stmts);
                     if($setting["code-optimize"]){
                         $contents = Utils::codeOptimize($contents);
-                    }
-                    if($setting["rename-variable"]){
-                        $contents = Utils::renameVariable($contents);
                     }
                     if($setting["remove-comment"]){
                         $contents = Utils::removeComment($contents);
