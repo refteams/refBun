@@ -30,21 +30,23 @@ namespace blugin\tool\builder\visitor\renamer;
 use PhpParser\Node;
 
 class ShortenRenamer extends Renamer{
-    /** @param Node $node */
-    public function generateName(Node $node) : void{
-        $variable = $this->getVariableFromNode($node);
-        if($variable === null || !$this->isValidVariable($variable) || isset($this->nameTable[$variable->name]))
+    /**
+     * @param Node   $node
+     * @param string $property = "name"
+     */
+    public function generate(Node $node, string $property = "name") : void{
+        if($node === null || isset($this->nameTable[$node->$property]))
             return;
 
-        $name = $variable->name;
+        $name = $node->$property;
         $length = 1;
         $num = 0;
         do{
             $newName = substr($name, 0, $length++);
-            if($newName === $variable->name || $length > 2)
+            if($newName === $node->$property || $length > 2)
                 $newName = substr($name, 0, 2) . $num++;
         }while(in_array($newName, $this->nameTable));
 
-        $this->nameTable[$variable->name] = $newName;
+        $this->nameTable[$node->$property] = $newName;
     }
 }

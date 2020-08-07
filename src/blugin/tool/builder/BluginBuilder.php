@@ -30,12 +30,12 @@ namespace blugin\tool\builder;
 use blugin\tool\builder\util\Utils;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
 use blugin\tool\builder\visitor\renamer\ProtectRenamer;
+use blugin\tool\builder\visitor\renamer\Renamer;
 use blugin\tool\builder\visitor\renamer\SerialRenamer;
 use blugin\tool\builder\visitor\renamer\ShortenRenamer;
-use blugin\tool\builder\visitor\VariableRenamingVisitor;
+use blugin\tool\builder\visitor\VariableRenamerVisitor;
 use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
 use pocketmine\command\Command;
@@ -44,16 +44,16 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
 class BluginBuilder extends PluginBase{
-    public const RENAMING_VISITOR_PROECT = "protect";
-    public const RENAMING_VISITOR_SHORTEN = "shorten";
-    public const RENAMING_VISITOR_SERIAL = "serial";
-    /** @var NodeVisitorAbstract[] */
-    private $renamingVisitors = [];
+    public const RENAMER_PROECT = "protect";
+    public const RENAMER_SHORTEN = "shorten";
+    public const RENAMER_SERIAL = "serial";
+    /** @var Renamer[] renamer tag -> renamer instance */
+    private $renamers = [];
 
     public function onLoad(){
-        $this->renamingVisitors[self::RENAMING_VISITOR_PROECT] = new VariableRenamingVisitor(new ProtectRenamer());
-        $this->renamingVisitors[self::RENAMING_VISITOR_SHORTEN] = new VariableRenamingVisitor(new ShortenRenamer());
-        $this->renamingVisitors[self::RENAMING_VISITOR_SERIAL] = new VariableRenamingVisitor(new SerialRenamer());
+        $this->renamers[self::RENAMER_PROECT] = new ProtectRenamer();
+        $this->renamers[self::RENAMER_SHORTEN] = new ShortenRenamer();
+        $this->renamers[self::RENAMER_SERIAL] = new SerialRenamer();
     }
 
     /**
@@ -163,9 +163,9 @@ class BluginBuilder extends PluginBase{
         if($config->getNested("preprocessing.resolve-importing", true)){
             $traverser->addVisitor(new ImportRemovingVisitor());
         }
-        $renamingOption = $config->getNested("preprocessing.variable-renaming", "protect");
-        if(isset($this->renamingVisitors[$renamingOption])){
-            $traverser->addVisitor($this->renamingVisitors[$renamingOption]);
+        $variableRenamer = $config->getNested("preprocessing.variable-renaming", "protect");
+        if(isset($this->renamers[$variableRenamer])){
+            $traverser->addVisitor(new VariableRenamerVisitor($this->renamers[$variableRenamer]));
         }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();

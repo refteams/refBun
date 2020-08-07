@@ -32,10 +32,12 @@ use PhpParser\Node;
 class ProtectRenamer extends Renamer{
     private const BARRIOR = "\u{20E0}";
 
-    /** @param Node $node */
-    public function generateName(Node $node) : void{
-        $variable = $this->getVariableFromNode($node);
-        if($variable !== null && $this->isValidVariable($variable) && !isset($this->nameTable[$variable->name]))
-            $this->nameTable[$variable->name] = str_repeat(self::BARRIOR, count($this->nameTable) + 1);
+    /**
+     * @param Node   $node
+     * @param string $property = "name"
+     */
+    public function generate(Node $node, string $property = "name") : void{
+        if($node !== null && !isset($this->nameTable[$node->$property]))
+            $this->nameTable[$node->$property] = str_repeat(self::BARRIOR, count($this->nameTable) + 1);
     }
 }

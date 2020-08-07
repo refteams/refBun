@@ -31,7 +31,7 @@ use blugin\tool\builder\visitor\renamer\Renamer;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class VariableRenamingVisitor extends NodeVisitorAbstract{
+abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
     protected $renamer = null;
 
     public function __construct(Renamer $renamer){
@@ -58,7 +58,7 @@ class VariableRenamingVisitor extends NodeVisitorAbstract{
      * @return Node|null
      */
     public function enterNode(Node $node){
-        $this->renamer->generateName($node);
+        $this->renamer->generate($node);
         return null;
     }
 
@@ -70,7 +70,7 @@ class VariableRenamingVisitor extends NodeVisitorAbstract{
      * @return Node|null
      */
     public function leaveNode(Node $node){
-        $this->renamer->renameVariable($node);
+        $this->renamer->rename($node);
         return null;
     }
 }

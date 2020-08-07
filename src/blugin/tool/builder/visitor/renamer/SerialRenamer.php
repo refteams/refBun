@@ -42,10 +42,12 @@ class SerialRenamer extends Renamer{
         $this->otherCount = count($this->otherChars);
     }
 
-    /** @param Node $node */
-    public function generateName(Node $node) : void{
-        $variable = $this->getVariableFromNode($node);
-        if($variable === null || !$this->isValidVariable($variable) || isset($this->nameTable[$variable->name]))
+    /**
+     * @param Node   $node
+     * @param string $property = "name"
+     */
+    public function generate(Node $node, string $property = "name") : void{
+        if($node === null || isset($this->nameTable[$node->$property]))
             return;
 
         $variableCount = count($this->nameTable);
@@ -55,6 +57,6 @@ class SerialRenamer extends Renamer{
                 $variableName .= $this->otherChars[$sub];
             }
         }
-        $this->nameTable[$variable->name] = $variableName;
+        $this->nameTable[$node->$property] = $variableName;
     }
 }
