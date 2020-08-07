@@ -137,13 +137,14 @@ class BluginBuilder extends PluginBase{
         }
         mkdir($buildPath, 0777, true);
 
-        //Create PHP-Parser instance
+        //Pre-build processing execution
+        $setting = $this->getConfig()->getAll();
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $traverser = new NodeTraverser();
         $prettyPrinter = new Standard();
-
-        $setting = $this->getConfig()->getAll();
-        //Pre-build processing execution
+        if($setting["remove-import"]){
+            $traverser->addVisitor(new ImportRemovingVisitor());
+        }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
             if($fileName === "." || $fileName === "..")
