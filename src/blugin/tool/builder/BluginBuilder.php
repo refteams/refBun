@@ -146,36 +146,44 @@ class BluginBuilder extends PluginBase{
         //Pre-build processing execution
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
-            if($fileName !== "." && $fileName !== ".."){
+            if($fileName === "." || $fileName === "..")
+                continue;
+
+            if($setting["include-minimal"]){
                 $inPath = substr($path, strlen($filePath));
-                if(!$setting["include-minimal"] || $inPath === "plugin.yml" || strpos($inPath, "src\\") === 0 || strpos($inPath, "resources\\") === 0){
-                    $newFilePath = "{$buildPath}{$inPath}";
-                    $newFileDir = dirname($newFilePath);
-                    if(!file_exists($newFileDir)){
-                        mkdir($newFileDir, 0777, true);
+                if($inPath !== "plugin.yml" && strpos($inPath, "src\\") !== 0 && strpos($inPath, "resources\\") !== 0)
+                    continue;
+            }
+
+            $out = substr_replace($path, $buildPath, 0, strlen($filePath));
+            if(!file_exists(dirname($out))){
+                mkdir(dirname($out), 0777, true);
+            }
+
+            if(preg_match("/\.php$/", $path)){
+                try{
+                    $contents = file_get_contents($fileInfo->getPathName());
+                    $stmts = $parser->parse($contents);
+                    $stmts = $traverser->traverse($stmts);
+                    $contents = $prettyPrinter->prettyPrintFile($stmts);
+                    if($setting["code-optimize"]){
+                        $contents = Utils::codeOptimize($contents);
                     }
-                    if(substr($path, -4) == ".php"){
-                        $contents = \file_get_contents($path);
-                        $stmts = $parser->parse($contents);
-                        $stmts = $traverser->traverse($stmts);
-                        $contents = $prettyPrinter->prettyPrintFile($stmts);
-                        if($setting["code-optimize"]){
-                            $contents = Utils::codeOptimize($contents);
-                        }
-                        if($setting["rename-variable"]){
-                            $contents = Utils::renameVariable($contents);
-                        }
-                        if($setting["remove-comment"]){
-                            $contents = Utils::removeComment($contents);
-                        }
-                        if($setting["remove-whitespace"]){
-                            $contents = Utils::removeWhitespace($contents);
-                        }
-                        file_put_contents($newFilePath, $contents);
-                    }else{
-                        copy($path, $newFilePath);
+                    if($setting["rename-variable"]){
+                        $contents = Utils::renameVariable($contents);
                     }
+                    if($setting["remove-comment"]){
+                        $contents = Utils::removeComment($contents);
+                    }
+                    if($setting["remove-whitespace"]){
+                        $contents = Utils::removeWhitespace($contents);
+                    }
+                    file_put_contents($out, $contents);
+                }catch(\Error $e){
+                    echo 'Parse Error: ', $e->getMessage();
                 }
+            }else{
+                copy($path, $out);
             }
         }
 
