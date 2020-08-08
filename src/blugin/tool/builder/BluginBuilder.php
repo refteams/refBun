@@ -49,6 +49,14 @@ use pocketmine\command\PluginCommand;
 use pocketmine\plugin\PluginBase;
 
 class BluginBuilder extends PluginBase{
+    /** @var BluginBuilder */
+    private static $instance;
+
+    /** @return BluginBuilder */
+    public static function getInstance() : BluginBuilder{
+        return self::$instance;
+    }
+
     public const RENAMER_PROECT = "protect";
     public const RENAMER_SHORTEN = "shorten";
     public const RENAMER_SERIAL = "serial";
@@ -68,6 +76,8 @@ class BluginBuilder extends PluginBase{
     private $printer;
 
     public function onLoad(){
+        self::$instance = $this;
+
         $this->renamers[self::RENAMER_PROECT] = new ProtectRenamer();
         $this->renamers[self::RENAMER_SHORTEN] = new ShortenRenamer();
         $this->renamers[self::RENAMER_SERIAL] = new SerialRenamer();
