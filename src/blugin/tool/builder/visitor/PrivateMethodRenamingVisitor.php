@@ -39,7 +39,7 @@ class PrivateMethodRenamingVisitor extends PrivateRenamingVisitor{
      * @param Node $node
      **/
     protected function registerNode(Node $node) : void{
-        if($node instanceof ClassMethod && $node->isPrivate() && !$node->isStatic()){
+        if($node instanceof ClassMethod && $node->isPrivate()){
             $this->privateNodes[] = $node;
             $this->generate($node);
         }

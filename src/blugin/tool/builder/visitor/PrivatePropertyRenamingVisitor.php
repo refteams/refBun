@@ -29,6 +29,7 @@ namespace blugin\tool\builder\visitor;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
 
@@ -39,7 +40,7 @@ class PrivatePropertyRenamingVisitor extends PrivateRenamingVisitor{
      * @param Node $node
      **/
     protected function registerNode(Node $node) : void{
-        if($node instanceof Property && $node->isPrivate() && !$node->isStatic()){
+        if($node instanceof Property && $node->isPrivate()){
             foreach($node->props as $prop){
                 $this->privateNodes[] = $prop;
                 $this->generate($prop);
@@ -55,6 +56,6 @@ class PrivatePropertyRenamingVisitor extends PrivateRenamingVisitor{
      * @return bool
      */
     protected function isTarget(Node $node) : bool{
-        return $node instanceof PropertyProperty || $node instanceof PropertyFetch;
+        return $node instanceof PropertyProperty || $node instanceof PropertyFetch || $node instanceof StaticPropertyFetch;
     }
 }
