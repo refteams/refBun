@@ -50,6 +50,12 @@
   
 <br>  
   
+## :warning: 필수 요구 플러그인
+- [**pmmp/DevTools-PMMP**](https://github.com/pmmp/DevTools)
+- [**Blugin/libPhpParser-PMMP**](https://github.com/Blugin/libPhpParser-PMMP) 
+
+<br>  
+  
 ## :package: 다운로드  
   
 | Version | Phar Download | Updates Note |  

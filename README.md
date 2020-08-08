@@ -23,7 +23,6 @@
     <img src="http://hits.dwyl.com/Blugin/BluginBuilder-PMMP.svg">  
   </a>  
   <strong>
-  <br> ✔️ 
   <br> ✔️ Rename <code>local</code>/<code>private</code> elements with various format!
   <br> ✔️ Replace all import(<code>use</code>) to fully qualified name!
   <br> ✔️ Cleanup all meaningless comments(`annotation`)!
@@ -46,7 +45,13 @@
 1) Download `.phar` from releases  
 2) Move dowloaded `.phar` file to server's **/plugins/** folder  
 3) Restart the server or execute `/reload` command  
+
+<br>  
   
+## :warning: Required dependency plugins
+- [**pmmp/DevTools-PMMP**](https://github.com/pmmp/DevTools)
+- [**Blugin/libPhpParser-PMMP**](https://github.com/Blugin/libPhpParser-PMMP) 
+
 <br>  
   
 ## :package: Downloads  
