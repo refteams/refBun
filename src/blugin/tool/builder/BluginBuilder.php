@@ -43,13 +43,10 @@ use blugin\tool\builder\visitor\renamer\Renamer;
 use blugin\tool\builder\visitor\renamer\SerialRenamer;
 use blugin\tool\builder\visitor\renamer\ShortenRenamer;
 use blugin\tool\builder\visitor\renamer\SpaceRenamer;
-use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
-use pocketmine\command\Command;
-use pocketmine\command\CommandSender;
+use pocketmine\command\PluginCommand;
 use pocketmine\plugin\PluginBase;
-use pocketmine\Server;
 
 class BluginBuilder extends PluginBase{
     public const RENAMER_PROECT = "protect";
@@ -109,53 +106,11 @@ class BluginBuilder extends PluginBase{
         $this->printer = $this->printers[$printerMode];
     }
 
-    /**
-     * @param CommandSender $sender
-     * @param Command       $command
-     * @param string        $label
-     * @param string[]      $args
-     *
-     * @return bool
-     * @throws \ReflectionException
-     */
-    public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
-        if(empty($args))
-            return false;
-
-        /** @var PluginBase[] $plugins */
-        $plugins = [];
-        $pluginManager = Server::getInstance()->getPluginManager();
-        if($args[0] === "*"){
-            foreach($pluginManager->getPlugins() as $pluginName => $plugin){
-                if($plugin->getPluginLoader() instanceof FolderPluginLoader){
-                    $plugins[$plugin->getName()] = $plugin;
-                }
-            }
-        }else{
-            foreach($args as $key => $pluginName){
-                $plugin = Utils::getPlugin($pluginName);
-                if($plugin === null){
-                    $sender->sendMessage("{$pluginName} is invalid plugin name");
-                }elseif(!($plugin->getPluginLoader() instanceof FolderPluginLoader)){
-                    $sender->sendMessage("{$plugin->getName()} is not in folder plugin");
-                }else{
-                    $plugins[$plugin->getName()] = $plugin;
-                }
-            }
+    public function onEnable(){
+        $command = $this->getCommand("bluginbuilder");
+        if($command instanceof PluginCommand){
+            $command->setExecutor(new BuildCommandExecutor($this));
         }
-        $pluginCount = count($plugins);
-        $sender->sendMessage("Start build the {$pluginCount} plugins");
-
-        if(!file_exists($dataFolder = $this->getDataFolder())){
-            mkdir($dataFolder, 0777, true);
-        }
-        foreach($plugins as $pluginName => $plugin){
-            $pharName = "{$pluginName}_v{$plugin->getDescription()->getVersion()}.phar";
-            $this->buildPlugin($plugin);
-            $sender->sendMessage("$pharName has been created on $dataFolder");
-        }
-        $sender->sendMessage("Complete built the {$pluginCount} plugins");
-        return true;
     }
 
     /**
@@ -290,5 +245,15 @@ class BluginBuilder extends PluginBase{
         fclose($fp);
         fclose($resource);
         return $ret;
+    }
+
+    /** @return NodeTraverser */
+    public function getTraverser() : NodeTraverser{
+        return $this->traverser;
+    }
+
+    /** @return IPrinter */
+    public function getPrinter() : IPrinter{
+        return $this->printer;
     }
 }
