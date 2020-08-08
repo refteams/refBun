@@ -1,7 +1,7 @@
 ---
 name: BluginBuilder
 main: blugin\tool\builder\BluginBuilder
-version: 0.0.1
+version: 2.0.0
 api: [3.0.0, 4.0.0]
 authors: ['Blugin-team', 'PresentKim']
 description: '[tool] Plugin builder plugin for Blugin-team'
@@ -16,6 +16,6 @@ commands:
 
 permissions:
   bluginbuilder.cmd:
-    description: '[BluginBuilder] Build folder plugin with mre option'
+    description: '[BluginBuilder] Build folder plugin with more option'
     default: op
 ...
