@@ -31,6 +31,7 @@ use blugin\tool\builder\util\Utils;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
 use blugin\tool\builder\visitor\PrivateMethodRenamerVisitor;
 use blugin\tool\builder\visitor\PrivatePropertyRenamerVisitor;
+use blugin\tool\builder\visitor\renamer\MD5Renamer;
 use blugin\tool\builder\visitor\renamer\ProtectRenamer;
 use blugin\tool\builder\visitor\renamer\Renamer;
 use blugin\tool\builder\visitor\renamer\SerialRenamer;
@@ -51,6 +52,7 @@ class BluginBuilder extends PluginBase{
     public const RENAMER_SHORTEN = "shorten";
     public const RENAMER_SERIAL = "serial";
     public const RENAMER_SPACE = "space";
+    public const RENAMER_MD5 = "md5";
     /** @var Renamer[] renamer tag -> renamer instance */
     private $renamers = [];
 
@@ -59,6 +61,7 @@ class BluginBuilder extends PluginBase{
         $this->renamers[self::RENAMER_SHORTEN] = new ShortenRenamer();
         $this->renamers[self::RENAMER_SERIAL] = new SerialRenamer();
         $this->renamers[self::RENAMER_SPACE] = new SpaceRenamer();
+        $this->renamers[self::RENAMER_MD5] = new MD5Renamer();
     }
 
     /**
@@ -178,6 +181,7 @@ class BluginBuilder extends PluginBase{
         }
         $methodRenamer = $config->getNested("preprocessing.renaming.private-method", "protect");
         if(isset($this->renamers[$methodRenamer])){
+            var_dump($this->renamers[$methodRenamer]);
             $traverser->addVisitor(new PrivateMethodRenamerVisitor($this->renamers[$methodRenamer]));
         }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
