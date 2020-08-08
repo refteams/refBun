@@ -47,7 +47,7 @@ class SerialRenamer extends Renamer{
      * @param string $property = "name"
      */
     public function generate(Node $node, string $property = "name") : void{
-        if(!$this->getName($node->$property) === null)
+        if($this->getName($node->$property) !== null)
             return;
 
         $variableCount = count($this->getNameTable());
