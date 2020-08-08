@@ -27,11 +27,11 @@ declare(strict_types=1);
 
 namespace blugin\tool\builder;
 
-use blugin\tool\builder\util\Utils;
 use FolderPluginLoader\FolderPluginLoader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
 use pocketmine\command\CommandSender;
+use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
@@ -68,7 +68,7 @@ class BuildCommandExecutor implements CommandExecutor{
             }
         }else{
             foreach($args as $key => $pluginName){
-                $plugin = Utils::getPlugin($pluginName);
+                $plugin = $this->getPlugin($pluginName);
                 if($plugin === null){
                     $sender->sendMessage("{$pluginName} is invalid plugin name");
                 }elseif(!($plugin->getPluginLoader() instanceof FolderPluginLoader)){
@@ -91,5 +91,33 @@ class BuildCommandExecutor implements CommandExecutor{
         }
         $sender->sendMessage("Complete built the {$pluginCount} plugins");
         return true;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return null|Plugin
+     */
+    public function getPlugin(string $name) : ?Plugin{
+        $plugins = Server::getInstance()->getPluginManager()->getPlugins();
+        if(isset($plugins[$name]))
+            return $plugins[$name];
+
+        $found = null;
+        $length = strlen($name);
+        $minDiff = PHP_INT_MAX;
+        foreach($plugins as $pluginName => $plugin){
+            if(stripos($pluginName, $name) === 0){
+                $diff = strlen($pluginName) - $length;
+                if($diff < $minDiff){
+                    $found = $plugin;
+                    if($diff === 0)
+                        break;
+
+                    $minDiff = $diff;
+                }
+            }
+        }
+        return $found;
     }
 }
