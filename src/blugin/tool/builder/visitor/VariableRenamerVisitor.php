@@ -56,11 +56,7 @@ class VariableRenamerVisitor extends RenamerHolderVisitor{
      * @return Node|null
      */
     public function enterNode(Node $node){
-        $variable = $this->getVariableFromNode($node);
-        if($variable === null || !$this->isValidVariable($variable))
-            return null;
-
-        $this->renamer->generate($variable);
+        $this->generate($this->getChildVariable($node));
         return null;
     }
 
@@ -72,35 +68,30 @@ class VariableRenamerVisitor extends RenamerHolderVisitor{
      * @return Node|null
      */
     public function leaveNode(Node $node){
-        $variable = $this->getVariableFromNode($node);
-        if($variable === null || !$this->isValidVariable($variable))
-            return null;
-
-        $this->renamer->rename($variable);
+        $this->rename($this->getChildVariable($node));
         return null;
     }
 
     /**
      * @param Node $node
      *
-     * @return Variable|null
+     * @return Node
      */
-    public function getVariableFromNode(Node $node) : ?Variable{
-        if($node instanceof Variable){
-            return $node;
-        }elseif($node instanceof Param || $node instanceof StaticVar || $node instanceof Catch_ || $node instanceof ClosureUse){
+    public function getChildVariable(Node $node) : Node{
+        if($node instanceof Param || $node instanceof StaticVar || $node instanceof Catch_ || $node instanceof ClosureUse){
             return $node->var;
         }
-        return null;
+        return $node;
     }
 
     /**
-     * @param Variable $variable
+     * @param Node   $node
+     * @param string $property
      *
      * @return bool
      */
-    public function isValidVariable(Variable $variable) : bool{
+    public function isValid(Node $node, string $property = "name") : bool{
         //Ignore to rename if it not string or global variable or $this(ex: $$varname, $_GET, $this)
-        return is_string($variable->name) && !in_array($variable->name, self::IGNORE_LIST);
+        return parent::isValid($node, $property) && $node instanceof Variable && is_string($node->name) && !in_array($node->name, self::IGNORE_LIST);
     }
 }

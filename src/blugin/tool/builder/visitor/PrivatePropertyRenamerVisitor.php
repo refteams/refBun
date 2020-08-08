@@ -31,6 +31,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
+use PhpParser\Node\Stmt\PropertyProperty;
 
 class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
     /**
@@ -56,7 +57,7 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
      */
     public function enterNode(Node $node){
         if($node instanceof PropertyFetch){
-            if($this->renamer->rename($node->name) === null)
+            if($this->rename($node->name) === null)
                 return null;
             return $node;
         }
@@ -74,8 +75,8 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
         foreach($nodes as $node){
             if($node instanceof Property && ($node->flags & Class_::MODIFIER_PRIVATE)){
                 foreach($node->props as $prop){
-                    $this->renamer->generate($prop->name);
-                    $this->renamer->rename($prop->name);
+                    $this->generate($prop->name);
+                    $this->rename($prop->name);
                 }
             }
 
@@ -84,5 +85,15 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
                 $this->renameProperties($node->stmts);
             }
         }
+    }
+
+    /**
+     * @param Node   $node
+     * @param string $property
+     *
+     * @return bool
+     */
+    public function isValid(Node $node, string $property = "name") : bool{
+        return parent::isValid($node, $property) && ($node instanceof PropertyProperty || $node instanceof PropertyFetch);
     }
 }
