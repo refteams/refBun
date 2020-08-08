@@ -29,6 +29,7 @@ namespace blugin\tool\builder;
 
 use blugin\tool\builder\printer\IPrinter;
 use blugin\tool\builder\printer\PrettyPrinter;
+use blugin\tool\builder\printer\ShortenPrinter;
 use blugin\tool\builder\util\Utils;
 use blugin\tool\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
@@ -60,6 +61,7 @@ class BluginBuilder extends PluginBase{
     private $renamers = [];
 
     public const PRINTER_PRETTY = "pretty";
+    public const PRINTER_SHORTEN = "shorten";
     /** @var IPrinter[] printer tag -> printer instance */
     private $printers = [];
 
@@ -71,6 +73,7 @@ class BluginBuilder extends PluginBase{
         $this->renamers[self::RENAMER_MD5] = new MD5Renamer();
 
         $this->printers[self::PRINTER_PRETTY] = new PrettyPrinter();
+        $this->printers[self::PRINTER_SHORTEN] = new ShortenPrinter();
     }
 
     /**
