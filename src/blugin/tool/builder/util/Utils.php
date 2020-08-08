@@ -75,22 +75,4 @@ class Utils{
         }
         return $stripedCode;
     }
-
-    /**
-     * @param string $directory
-     *
-     * @return bool
-     */
-    public static function removeDirectory(string $directory) : bool{
-        $files = array_diff(scandir($directory), [".", ".."]);
-        foreach($files as $file){
-            $fileName = "{$directory}/{$file}";
-            if(is_dir($fileName)){
-                Utils::removeDirectory($fileName);
-            }else{
-                unlink($fileName);
-            }
-        }
-        return rmdir($directory);
-    }
 }

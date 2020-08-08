@@ -158,10 +158,7 @@ class BluginBuilder extends PluginBase{
 
         //Remove the existing build folder and remake
         $buildPath = "{$this->getDataFolder()}build/";
-        if(file_exists($buildPath)){
-            Utils::removeDirectory($buildPath);
-        }
-        mkdir($buildPath, 0777, true);
+        $this->clearDirectory($buildPath);
 
         //Pre-build processing execution
         $config = $this->getConfig();
@@ -245,6 +242,28 @@ class BluginBuilder extends PluginBase{
         fclose($fp);
         fclose($resource);
         return $ret;
+    }
+
+    /**
+     * @param string $directory
+     *
+     * @return bool
+     */
+    public function clearDirectory(string $directory) : bool{
+        if(!file_exists($directory))
+            return mkdir($directory, 0777, true);
+
+        $files = array_diff(scandir($directory), [".", ".."]);
+        foreach($files as $file){
+            $path = "{$directory}/{$file}";
+            if(is_dir($path)){
+                $this->clearDirectory($path);
+                rmdir($path);
+            }else{
+                unlink($path);
+            }
+        }
+        return (count(scandir($directory)) == 2);
     }
 
     /** @return NodeTraverser */
