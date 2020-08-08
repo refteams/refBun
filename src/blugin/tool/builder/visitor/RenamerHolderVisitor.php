@@ -79,7 +79,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      * @param string $property = "name"
      */
     public function generate(Node $node, string $property = "name") : void{
-        if($this->isValid($node, $property))
+        if($this->isValidToGenerate($node, $property))
             $this->renamer->generate($this->getTarget($node), $property);
     }
 
@@ -90,7 +90,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      * @return Node|null
      */
     public function rename(Node $node, string $property = "name") : ?Node{
-        if($this->isValid($node, $property))
+        if($this->isValidToRename($node, $property))
             return $this->renamer->rename($this->getTarget($node));
         return null;
     }
@@ -113,5 +113,25 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
     public function isValid(Node $node, string $property = "name") : bool{
         $target = $this->getTarget($node);
         return isset($target->$property) && is_string($target->$property);
+    }
+
+    /**
+     * @param Node   $node
+     * @param string $property
+     *
+     * @return bool
+     */
+    public function isValidToGenerate(Node $node, string $property = "name") : bool{
+        return $this->isValid($node, $property);
+    }
+
+    /**
+     * @param Node   $node
+     * @param string $property
+     *
+     * @return bool
+     */
+    public function isValidToRename(Node $node, string $property = "name") : bool{
+        return $this->isValid($node, $property);
     }
 }
