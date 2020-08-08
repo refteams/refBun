@@ -28,9 +28,9 @@ declare(strict_types=1);
 namespace blugin\tool\builder;
 
 use blugin\tool\builder\printer\IPrinter;
+use blugin\tool\builder\printer\OptimizePrinter;
 use blugin\tool\builder\printer\PrettyPrinter;
 use blugin\tool\builder\printer\ShortenPrinter;
-use blugin\tool\builder\util\OptimizePrinter;
 use blugin\tool\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
 use blugin\tool\builder\visitor\LocalVariableRenamingVisitor;

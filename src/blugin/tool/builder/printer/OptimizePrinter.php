@@ -25,9 +25,8 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\builder\util;
+namespace blugin\tool\builder\printer;
 
-use blugin\tool\builder\printer\IPrinter;
 use PhpParser\Node;
 use PhpParser\PrettyPrinter\Standard;
 
