@@ -206,10 +206,10 @@ class BluginBuilder extends PluginBase{
         //Build the plugin with .phar file
         $phar = new \Phar($pharPath);
         $phar->setSignatureAlgorithm(\Phar::SHA1);
-        if($config->getNested("build.skip-metadata", true)){
+        if(!$config->getNested("build.skip-metadata", true)){
             $phar->setMetadata($metadata);
         }
-        if($config->getNested("build.skip-stub", true)){
+        if(!$config->getNested("build.skip-stub", true)){
             $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$metadata["name"]}_v{$metadata["version"]}\nThis file has been generated using BluginBuilder at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
         }else{
             $phar->setStub("<?php __HALT_COMPILER();");
