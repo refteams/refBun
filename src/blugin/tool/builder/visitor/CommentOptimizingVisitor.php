@@ -27,7 +27,6 @@ declare(strict_types=1);
 
 namespace blugin\tool\builder\visitor;
 
-use PhpParser\Comment;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
@@ -53,13 +52,13 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
      */
     public function enterNode(Node $node){
         $doc = $node->getDocComment();
+
+        //Remove all comments
+        $node->setAttribute("comments", []);
+
+        //If the comment has no doc comment, skip.
         if($doc === null)
             return null;
-
-        //Remove existing doc comment
-        $comments = array_filter($node->getComments(), function(Comment $comment) : bool{
-            return !$comment instanceof Doc;
-        });
 
         //Store meaningfull comments
         $docComments = [];
@@ -70,17 +69,17 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
             }
         }
 
-        //If the comment is meaningful, add new doc comment
-        if(!empty($docComments)){
-            $newText = "/** " . PHP_EOL;
-            foreach($docComments as $value){
-                $newText .= "* @$value" . PHP_EOL;
-            }
-            $newText .= "*/";
-            $comments[] = new Doc($newText);
-        }
+        //If the comment has no meaningfull comments, skip.
+        if(empty($docComments))
+            return null;
 
-        $node->setAttribute('comments', $comments);
+        //Add doc comment
+        $text = "/**" . PHP_EOL;
+        foreach($docComments as $value){
+            $text .= "* @$value" . PHP_EOL;
+        }
+        $text .= "*/";
+        $node->setAttribute("comments", [new Doc($text)]);
         return $node;
     }
 
