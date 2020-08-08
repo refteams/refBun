@@ -30,7 +30,7 @@ namespace blugin\tool\builder;
 use blugin\tool\builder\printer\IPrinter;
 use blugin\tool\builder\printer\PrettyPrinter;
 use blugin\tool\builder\printer\ShortenPrinter;
-use blugin\tool\builder\util\Utils;
+use blugin\tool\builder\util\OptimizePrinter;
 use blugin\tool\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
 use blugin\tool\builder\visitor\LocalVariableRenamingVisitor;
@@ -186,7 +186,7 @@ class BluginBuilder extends PluginBase{
                     $stmts = $this->traverser->traverse($stmts);
                     $contents = $this->printer->print($stmts);
                     if($config->getNested("preprocessing.minor-optimizating", true)){
-                        $contents = Utils::codeOptimize($contents);
+                        $contents = (new OptimizePrinter())->codeOptimize($contents);
                     }
                     file_put_contents($out, $contents);
                 }catch(\Error $e){

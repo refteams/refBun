@@ -27,13 +27,30 @@ declare(strict_types=1);
 
 namespace blugin\tool\builder\util;
 
-class Utils{
+use blugin\tool\builder\printer\IPrinter;
+use PhpParser\Node;
+use PhpParser\PrettyPrinter\Standard;
+
+/**
+ * TODO: Implements feature without depending on Pretty
+ */
+class OptimizePrinter extends Standard implements IPrinter{
+    /**
+     * @param Node[] $stmts
+     *
+     * @return string
+     */
+    public function print(array $stmts) : string{
+        $code = $this->prettyPrintFile($stmts);
+        return $this->codeOptimize($code);
+    }
+
     /**
      * @param string $originalCode
      *
      * @return string
      */
-    public static function codeOptimize(string $originalCode) : string{
+    public function codeOptimize(string $originalCode) : string{
         $ignoreBeforeList = [
             T_SL,               // <<
             T_NS_SEPARATOR,     // \\
