@@ -34,6 +34,7 @@ use blugin\tool\builder\util\Utils;
 use blugin\tool\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
 use blugin\tool\builder\visitor\LocalVariableRenamingVisitor;
+use blugin\tool\builder\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\builder\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\builder\visitor\PrivatePropertyRenamingVisitor;
 use blugin\tool\builder\visitor\renamer\MD5Renamer;
@@ -45,7 +46,6 @@ use blugin\tool\builder\visitor\renamer\SpaceRenamer;
 use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
-use PhpParser\PrettyPrinter\Standard;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
@@ -200,6 +200,10 @@ class BluginBuilder extends PluginBase{
         $methodRenamer = $config->getNested("preprocessing.renaming.private-method", "protect");
         if(isset($this->renamers[$methodRenamer])){
             $traverser->addVisitor(new PrivateMethodRenamingVisitor($this->renamers[$methodRenamer]));
+        }
+        $constRenamer = $config->getNested("preprocessing.renaming.private-const", "protect");
+        if(isset($this->renamers[$constRenamer])){
+            $traverser->addVisitor(new PrivateConstRenamingVisitor($this->renamers[$constRenamer]));
         }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();

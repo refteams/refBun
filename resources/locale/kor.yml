@@ -16,6 +16,9 @@ preprocessing:
     #개인 메소드
     private-method: serial
 
+    #개인 상수
+    private-const: serial
+
   #사소한 코드 최적화
   minor-optimizating: true
 

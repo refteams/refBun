@@ -16,6 +16,9 @@ preprocessing:
     #Private method
     private-method: serial
 
+    #Private const
+    private-const: serial
+
   #Minor code optimization
   minor-optimizating: true
 
