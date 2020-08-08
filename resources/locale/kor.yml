@@ -8,6 +8,10 @@ preprocessing:
   #지원하는 모드 : protect(변수명 숨기기), shorten(짧은 변수명), serial(순차적인 변수명), disable(비활성화)
   variable-renaming: serial
 
+  #private 프로퍼티 이름 재정의 모드
+  #지원하는 모드 : protect(변수명 숨기기), shorten(짧은 변수명), serial(순차적인 변수명), disable(비활성화)
+  private-property-renaming: serial
+
   #사소한 코드 최적화
   minor-optimizating: true
 

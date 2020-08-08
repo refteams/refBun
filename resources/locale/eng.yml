@@ -8,6 +8,10 @@ preprocessing:
   #Modes Supported : protect(Hide variable), shorten, serial(Sequential variable), disable
   variable-renaming: serial
 
+  #Private property name rename mode
+  #Modes Supported : protect(Hide variable), shorten, serial(Sequential variable), disable
+  private-property-renaming: serial
+
   #Minor code optimization
   minor-optimizating: true
 
