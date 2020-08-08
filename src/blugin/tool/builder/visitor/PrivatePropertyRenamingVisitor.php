@@ -39,7 +39,7 @@ class PrivatePropertyRenamingVisitor extends PrivateRenamingVisitor{
      * @param Node $node
      **/
     protected function registerNode(Node $node) : void{
-        if($node instanceof Property && $node->isPrivate()){
+        if($node instanceof Property && $node->isPrivate() && !$node->isStatic()){
             foreach($node->props as $prop){
                 $this->privateNodes[] = $prop;
                 $this->generate($prop);
