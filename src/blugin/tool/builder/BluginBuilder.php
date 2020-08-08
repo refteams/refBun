@@ -65,6 +65,11 @@ class BluginBuilder extends PluginBase{
     /** @var IPrinter[] printer tag -> printer instance */
     private $printers = [];
 
+    /** @var NodeTraverser */
+    private $traverser;
+    /** @var IPrinter */
+    private $printer;
+
     public function onLoad(){
         $this->renamers[self::RENAMER_PROECT] = new ProtectRenamer();
         $this->renamers[self::RENAMER_SHORTEN] = new ShortenRenamer();
@@ -74,6 +79,34 @@ class BluginBuilder extends PluginBase{
 
         $this->printers[self::PRINTER_PRETTY] = new PrettyPrinter();
         $this->printers[self::PRINTER_SHORTEN] = new ShortenPrinter();
+
+        $config = $this->getConfig();
+        //Load pre-processing settings
+        $this->traverser = new NodeTraverser();
+        foreach([
+            "resolve-importing" => ImportRemovingVisitor::class,
+            "comment-optimizing" => CommentOptimizingVisitor::class
+        ] as $key => $class){
+            if($config->getNested("preprocessing.$key", true))
+                $this->traverser->addVisitor(new $class());
+        }
+
+        //Load renaming mode settings
+        foreach([
+            "local-variable" => LocalVariableRenamingVisitor::class,
+            "private-property" => PrivatePropertyRenamingVisitor::class,
+            "private-method" => PrivateMethodRenamingVisitor::class,
+            "private-const" => PrivateConstRenamingVisitor::class
+        ] as $key => $class){
+            if(isset($this->renamers[$mode = $config->getNested("preprocessing.renaming.$key", "serial")])){
+                $this->traverser->addVisitor(new $class(clone $this->renamers[$mode]));
+            }
+        }
+
+        //Load build settings
+        $printerMode = $config->getNested("build.print-format");
+        $printerMode = isset($this->printers[$printerMode]) ? $printerMode : "shorten";
+        $this->printer = $this->printers[$printerMode];
     }
 
     /**
@@ -178,33 +211,6 @@ class BluginBuilder extends PluginBase{
         //Pre-build processing execution
         $config = $this->getConfig();
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        $traverser = new NodeTraverser();
-        $printerMode = $config->getNested("build.print-format");
-        $printerMode = isset($this->printers[$printerMode]) ? $printerMode : "shorten";
-        $printer = $this->printers[$printerMode];
-        if($config->getNested("preprocessing.resolve-importing", true)){
-            $traverser->addVisitor(new ImportRemovingVisitor());
-        }
-        if($config->getNested("preprocessing.comment-optimizing", true)){
-            $traverser->addVisitor(new ImportRemovingVisitor());
-        }
-        $traverser->addVisitor(new CommentOptimizingVisitor());
-        $variableRenamer = $config->getNested("preprocessing.renaming.local-variable", "protect");
-        if(isset($this->renamers[$variableRenamer])){
-            $traverser->addVisitor(new LocalVariableRenamingVisitor($this->renamers[$variableRenamer]));
-        }
-        $propertyRenamer = $config->getNested("preprocessing.renaming.private-property", "protect");
-        if(isset($this->renamers[$propertyRenamer])){
-            $traverser->addVisitor(new PrivatePropertyRenamingVisitor($this->renamers[$propertyRenamer]));
-        }
-        $methodRenamer = $config->getNested("preprocessing.renaming.private-method", "protect");
-        if(isset($this->renamers[$methodRenamer])){
-            $traverser->addVisitor(new PrivateMethodRenamingVisitor($this->renamers[$methodRenamer]));
-        }
-        $constRenamer = $config->getNested("preprocessing.renaming.private-const", "protect");
-        if(isset($this->renamers[$constRenamer])){
-            $traverser->addVisitor(new PrivateConstRenamingVisitor($this->renamers[$constRenamer]));
-        }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
             if($fileName === "." || $fileName === "..")
@@ -225,8 +231,8 @@ class BluginBuilder extends PluginBase{
                 try{
                     $contents = file_get_contents($fileInfo->getPathName());
                     $stmts = $parser->parse($contents);
-                    $stmts = $traverser->traverse($stmts);
-                    $contents = $printer->print($stmts);
+                    $stmts = $this->traverser->traverse($stmts);
+                    $contents = $this->printer->print($stmts);
                     if($config->getNested("preprocessing.minor-optimizating", true)){
                         $contents = Utils::codeOptimize($contents);
                     }
