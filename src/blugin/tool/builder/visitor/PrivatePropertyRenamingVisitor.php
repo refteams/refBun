@@ -32,77 +32,29 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
 
-class PrivatePropertyRenamingVisitor extends RenamerHolderVisitor{
-    /** @var PropertyProperty[] */
-    private $privateProperties = [];
-
+class PrivatePropertyRenamingVisitor extends PrivateRenamingVisitor{
     /**
-     * Register private property on before traverse
+     * Register private node
      *
-     * @param Node[] $nodes
-     *
-     * @return array
+     * @param Node $node
      **/
-    public function beforeTraverse(array $nodes){
-        $this->getRenamer()->init();
-        $this->privateProperties = [];
-        $this->registerPrivateProperties($nodes);
-
-        return $nodes;
-    }
-
-    /**
-     * Register private property with recursion
-     *
-     * @param Node[] $nodes
-     *
-     * @return void
-     **/
-    private function registerPrivateProperties(array $nodes) : void{
-        foreach($nodes as $node){
-            if($node instanceof Property && $node->isPrivate()){
-                foreach($node->props as $prop){
-                    $this->privateProperties[] = $prop;
-                    $this->generate($prop);
-                }
-            }
-
-            //Child node with recursion processing
-            if(isset($node->stmts) && is_array($node->stmts)){
-                $this->registerPrivateProperties($node->stmts);
+    protected function registerNode(Node $node) : void{
+        if($node instanceof Property && $node->isPrivate()){
+            foreach($node->props as $prop){
+                $this->privateNodes[] = $prop;
+                $this->generate($prop);
             }
         }
     }
 
     /**
+     * Filter is target node
+     *
      * @param Node $node
      *
-     * @return Node
-     */
-    protected function getTarget(Node $node) : Node{
-        if($node instanceof PropertyProperty || $node instanceof PropertyFetch){
-            return $node->name;
-        }
-        return $node;
-    }
-
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
      * @return bool
      */
-    protected function isValidToGenerate(Node $node, string $property = "name") : bool{
-        return parent::isValidToRename($node, $property) && $node instanceof PropertyProperty && in_array($node, $this->privateProperties);
-    }
-
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
-     * @return bool
-     */
-    protected function isValidToRename(Node $node, string $property = "name") : bool{
-        return parent::isValidToRename($node, $property) && ($node instanceof PropertyProperty || $node instanceof PropertyFetch);
+    protected function isTarget(Node $node) : bool{
+        return $node instanceof PropertyProperty || $node instanceof PropertyFetch;
     }
 }

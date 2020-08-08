@@ -31,76 +31,28 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\PropertyProperty;
 
-class PrivateMethodRenamingVisitor extends RenamerHolderVisitor{
-    /** @var PropertyProperty[] */
-    private $privateMethods = [];
-
+class PrivateMethodRenamingVisitor extends PrivateRenamingVisitor{
     /**
-     * Register private methods on before traverse
+     * Register private node
      *
-     * @param Node[] $nodes
-     *
-     * @return array
+     * @param Node $node
      **/
-    public function beforeTraverse(array $nodes){
-        $this->getRenamer()->init();
-        $this->privateMethods = [];
-        $this->registerPrivateMethods($nodes);
-        return $nodes;
-    }
-
-    /**
-     * Register private methods with recursion
-     *
-     * @param Node[] $nodes
-     *
-     * @return void
-     **/
-    private function registerPrivateMethods(array $nodes) : void{
-        foreach($nodes as $node){
-            if($node instanceof ClassMethod && $node->isPrivate()){
-                $this->privateMethods[] = $node;
-                $this->generate($node);
-            }
-
-            //Child node with recursion processing
-            if(isset($node->stmts) && is_array($node->stmts)){
-                $this->registerPrivateMethods($node->stmts);
-            }
+    protected function registerNode(Node $node) : void{
+        if($node instanceof ClassMethod && $node->isPrivate()){
+            $this->privateNodes[] = $node;
+            $this->generate($node);
         }
     }
 
     /**
+     * Filter is target node
+     *
      * @param Node $node
      *
-     * @return Node
-     */
-    protected function getTarget(Node $node) : Node{
-        if($node instanceof ClassMethod || $node instanceof MethodCall || $node instanceof StaticCall){
-            return $node->name;
-        }
-        return $node;
-    }
-
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
      * @return bool
      */
-    protected function isValidToGenerate(Node $node, string $property = "name") : bool{
-        return parent::isValidToRename($node, $property) && $node instanceof ClassMethod && in_array($node, $this->privateMethods);;
-    }
-
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
-     * @return bool
-     */
-    protected function isValidToRename(Node $node, string $property = "name") : bool{
-        return parent::isValidToRename($node, $property) && ($node instanceof ClassMethod || $node instanceof MethodCall || $node instanceof StaticCall);
+    protected function isTarget(Node $node) : bool{
+        return $node instanceof ClassMethod || $node instanceof MethodCall || $node instanceof StaticCall;
     }
 }

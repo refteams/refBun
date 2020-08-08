@@ -32,76 +32,29 @@ use PhpParser\Node\Const_;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Stmt\ClassConst;
 
-class PrivateConstRenamingVisitor extends RenamerHolderVisitor{
-    /** @var Const_[] */
-    private $privateConsts = [];
-
+class PrivateConstRenamingVisitor extends PrivateRenamingVisitor{
     /**
-     * Register private consts on before traverse
+     * Register private node
      *
-     * @param Node[] $nodes
-     *
-     * @return array
+     * @param Node $node
      **/
-    public function beforeTraverse(array $nodes){
-        $this->getRenamer()->init();
-        $this->privateConsts = [];
-        $this->registerPrivateConsts($nodes);
-        return $nodes;
-    }
-
-    /**
-     * Register private consts with recursion
-     *
-     * @param Node[] $nodes
-     *
-     * @return void
-     **/
-    private function registerPrivateConsts(array $nodes) : void{
-        foreach($nodes as $node){
-            if($node instanceof ClassConst && $node->isPrivate()){
-                foreach($node->consts as $const){
-                    $this->privateConsts[] = $const;
-                    $this->generate($const);
-                }
-            }
-
-            //Child node with recursion processing
-            if(isset($node->stmts) && is_array($node->stmts)){
-                $this->registerPrivateConsts($node->stmts);
+    protected function registerNode(Node $node) : void{
+        if($node instanceof ClassConst && $node->isPrivate()){
+            foreach($node->consts as $const){
+                $this->privateNodes[] = $const;
+                $this->generate($const);
             }
         }
     }
 
     /**
+     * Filter is target node
+     *
      * @param Node $node
      *
-     * @return Node
-     */
-    protected function getTarget(Node $node) : Node{
-        if($node instanceof ClassConstFetch || $node instanceof Const_){
-            return $node->name;
-        }
-        return $node;
-    }
-
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
      * @return bool
      */
-    protected function isValidToGenerate(Node $node, string $property = "name") : bool{
-        return parent::isValidToRename($node, $property) && $node instanceof Const_ && in_array($node, $this->privateConsts);;
-    }
-
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
-     * @return bool
-     */
-    protected function isValidToRename(Node $node, string $property = "name") : bool{
-        return parent::isValidToRename($node, $property) && ($node instanceof ClassConstFetch || $node instanceof Const_);
+    protected function isTarget(Node $node) : bool{
+        return $node instanceof ClassConstFetch || $node instanceof Const_;
     }
 }
