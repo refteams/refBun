@@ -163,11 +163,7 @@ class BluginBuilder extends PluginBase{
         //Pre-build processing execution
         $config = $this->getConfig();
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
-            $fileName = $fileInfo->getFilename();
-            if($fileName === "." || $fileName === "..")
-                continue;
-
+        foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath, \FilesystemIterator::SKIP_DOTS)) as $path => $fileInfo){
             if($config->getNested("build.include-minimal", true)){
                 $inPath = substr($path, strlen($filePath));
                 if($inPath !== "plugin.yml" && strpos($inPath, "src\\") !== 0 && strpos($inPath, "resources\\") !== 0)
