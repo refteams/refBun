@@ -29,13 +29,15 @@ namespace blugin\tool\builder\visitor;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
 
 class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
+    /** @var PropertyProperty[] */
+    private $privateProperties = [];
+
     /**
-     * Rename private property on before traverse
+     * Register private property on before traverse
      *
      * @param Node[] $nodes
      *
@@ -43,29 +45,31 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
      **/
     public function beforeTraverse(array $nodes){
         $this->renamer->init();
-        $this->renameProperties($nodes);
+        $this->privateProperties = [];
+        $this->registerPrivateProperties($nodes);
 
         return $nodes;
     }
 
     /**
-     * Rename private property with recursion
+     * Register private property with recursion
      *
      * @param Node[] $nodes
      *
      * @return void
      **/
-    private function renameProperties(array $nodes) : void{
+    private function registerPrivateProperties(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Property && $node->isPrivate()){
                 foreach($node->props as $prop){
+                    $this->privateProperties[] = $prop;
                     $this->generate($prop);
                 }
             }
 
             //Child node with recursion processing
             if(isset($node->stmts) && is_array($node->stmts)){
-                $this->renameProperties($node->stmts);
+                $this->registerPrivateProperties($node->stmts);
             }
         }
     }
@@ -88,7 +92,17 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
      *
      * @return bool
      */
-    public function isValid(Node $node, string $property = "name") : bool{
-        return parent::isValid($node, $property) && ($node instanceof PropertyProperty || $node instanceof PropertyFetch);
+    public function isValidToGenerate(Node $node, string $property = "name") : bool{
+        return parent::isValidToRename($node, $property) && $node instanceof PropertyProperty && in_array($node, $this->privateProperties);
+    }
+
+    /**
+     * @param Node   $node
+     * @param string $property
+     *
+     * @return bool
+     */
+    public function isValidToRename(Node $node, string $property = "name") : bool{
+        return parent::isValidToRename($node, $property) && ($node instanceof PropertyProperty || $node instanceof PropertyFetch);
     }
 }
