@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace blugin\tool\builder;
 
+use blugin\tool\builder\printer\IPrinter;
+use blugin\tool\builder\printer\PrettyPrinter;
 use blugin\tool\builder\util\Utils;
 use blugin\tool\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
@@ -57,12 +59,18 @@ class BluginBuilder extends PluginBase{
     /** @var Renamer[] renamer tag -> renamer instance */
     private $renamers = [];
 
+    public const PRINTER_PRETTY = "pretty";
+    /** @var IPrinter[] printer tag -> printer instance */
+    private $printers = [];
+
     public function onLoad(){
         $this->renamers[self::RENAMER_PROECT] = new ProtectRenamer();
         $this->renamers[self::RENAMER_SHORTEN] = new ShortenRenamer();
         $this->renamers[self::RENAMER_SERIAL] = new SerialRenamer();
         $this->renamers[self::RENAMER_SPACE] = new SpaceRenamer();
         $this->renamers[self::RENAMER_MD5] = new MD5Renamer();
+
+        $this->printers[self::PRINTER_PRETTY] = new PrettyPrinter();
     }
 
     /**
@@ -168,7 +176,9 @@ class BluginBuilder extends PluginBase{
         $config = $this->getConfig();
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $traverser = new NodeTraverser();
-        $prettyPrinter = new Standard();
+        $printerMode = $config->getNested("build.print-format");
+        $printerMode = isset($this->printers[$printerMode]) ? $printerMode : "shorten";
+        $printer = $this->printers[$printerMode];
         if($config->getNested("preprocessing.resolve-importing", true)){
             $traverser->addVisitor(new ImportRemovingVisitor());
         }
@@ -209,7 +219,7 @@ class BluginBuilder extends PluginBase{
                     $contents = file_get_contents($fileInfo->getPathName());
                     $stmts = $parser->parse($contents);
                     $stmts = $traverser->traverse($stmts);
-                    $contents = $prettyPrinter->prettyPrintFile($stmts);
+                    $contents = $printer->print($stmts);
                     if($config->getNested("preprocessing.minor-optimizating", true)){
                         $contents = Utils::codeOptimize($contents);
                     }
