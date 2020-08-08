@@ -36,7 +36,7 @@ class ShortenRenamer extends Renamer{
      */
     public function generate(Node $node, string $property = "name") : void{
         $nameTable = $this->getNameTable();
-        if(!isset($nameTable[$node->$property]))
+        if(isset($nameTable[$node->$property]))
             return;
 
         $name = $node->$property;
