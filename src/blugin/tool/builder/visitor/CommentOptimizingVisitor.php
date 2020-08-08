@@ -50,11 +50,6 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
      * @param Node $node
      *
      * @return Node|null
-     * @priority HIGHEST
-     * @notHandler HIGHEST
-     * @ignoreCancelled
-     * @notHandler
-     * @handleCancelled
      */
     public function enterNode(Node $node){
         $doc = $node->getDocComment();
