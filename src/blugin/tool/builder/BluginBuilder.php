@@ -29,6 +29,7 @@ namespace blugin\tool\builder;
 
 use blugin\tool\builder\util\Utils;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
+use blugin\tool\builder\visitor\PrivateMethodRenamerVisitor;
 use blugin\tool\builder\visitor\PrivatePropertyRenamerVisitor;
 use blugin\tool\builder\visitor\renamer\ProtectRenamer;
 use blugin\tool\builder\visitor\renamer\Renamer;
@@ -171,6 +172,10 @@ class BluginBuilder extends PluginBase{
         $propertyRenamer = $config->getNested("preprocessing.private-property-renaming", "protect");
         if(isset($this->renamers[$propertyRenamer])){
             $traverser->addVisitor(new PrivatePropertyRenamerVisitor($this->renamers[$propertyRenamer]));
+        }
+        $propertyRenamer = $config->getNested("preprocessing.private-method-renaming", "protect");
+        if(isset($this->renamers[$propertyRenamer])){
+            $traverser->addVisitor(new PrivateMethodRenamerVisitor($this->renamers[$propertyRenamer]));
         }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
