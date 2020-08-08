@@ -34,7 +34,7 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\StaticVar;
 
-class LocalVariableRenamerVisitor extends RenamerHolderVisitor{
+class LocalVariableRenamingVisitor extends RenamerHolderVisitor{
     /** @const string[] list of ignore name, The global variables and $this */
     private const IGNORE_LIST = [
         "this",

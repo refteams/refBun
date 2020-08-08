@@ -33,7 +33,7 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\PropertyProperty;
 
-class PrivateMethodRenamerVisitor extends RenamerHolderVisitor{
+class PrivateMethodRenamingVisitor extends RenamerHolderVisitor{
     /** @var PropertyProperty[] */
     private $privateMethods = [];
 

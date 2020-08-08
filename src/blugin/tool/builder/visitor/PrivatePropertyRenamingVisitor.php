@@ -32,7 +32,7 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
 
-class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
+class PrivatePropertyRenamingVisitor extends RenamerHolderVisitor{
     /** @var PropertyProperty[] */
     private $privateProperties = [];
 

@@ -29,14 +29,14 @@ namespace blugin\tool\builder;
 
 use blugin\tool\builder\util\Utils;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
-use blugin\tool\builder\visitor\PrivateMethodRenamerVisitor;
-use blugin\tool\builder\visitor\PrivatePropertyRenamerVisitor;
+use blugin\tool\builder\visitor\PrivateMethodRenamingVisitor;
+use blugin\tool\builder\visitor\PrivatePropertyRenamingVisitor;
 use blugin\tool\builder\visitor\renamer\MD5Renamer;
 use blugin\tool\builder\visitor\renamer\ProtectRenamer;
 use blugin\tool\builder\visitor\renamer\Renamer;
 use blugin\tool\builder\visitor\renamer\SerialRenamer;
 use blugin\tool\builder\visitor\renamer\ShortenRenamer;
-use blugin\tool\builder\visitor\LocalVariableRenamerVisitor;
+use blugin\tool\builder\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\builder\visitor\renamer\SpaceRenamer;
 use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
@@ -173,16 +173,15 @@ class BluginBuilder extends PluginBase{
         }
         $variableRenamer = $config->getNested("preprocessing.renaming.local-variable", "protect");
         if(isset($this->renamers[$variableRenamer])){
-            $traverser->addVisitor(new LocalVariableRenamerVisitor($this->renamers[$variableRenamer]));
+            $traverser->addVisitor(new LocalVariableRenamingVisitor($this->renamers[$variableRenamer]));
         }
         $propertyRenamer = $config->getNested("preprocessing.renaming.private-property", "protect");
         if(isset($this->renamers[$propertyRenamer])){
-            $traverser->addVisitor(new PrivatePropertyRenamerVisitor($this->renamers[$propertyRenamer]));
+            $traverser->addVisitor(new PrivatePropertyRenamingVisitor($this->renamers[$propertyRenamer]));
         }
         $methodRenamer = $config->getNested("preprocessing.renaming.private-method", "protect");
         if(isset($this->renamers[$methodRenamer])){
-            var_dump($this->renamers[$methodRenamer]);
-            $traverser->addVisitor(new PrivateMethodRenamerVisitor($this->renamers[$methodRenamer]));
+            $traverser->addVisitor(new PrivateMethodRenamingVisitor($this->renamers[$methodRenamer]));
         }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
