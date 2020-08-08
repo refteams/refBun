@@ -157,54 +157,6 @@ class Utils{
      *
      * @return string
      */
-    public static function removeComment(string $originalCode) : string{
-        $tokens = token_get_all($originalCode);
-        $stripedCode = "";
-        for($i = 0, $count = count($tokens); $i < $count; $i++){
-            if(!is_array($tokens[$i])){
-                $stripedCode .= $tokens[$i];
-                continue;
-            }
-
-            if($tokens[$i][0] === T_COMMENT)
-                continue;
-
-            if($tokens[$i][0] === T_DOC_COMMENT){
-                $annotations = [];
-                if(preg_match("/^[\t ]*\* @notHandler/m", $tokens[$i][1], $matches) > 0){
-                    $annotations[] = "@notHandler";
-                }
-                if(preg_match("/^[\t ]*\* @softDepend[\t ]+([a-zA-Z]+)/m", $tokens[$i][1], $matches) > 0){
-                    $annotations[] = "@softDepend $matches[1]";
-                }
-                if(preg_match("/^[\t ]*\* @ignoreCancelled/m", $tokens[$i][1], $matches) > 0){
-                    $annotations[] = "@ignoreCancelled";
-                }
-                if(preg_match("/^[\t ]*\* @handleCancelled/m", $tokens[$i][1], $matches) > 0){
-                    $annotations[] = "@handleCancelled";
-                }
-                if(preg_match("/^[\t ]*\* @priority[\t ]+([a-zA-Z]+)/m", $tokens[$i][1], $matches) > 0){
-                    $annotations[] = "@priority $matches[1]";
-                }
-                $tokens[$i][1] = "";
-                if(!empty($annotations)){
-                    $tokens[$i][1] .= "/** " . PHP_EOL;
-                    foreach($annotations as $value){
-                        $tokens[$i][1] .= "* $value" . PHP_EOL;
-                    }
-                    $tokens[$i][1] .= "*/";
-                }
-            }
-            $stripedCode .= $tokens[$i][1];
-        }
-        return $stripedCode;
-    }
-
-    /**
-     * @param string $originalCode
-     *
-     * @return string
-     */
     public static function codeOptimize(string $originalCode) : string{
         $ignoreBeforeList = [
             T_SL,               // <<

@@ -28,7 +28,9 @@ declare(strict_types=1);
 namespace blugin\tool\builder;
 
 use blugin\tool\builder\util\Utils;
+use blugin\tool\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
+use blugin\tool\builder\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\builder\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\builder\visitor\PrivatePropertyRenamingVisitor;
 use blugin\tool\builder\visitor\renamer\MD5Renamer;
@@ -36,7 +38,6 @@ use blugin\tool\builder\visitor\renamer\ProtectRenamer;
 use blugin\tool\builder\visitor\renamer\Renamer;
 use blugin\tool\builder\visitor\renamer\SerialRenamer;
 use blugin\tool\builder\visitor\renamer\ShortenRenamer;
-use blugin\tool\builder\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\builder\visitor\renamer\SpaceRenamer;
 use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
@@ -171,6 +172,10 @@ class BluginBuilder extends PluginBase{
         if($config->getNested("preprocessing.resolve-importing", true)){
             $traverser->addVisitor(new ImportRemovingVisitor());
         }
+        if($config->getNested("preprocessing.comment-optimizing", true)){
+            $traverser->addVisitor(new ImportRemovingVisitor());
+        }
+        $traverser->addVisitor(new CommentOptimizingVisitor());
         $variableRenamer = $config->getNested("preprocessing.renaming.local-variable", "protect");
         if(isset($this->renamers[$variableRenamer])){
             $traverser->addVisitor(new LocalVariableRenamingVisitor($this->renamers[$variableRenamer]));
@@ -207,9 +212,6 @@ class BluginBuilder extends PluginBase{
                     $contents = $prettyPrinter->prettyPrintFile($stmts);
                     if($config->getNested("preprocessing.minor-optimizating", true)){
                         $contents = Utils::codeOptimize($contents);
-                    }
-                    if($config->getNested("preprocessing.comment-optimizing", true)){
-                        $contents = Utils::removeComment($contents);
                     }
                     file_put_contents($out, $contents);
                 }catch(\Error $e){
