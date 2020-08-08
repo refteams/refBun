@@ -31,7 +31,7 @@ use PhpParser\Node;
 
 abstract class Renamer{
     /** @var string[] original name => new name */
-    protected $nameTable = [];
+    private $nameTable = [];
 
     public function init() : void{
         $this->nameTable = [];
@@ -56,5 +56,27 @@ abstract class Renamer{
 
         $node->$property = $newName;
         return $node;
+    }
+
+    /** @return string[] */
+    public function getNameTable() : array{
+        return $this->nameTable;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string|null
+     */
+    public function getName(string $name) : ?string{
+        return $this->nameTable[$name] ?? null;
+    }
+
+    /**
+     * @param string $name
+     * @param string $newName
+     */
+    public function setName(string $name, string $newName) : void{
+        $this->nameTable[$name] = $newName;
     }
 }

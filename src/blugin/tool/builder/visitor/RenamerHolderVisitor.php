@@ -32,7 +32,8 @@ use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
 abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
-    protected $renamer = null;
+    /** @var Renamer */
+    private $renamer;
 
     public function __construct(Renamer $renamer){
         $this->renamer = $renamer;
@@ -78,7 +79,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      * @param Node   $node
      * @param string $property = "name"
      */
-    public function generate(Node $node, string $property = "name") : void{
+    protected function generate(Node $node, string $property = "name") : void{
         if($this->isValidToGenerate($node, $property))
             $this->renamer->generate($this->getTarget($node), $property);
     }
@@ -89,7 +90,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      *
      * @return Node|null
      */
-    public function rename(Node $node, string $property = "name") : ?Node{
+    protected function rename(Node $node, string $property = "name") : ?Node{
         if($this->isValidToRename($node, $property))
             return $this->renamer->rename($this->getTarget($node));
         return null;
@@ -100,7 +101,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      *
      * @return Node
      */
-    public function getTarget(Node $node) : Node{
+    protected function getTarget(Node $node) : Node{
         return $node;
     }
 
@@ -110,7 +111,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      *
      * @return bool
      */
-    public function isValid(Node $node, string $property = "name") : bool{
+    protected function isValid(Node $node, string $property = "name") : bool{
         $target = $this->getTarget($node);
         return isset($target->$property) && is_string($target->$property);
     }
@@ -121,7 +122,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      *
      * @return bool
      */
-    public function isValidToGenerate(Node $node, string $property = "name") : bool{
+    protected function isValidToGenerate(Node $node, string $property = "name") : bool{
         return $this->isValid($node, $property);
     }
 
@@ -131,7 +132,12 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      *
      * @return bool
      */
-    public function isValidToRename(Node $node, string $property = "name") : bool{
+    protected function isValidToRename(Node $node, string $property = "name") : bool{
         return $this->isValid($node, $property);
+    }
+
+    /** @return Renamer */
+    public function getRenamer() : Renamer{
+        return $this->renamer;
     }
 }

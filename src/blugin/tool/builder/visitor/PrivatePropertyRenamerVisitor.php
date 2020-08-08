@@ -44,7 +44,7 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
      * @return array
      **/
     public function beforeTraverse(array $nodes){
-        $this->renamer->init();
+        $this->getRenamer()->init();
         $this->privateProperties = [];
         $this->registerPrivateProperties($nodes);
 
@@ -79,7 +79,7 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
      *
      * @return Node
      */
-    public function getTarget(Node $node) : Node{
+    protected function getTarget(Node $node) : Node{
         if($node instanceof PropertyProperty || $node instanceof PropertyFetch){
             return $node->name;
         }
@@ -92,7 +92,7 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
      *
      * @return bool
      */
-    public function isValidToGenerate(Node $node, string $property = "name") : bool{
+    protected function isValidToGenerate(Node $node, string $property = "name") : bool{
         return parent::isValidToRename($node, $property) && $node instanceof PropertyProperty && in_array($node, $this->privateProperties);
     }
 
@@ -102,7 +102,7 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
      *
      * @return bool
      */
-    public function isValidToRename(Node $node, string $property = "name") : bool{
+    protected function isValidToRename(Node $node, string $property = "name") : bool{
         return parent::isValidToRename($node, $property) && ($node instanceof PropertyProperty || $node instanceof PropertyFetch);
     }
 }

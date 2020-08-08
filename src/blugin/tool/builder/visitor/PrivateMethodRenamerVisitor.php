@@ -45,7 +45,7 @@ class PrivateMethodRenamerVisitor extends RenamerHolderVisitor{
      * @return array
      **/
     public function beforeTraverse(array $nodes){
-        $this->renamer->init();
+        $this->getRenamer()->init();
         $this->privateMethods = [];
         $this->registerPrivateMethods($nodes);
         return $nodes;
@@ -77,7 +77,7 @@ class PrivateMethodRenamerVisitor extends RenamerHolderVisitor{
      *
      * @return Node
      */
-    public function getTarget(Node $node) : Node{
+    protected function getTarget(Node $node) : Node{
         if($node instanceof ClassMethod || $node instanceof MethodCall || $node instanceof StaticCall){
             return $node->name;
         }
@@ -90,7 +90,7 @@ class PrivateMethodRenamerVisitor extends RenamerHolderVisitor{
      *
      * @return bool
      */
-    public function isValidToGenerate(Node $node, string $property = "name") : bool{
+    protected function isValidToGenerate(Node $node, string $property = "name") : bool{
         return parent::isValidToRename($node, $property) && $node instanceof ClassMethod && in_array($node, $this->privateMethods);;
     }
 
@@ -100,7 +100,7 @@ class PrivateMethodRenamerVisitor extends RenamerHolderVisitor{
      *
      * @return bool
      */
-    public function isValidToRename(Node $node, string $property = "name") : bool{
+    protected function isValidToRename(Node $node, string $property = "name") : bool{
         return parent::isValidToRename($node, $property) && ($node instanceof ClassMethod || $node instanceof MethodCall || $node instanceof StaticCall);
     }
 }
