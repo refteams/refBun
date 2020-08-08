@@ -35,7 +35,7 @@ use blugin\tool\builder\visitor\renamer\ProtectRenamer;
 use blugin\tool\builder\visitor\renamer\Renamer;
 use blugin\tool\builder\visitor\renamer\SerialRenamer;
 use blugin\tool\builder\visitor\renamer\ShortenRenamer;
-use blugin\tool\builder\visitor\VariableRenamerVisitor;
+use blugin\tool\builder\visitor\LocalVariableRenamerVisitor;
 use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
@@ -167,15 +167,15 @@ class BluginBuilder extends PluginBase{
         }
         $variableRenamer = $config->getNested("preprocessing.renaming.local-variable", "protect");
         if(isset($this->renamers[$variableRenamer])){
-            $traverser->addVisitor(new VariableRenamerVisitor($this->renamers[$variableRenamer]));
+            $traverser->addVisitor(new LocalVariableRenamerVisitor($this->renamers[$variableRenamer]));
         }
         $propertyRenamer = $config->getNested("preprocessing.renaming.private-property", "protect");
         if(isset($this->renamers[$propertyRenamer])){
             $traverser->addVisitor(new PrivatePropertyRenamerVisitor($this->renamers[$propertyRenamer]));
         }
-        $propertyRenamer = $config->getNested("preprocessing.renaming.private-method", "protect");
-        if(isset($this->renamers[$propertyRenamer])){
-            $traverser->addVisitor(new PrivateMethodRenamerVisitor($this->renamers[$propertyRenamer]));
+        $methodRenamer = $config->getNested("preprocessing.renaming.private-method", "protect");
+        if(isset($this->renamers[$methodRenamer])){
+            $traverser->addVisitor(new PrivateMethodRenamerVisitor($this->renamers[$methodRenamer]));
         }
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $path => $fileInfo){
             $fileName = $fileInfo->getFilename();
