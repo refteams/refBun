@@ -58,7 +58,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      * @return Node|null
      */
     public function enterNode(Node $node){
-        $this->renamer->generate($node);
+        $this->generate($node);
         return null;
     }
 
@@ -70,7 +70,39 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      * @return Node|null
      */
     public function leaveNode(Node $node){
-        $this->renamer->rename($node);
+        return $this->rename($node);
+    }
+
+    /**
+     * @param Node   $node
+     * @param string $property = "name"
+     */
+    public function generate(Node $node, string $property = "name") : void{
+        if($this->isValid($node, $property))
+            $this->renamer->generate($node, $property);
+    }
+
+    /**
+     * @param Node   $node
+     * @param string $property = "name"
+     *
+     * @return Node|null
+     */
+    public function rename(Node $node, string $property = "name") : ?Node{
+        if($this->isValid($node, $property))
+            return $this->renamer->rename($node);
         return null;
+    }
+
+    /**
+     * @param Node   $node
+     * @param string $property
+     *
+     * @return bool
+     */
+    public function isValid(Node $node, string $property = "name") : bool{
+        if(!isset($node->$property) || !is_string($node->$property))
+            return false;
+        return true;
     }
 }

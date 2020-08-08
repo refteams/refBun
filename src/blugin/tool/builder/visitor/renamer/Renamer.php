@@ -50,9 +50,6 @@ abstract class Renamer{
      * @return Node|null
      */
     public function rename(Node $node, string $property = "name") : ?Node{
-        if(!isset($node->$property) || !is_string($node->$property))
-            return null;
-
         $newName = $this->nameTable[$node->$property] ?? null;
         if(!$newName)
             return null;
