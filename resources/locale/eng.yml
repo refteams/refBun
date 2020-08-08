@@ -5,7 +5,7 @@
 #Pre-processing settings
 preprocessing:
   #Renaming mode settings
-  #Modes Supported : protect(Hide variable), shorten, serial(Sequential variable), disable
+  #Modes Supported : protect(Hide variable), shorten, serial(Sequential variable), space, disable
   renaming:
     #Local variable
     local-variable: serial

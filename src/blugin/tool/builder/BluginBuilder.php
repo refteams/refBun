@@ -36,6 +36,7 @@ use blugin\tool\builder\visitor\renamer\Renamer;
 use blugin\tool\builder\visitor\renamer\SerialRenamer;
 use blugin\tool\builder\visitor\renamer\ShortenRenamer;
 use blugin\tool\builder\visitor\LocalVariableRenamerVisitor;
+use blugin\tool\builder\visitor\renamer\SpaceRenamer;
 use FolderPluginLoader\FolderPluginLoader;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
@@ -49,6 +50,7 @@ class BluginBuilder extends PluginBase{
     public const RENAMER_PROECT = "protect";
     public const RENAMER_SHORTEN = "shorten";
     public const RENAMER_SERIAL = "serial";
+    public const RENAMER_SPACE = "space";
     /** @var Renamer[] renamer tag -> renamer instance */
     private $renamers = [];
 
@@ -56,6 +58,7 @@ class BluginBuilder extends PluginBase{
         $this->renamers[self::RENAMER_PROECT] = new ProtectRenamer();
         $this->renamers[self::RENAMER_SHORTEN] = new ShortenRenamer();
         $this->renamers[self::RENAMER_SERIAL] = new SerialRenamer();
+        $this->renamers[self::RENAMER_SPACE] = new SpaceRenamer();
     }
 
     /**
