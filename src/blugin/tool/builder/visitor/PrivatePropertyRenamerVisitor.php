@@ -49,22 +49,6 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
     }
 
     /**
-     * Rename private property on enter
-     *
-     * @param Node $node
-     *
-     * @return Node|null
-     */
-    public function enterNode(Node $node){
-        if($node instanceof PropertyFetch){
-            if($this->rename($node->name) === null)
-                return null;
-            return $node;
-        }
-        return null;
-    }
-
-    /**
      * Rename private property with recursion
      *
      * @param Node[] $nodes
@@ -75,8 +59,7 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
         foreach($nodes as $node){
             if($node instanceof Property && ($node->flags & Class_::MODIFIER_PRIVATE)){
                 foreach($node->props as $prop){
-                    $this->generate($prop->name);
-                    $this->rename($prop->name);
+                    $this->generate($prop);
                 }
             }
 
@@ -85,6 +68,18 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
                 $this->renameProperties($node->stmts);
             }
         }
+    }
+
+    /**
+     * @param Node $node
+     *
+     * @return Node
+     */
+    public function getTarget(Node $node) : Node{
+        if($node instanceof PropertyProperty || $node instanceof PropertyFetch){
+            return $node->name;
+        }
+        return $node;
     }
 
     /**

@@ -49,35 +49,11 @@ class VariableRenamerVisitor extends RenamerHolderVisitor{
     ];
 
     /**
-     * Generate name of variable on enter
-     *
-     * @param Node $node
-     *
-     * @return Node|null
-     */
-    public function enterNode(Node $node){
-        $this->generate($this->getChildVariable($node));
-        return null;
-    }
-
-    /**
-     * Rename variable on leave
-     *
-     * @param Node $node
-     *
-     * @return Node|null
-     */
-    public function leaveNode(Node $node){
-        $this->rename($this->getChildVariable($node));
-        return null;
-    }
-
-    /**
      * @param Node $node
      *
      * @return Node
      */
-    public function getChildVariable(Node $node) : Node{
+    public function getTarget(Node $node) : Node{
         if($node instanceof Param || $node instanceof StaticVar || $node instanceof Catch_ || $node instanceof ClosureUse){
             return $node->var;
         }
@@ -91,7 +67,8 @@ class VariableRenamerVisitor extends RenamerHolderVisitor{
      * @return bool
      */
     public function isValid(Node $node, string $property = "name") : bool{
+        $target = $this->getTarget($node);
         //Ignore to rename if it not string or global variable or $this(ex: $$varname, $_GET, $this)
-        return parent::isValid($node, $property) && $node instanceof Variable && is_string($node->name) && !in_array($node->name, self::IGNORE_LIST);
+        return parent::isValid($node, $property) && $target instanceof Variable && is_string($target->name) && !in_array($target->name, self::IGNORE_LIST);
     }
 }
