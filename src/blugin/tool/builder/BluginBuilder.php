@@ -165,15 +165,15 @@ class BluginBuilder extends PluginBase{
         if($config->getNested("preprocessing.resolve-importing", true)){
             $traverser->addVisitor(new ImportRemovingVisitor());
         }
-        $variableRenamer = $config->getNested("preprocessing.variable-renaming", "protect");
+        $variableRenamer = $config->getNested("preprocessing.renaming.local-variable", "protect");
         if(isset($this->renamers[$variableRenamer])){
             $traverser->addVisitor(new VariableRenamerVisitor($this->renamers[$variableRenamer]));
         }
-        $propertyRenamer = $config->getNested("preprocessing.private-property-renaming", "protect");
+        $propertyRenamer = $config->getNested("preprocessing.renaming.private-property", "protect");
         if(isset($this->renamers[$propertyRenamer])){
             $traverser->addVisitor(new PrivatePropertyRenamerVisitor($this->renamers[$propertyRenamer]));
         }
-        $propertyRenamer = $config->getNested("preprocessing.private-method-renaming", "protect");
+        $propertyRenamer = $config->getNested("preprocessing.renaming.private-method", "protect");
         if(isset($this->renamers[$propertyRenamer])){
             $traverser->addVisitor(new PrivateMethodRenamerVisitor($this->renamers[$propertyRenamer]));
         }

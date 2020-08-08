@@ -4,17 +4,17 @@
 
 #빌드 전처리 설정
 preprocessing:
-  #변수 이름 재정의 모드
+  #이름 재정의 모드 설정
   #지원하는 모드 : protect(변수명 숨기기), shorten(짧은 변수명), serial(순차적인 변수명), disable(비활성화)
-  variable-renaming: serial
+  renaming:
+    #지역 변수
+    local-variable: serial
 
-  #private 프로퍼티 이름 재정의 모드
-  #지원하는 모드 : protect(변수명 숨기기), shorten(짧은 변수명), serial(순차적인 변수명), disable(비활성화)
-  private-property-renaming: serial
+    #개인 프로퍼티
+    private-property: serial
 
-  #private 메소드 이름 재정의 모드
-  #지원하는 모드 : protect(변수명 숨기기), shorten(짧은 변수명), serial(순차적인 변수명), disable(비활성화)
-  private-method-renaming: serial
+    #개인 메소드
+    private-method: serial
 
   #사소한 코드 최적화
   minor-optimizating: true
