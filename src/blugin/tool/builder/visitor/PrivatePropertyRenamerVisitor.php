@@ -57,7 +57,7 @@ class PrivatePropertyRenamerVisitor extends RenamerHolderVisitor{
      **/
     private function renameProperties(array $nodes) : void{
         foreach($nodes as $node){
-            if($node instanceof Property && ($node->flags & Class_::MODIFIER_PRIVATE)){
+            if($node instanceof Property && $node->isPrivate()){
                 foreach($node->props as $prop){
                     $this->generate($prop);
                 }
