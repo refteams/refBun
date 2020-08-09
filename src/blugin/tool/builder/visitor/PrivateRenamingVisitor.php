@@ -29,8 +29,11 @@ namespace blugin\tool\builder\visitor;
 
 use PhpParser\Node;
 use PhpParser\Node\Const_;
+use PhpParser\NodeVisitorAbstract;
 
-abstract class PrivateRenamingVisitor extends RenamerHolderVisitor{
+abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRenamerHolder{
+    use RenamerHolderTrait;
+
     /** @var Const_[] */
     protected $privateNodes = [];
 
@@ -101,7 +104,7 @@ abstract class PrivateRenamingVisitor extends RenamerHolderVisitor{
      * @return bool
      */
     protected function isValidToGenerate(Node $node, string $property = "name") : bool{
-        return parent::isValidToRename($node, $property) && in_array($node, $this->privateNodes);;
+        return $this->isValid($node, $property) && in_array($node, $this->privateNodes);
     }
 
     /**
@@ -111,6 +114,6 @@ abstract class PrivateRenamingVisitor extends RenamerHolderVisitor{
      * @return bool
      */
     protected function isValidToRename(Node $node, string $property = "name") : bool{
-        return parent::isValidToRename($node, $property) && $this->isTarget($node);
+        return $this->isValid($node, $property) && $this->isTarget($node);
     }
 }

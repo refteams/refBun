@@ -33,8 +33,11 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\StaticVar;
+use PhpParser\NodeVisitorAbstract;
 
-class LocalVariableRenamingVisitor extends RenamerHolderVisitor{
+class LocalVariableRenamingVisitor extends NodeVisitorAbstract implements IRenamerHolder{
+    use RenamerHolderTrait;
+
     /** @const string[] list of ignore name, The global variables and $this */
     private const IGNORE_LIST = [
         "this",
@@ -69,6 +72,6 @@ class LocalVariableRenamingVisitor extends RenamerHolderVisitor{
     protected function isValid(Node $node, string $property = "name") : bool{
         $target = $this->getTarget($node);
         //Ignore to rename if it not string or global variable or $this(ex: $$varname, $_GET, $this)
-        return parent::isValid($node, $property) && $target instanceof Variable && is_string($target->name) && !in_array($target->name, self::IGNORE_LIST);
+        return isset($target->$property) && is_string($target->$property) && $target instanceof Variable && is_string($target->name) && !in_array($target->name, self::IGNORE_LIST);
     }
 }

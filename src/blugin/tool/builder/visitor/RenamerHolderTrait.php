@@ -31,11 +31,25 @@ use blugin\tool\builder\visitor\renamer\Renamer;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
+/**
+ * This trait override most methods in the {@link NodeVisitorAbstract} abstract class for implements IRenamerHolder interface.
+ */
+trait RenamerHolderTrait{
     /** @var Renamer */
     private $renamer;
 
+    /** @param Renamer $renamer */
     public function __construct(Renamer $renamer){
+        $this->setRenamer($renamer);
+    }
+
+    /** @return Renamer */
+    public function getRenamer() : Renamer{
+        return $this->renamer;
+    }
+
+    /** @param Renamer $renamer */
+    public function setRenamer(Renamer $renamer) : void{
         $this->renamer = $renamer;
     }
 
@@ -79,7 +93,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      * @param Node   $node
      * @param string $property = "name"
      */
-    protected function generate(Node $node, string $property = "name") : void{
+    public function generate(Node $node, string $property = "name") : void{
         if($this->isValidToGenerate($node, $property))
             $this->renamer->generate($this->getTarget($node), $property);
     }
@@ -90,7 +104,7 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      *
      * @return Node|null
      */
-    protected function rename(Node $node, string $property = "name") : ?Node{
+    public function rename(Node $node, string $property = "name") : ?Node{
         if($this->isValidToRename($node, $property))
             return $this->renamer->rename($this->getTarget($node));
         return null;
@@ -134,10 +148,5 @@ abstract class RenamerHolderVisitor extends NodeVisitorAbstract{
      */
     protected function isValidToRename(Node $node, string $property = "name") : bool{
         return $this->isValid($node, $property);
-    }
-
-    /** @return Renamer */
-    public function getRenamer() : Renamer{
-        return $this->renamer;
     }
 }
