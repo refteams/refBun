@@ -32,14 +32,10 @@ use PhpParser\Node;
 class SerialRenamer extends Renamer{
     /** @var string[] */
     private $firstChars, $otherChars;
-    /** @var int */
-    private $firstCount, $otherCount;
 
     public function __construct(){
         $this->firstChars = $firstChars = array_merge(["_"], range("a", "z"), range("A", "Z"));
         $this->otherChars = array_merge(range("0", "9"), $this->firstChars);
-        $this->firstCount = count($this->firstChars);
-        $this->otherCount = count($this->otherChars);
     }
 
     /**
@@ -51,9 +47,10 @@ class SerialRenamer extends Renamer{
             return;
 
         $variableCount = count($this->getNameTable());
-        $newName = $this->firstChars[$variableCount % $this->firstCount];
+        $firstCount = count($this->firstChars);
+        $newName = $this->firstChars[$variableCount % $firstCount];
         if($variableCount){
-            if(($sub = floor($variableCount / $this->firstCount) - 1) > -1){
+            if(($sub = floor($variableCount / $firstCount) - 1) > -1){
                 $newName .= $this->otherChars[$sub];
             }
         }
