@@ -32,6 +32,7 @@ use blugin\tool\builder\printer\OptimizePrinter;
 use blugin\tool\builder\printer\PrettyPrinter;
 use blugin\tool\builder\printer\ShortenPrinter;
 use blugin\tool\builder\visitor\CommentOptimizingVisitor;
+use blugin\tool\builder\visitor\ImportForcingVisitor;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
 use blugin\tool\builder\visitor\ImportRenamingVisitor;
 use blugin\tool\builder\visitor\LocalVariableRenamingVisitor;
@@ -109,7 +110,10 @@ class BluginBuilder extends PluginBase{
         }
 
         //Load import processing mode settings
-        $mode = $config->getNested("preprocessing.renaming.$key", "serial");
+        if($config->getNested("preprocessing.importing.forcing", true)){
+            $this->traverser->addVisitor(new ImportForcingVisitor());
+        }
+        $mode = $config->getNested("preprocessing.importing.renaming", "serial");
         if(isset($this->renamers[$mode])){
             $this->traverser->addVisitor(new ImportRenamingVisitor(clone $this->renamers[$mode]));
         }elseif($mode === "resolve"){

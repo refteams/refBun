@@ -13,8 +13,13 @@ preprocessing:
     private-const: serial
 
   #Import processing settings
-  #Modes Supported : {ALL renaming mode}, resolve(Remove import statement), disable
-  importing: serial
+  importing:
+    #Whether to make import force
+    forcing: true
+
+    #Import renaming  settings
+    #Modes Supported : {ALL renaming mode}, resolve(Remove import statement), disable
+    renaming: serial
 
   #Minor code optimization
   minor-optimizating: true

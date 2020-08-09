@@ -12,9 +12,13 @@ preprocessing:
     private-method: serial
     private-const: serial
 
-  #임포트 처리 설정
-  #지원하는 모드 : {모든 이름 재정의 모드}, resolve(임포트 구문 제거), disable(비활성화)
-  importing: serial
+  importing:
+    #임포트 강제 여부
+    forcing: true
+
+    #임포트 이름 재정의 모드 설정
+    #지원하는 모드 : {모든 이름 재정의 모드}, resolve(임포트 구문 제거), disable(비활성화)
+    renaming: serial
 
   #사소한 코드 최적화
   minor-optimizating: true
