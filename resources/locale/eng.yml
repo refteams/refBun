@@ -17,6 +17,9 @@ preprocessing:
     #Whether to make import force
     forcing: true
 
+    #Whether to make import grouping
+    grouping: true
+
     #Import renaming  settings
     #Modes Supported : {ALL renaming mode}, resolve(Remove import statement), false(disable)
     renaming: serial

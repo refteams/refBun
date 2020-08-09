@@ -16,6 +16,9 @@ preprocessing:
     #임포트 강제 여부
     forcing: true
 
+    #임포트 그룹화 여부
+    grouping: true
+
     #임포트 이름 재정의 모드 설정
     #지원하는 모드 : {모든 이름 재정의 모드}, resolve(임포트 구문 제거), false(비활성화)
     renaming: serial
