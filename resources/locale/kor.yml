@@ -19,14 +19,15 @@ preprocessing:
     #개인 상수
     private-const: serial
 
+  #임포트 처리 설정
+  #지원하는 모드 : {모든 이름 재정의 모드}, resolve(임포트 구문 제거), disable(비활성화)
+  importing: serial
+
   #사소한 코드 최적화
   minor-optimizating: true
 
   #무의미한 주석 정리
   comment-optimizing: true
-
-  #임포트 구문 제거 ('use' 제거)
-  resolve-importing: true
 
 #빌드 설정
 build:

@@ -19,14 +19,15 @@ preprocessing:
     #Private const
     private-const: serial
 
+  #Import processing settings
+  #Modes Supported : {ALL renaming mode}, resolve(Remove import statement), disable
+  importing: serial
+
   #Minor code optimization
   minor-optimizating: true
 
   #Meaningless comment cleanup
   comment-optimizing: true
-
-  #Remove import statement (Remove 'use')
-  resolve-importing: true
 
 #Build settings
 build:

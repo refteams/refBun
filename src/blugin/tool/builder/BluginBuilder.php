@@ -33,6 +33,7 @@ use blugin\tool\builder\printer\PrettyPrinter;
 use blugin\tool\builder\printer\ShortenPrinter;
 use blugin\tool\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
+use blugin\tool\builder\visitor\ImportRenamingVisitor;
 use blugin\tool\builder\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\builder\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\builder\visitor\PrivateMethodRenamingVisitor;
@@ -90,12 +91,9 @@ class BluginBuilder extends PluginBase{
         $config = $this->getConfig();
         //Load pre-processing settings
         $this->traverser = new NodeTraverser();
-        foreach([
-            "resolve-importing" => ImportRemovingVisitor::class,
-            "comment-optimizing" => CommentOptimizingVisitor::class
-        ] as $key => $class){
-            if($config->getNested("preprocessing.$key", true))
-                $this->traverser->addVisitor(new $class());
+
+        if($config->getNested("preprocessing.comment-optimizing", true)){
+            $this->traverser->addVisitor(new CommentOptimizingVisitor());
         }
 
         //Load renaming mode settings
@@ -108,6 +106,14 @@ class BluginBuilder extends PluginBase{
             if(isset($this->renamers[$mode = $config->getNested("preprocessing.renaming.$key", "serial")])){
                 $this->traverser->addVisitor(new $class(clone $this->renamers[$mode]));
             }
+        }
+
+        //Load import processing mode settings
+        $mode = $config->getNested("preprocessing.renaming.$key", "serial");
+        if(isset($this->renamers[$mode])){
+            $this->traverser->addVisitor(new ImportRenamingVisitor(clone $this->renamers[$mode]));
+        }elseif($mode === "resolve"){
+            $this->traverser->addVisitor(new ImportRemovingVisitor());
         }
 
         //Load build settings
