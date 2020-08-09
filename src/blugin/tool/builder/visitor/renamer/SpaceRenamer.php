@@ -30,7 +30,7 @@ namespace blugin\tool\builder\visitor\renamer;
 use PhpParser\Node;
 
 class SpaceRenamer extends Renamer{
-    public const SPACE_TABLE = [
+    private const SPACE_TABLE = [
         "\u{2000}",
         "\u{2001}",
         "\u{2002}",

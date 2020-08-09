@@ -198,7 +198,7 @@ class BluginBuilder extends PluginBase{
                     $stmts = $this->traverser->traverse($stmts);
                     $contents = $this->printer->print($stmts);
                     if($config->getNested("preprocessing.minor-optimizating", true)){
-                        $contents = (new OptimizePrinter())->codeOptimize($contents);
+                        $contents = (new OptimizePrinter())->print($parser->parse($contents));
                     }
                     file_put_contents($out, $contents);
                 }catch(\Error $e){
@@ -261,7 +261,7 @@ class BluginBuilder extends PluginBase{
      *
      * @return bool
      */
-    public function clearDirectory(string $directory) : bool{
+    private function clearDirectory(string $directory) : bool{
         if(!file_exists($directory))
             return mkdir($directory, 0777, true);
 

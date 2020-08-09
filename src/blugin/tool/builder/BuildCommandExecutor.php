@@ -98,7 +98,7 @@ class BuildCommandExecutor implements CommandExecutor{
      *
      * @return null|Plugin
      */
-    public function getPlugin(string $name) : ?Plugin{
+    private function getPlugin(string $name) : ?Plugin{
         $plugins = Server::getInstance()->getPluginManager()->getPlugins();
         if(isset($plugins[$name]))
             return $plugins[$name];

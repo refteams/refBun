@@ -51,7 +51,7 @@ class ShortenPrinter extends Standard implements IPrinter{
      *
      * @return string
      */
-    public function removeWhitespace(string $originalCode) : string{
+    private function removeWhitespace(string $originalCode) : string{
         // Whitespaces left and right from this signs can be ignored
         $ignoreWhitespaceTokenList = [
             T_CONCAT_EQUAL,             // .=

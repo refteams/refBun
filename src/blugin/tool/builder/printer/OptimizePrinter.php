@@ -49,7 +49,7 @@ class OptimizePrinter extends Standard implements IPrinter{
      *
      * @return string
      */
-    public function codeOptimize(string $originalCode) : string{
+    private function codeOptimize(string $originalCode) : string{
         $ignoreBeforeList = [
             T_SL,               // <<
             T_NS_SEPARATOR,     // \\

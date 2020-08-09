@@ -62,7 +62,7 @@ class SerialRenamer extends Renamer{
         $this->generateChars();
     }
 
-    public function generateChars() : void{
+    private function generateChars() : void{
         $this->firstChars = array_merge(["_"], range("a", "z"));
         if(!$this->isIgnorecase()){
             $this->firstChars = array_merge($this->firstChars, range("A", "Z"));
