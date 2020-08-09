@@ -7,16 +7,9 @@ preprocessing:
   #Renaming mode settings
   #Modes Supported : protect(Hide variable), shorten, serial(Sequential variable), space, md5(5 character hash text),  disable
   renaming:
-    #Local variable
     local-variable: serial
-
-    #Private property
     private-property: serial
-
-    #Private method
     private-method: serial
-
-    #Private const
     private-const: serial
 
   #Import processing settings
