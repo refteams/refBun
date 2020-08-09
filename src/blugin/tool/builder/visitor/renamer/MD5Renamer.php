@@ -40,8 +40,12 @@ class MD5Renamer extends Renamer{
             return;
 
         do{
-            $newName = substr(range("a", "z")[mt_rand(0, 25)] . md5($node->$property . lcg_value()), 0, 5);
-        }while(in_array($newName, $nameTable));
+            $hash = md5($node->$property . lcg_value());
+            if($this->requireInitialValid()){
+                $hash = range("a", "z")[mt_rand(0, 25)] . $hash;
+            }
+            $newName = substr($hash, 0, 5);
+        }while($this->in_array($newName, $nameTable));
 
         $this->setName($node->$property, $newName);
     }

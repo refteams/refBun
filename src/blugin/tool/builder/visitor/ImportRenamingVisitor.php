@@ -55,6 +55,12 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         $this->setRenamer($renamer);
     }
 
+    /** @param Renamer $renamer */
+    public function setRenamer(Renamer $renamer) : void{
+        $this->renamer = $renamer;
+        $renamer->setIgnorecase();
+    }
+
     /**
      * Register namespaces
      *

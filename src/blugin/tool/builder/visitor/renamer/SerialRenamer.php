@@ -34,8 +34,7 @@ class SerialRenamer extends Renamer{
     private $firstChars, $otherChars;
 
     public function __construct(){
-        $this->firstChars = $firstChars = array_merge(["_"], range("a", "z"), range("A", "Z"));
-        $this->otherChars = array_merge(range("0", "9"), $this->firstChars);
+        $this->generateChars();
     }
 
     /**
@@ -55,5 +54,19 @@ class SerialRenamer extends Renamer{
             }
         }
         $this->setName($node->$property, $newName);
+    }
+
+    /** @param bool $value */
+    public function setIgnorecase(bool $value = true) : void{
+        parent::setIgnorecase($value);
+        $this->generateChars();
+    }
+
+    public function generateChars() : void{
+        $this->firstChars = array_merge(["_"], range("a", "z"));
+        if(!$this->isIgnorecase()){
+            $this->firstChars = array_merge($this->firstChars, range("A", "Z"));
+        }
+        $this->otherChars = array_merge(range("0", "9"), $this->firstChars);
     }
 }

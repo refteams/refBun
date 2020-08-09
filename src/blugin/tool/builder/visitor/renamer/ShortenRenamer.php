@@ -39,14 +39,14 @@ class ShortenRenamer extends Renamer{
         if(isset($nameTable[$node->$property]))
             return;
 
-        $name = $node->$property;
+        $name = $this->clean($node->$property);
         $length = 1;
         $num = 0;
         do{
             $newName = substr($name, 0, $length++);
             if($newName === $node->$property || $length > 2)
                 $newName = substr($name, 0, 2) . $num++;
-        }while(in_array($newName, $nameTable));
+        }while($this->in_array($newName, $nameTable));
 
         $this->setName($node->$property, $newName);
     }

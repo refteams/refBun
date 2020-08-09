@@ -27,12 +27,19 @@ declare(strict_types=1);
 
 namespace blugin\tool\builder\visitor;
 
+use blugin\tool\builder\visitor\renamer\Renamer;
 use PhpParser\Node;
 use PhpParser\Node\Const_;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Stmt\ClassConst;
 
 class PrivateConstRenamingVisitor extends PrivateRenamingVisitor{
+    /** @param Renamer $renamer */
+    public function setRenamer(Renamer $renamer) : void{
+        parent::setRenamer($renamer);
+        $renamer->setIgnorecase();
+    }
+
     /**
      * Register private node
      *
