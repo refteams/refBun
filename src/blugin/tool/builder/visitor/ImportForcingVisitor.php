@@ -79,7 +79,7 @@ class ImportForcingVisitor extends NameResolver{
             if(!isset($this->uses[$code])){
                 $parts = $name->parts;
                 $lastPart = array_pop($parts);
-                $this->unregisterUses[$code] = new UseUse(new Name(ltrim($code, "\\")), ltrim($name->toCodeString(), "\\") === $lastPart ? null : $name, Use_::TYPE_NORMAL);
+                $this->unregisterUses[$code] = new UseUse(new Name(ltrim($code, "\\")), ltrim($name->toCodeString(), "\\") === $lastPart ? null : new Node\Identifier($name->toCodeString()), Use_::TYPE_NORMAL);
                 if(count($parts) === 0){ //Replace root namespace uses
                     return new Name($lastPart, $name->getAttributes());
                 }
