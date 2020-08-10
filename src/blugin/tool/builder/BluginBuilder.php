@@ -115,20 +115,22 @@ class BluginBuilder extends PluginBase{
         }
 
         //Load import processing mode settings
-        if($config->getNested("preprocessing.importing.forcing", true)){
-            $this->traversers[Priority::NORMAL]->addVisitor(new ImportForcingVisitor());
-        }
-        if($config->getNested("preprocessing.importing.grouping", true)){
-            $this->traversers[Priority::HIGHEST]->addVisitor(new ImportGroupingVisitor());
-        }
-        if($config->getNested("preprocessing.importing.sorting", true)){
-            $this->traversers[Priority::HIGHEST]->addVisitor(new ImportSortingVisitor());
-        }
         $mode = $config->getNested("preprocessing.importing.renaming", "serial");
-        if(isset($this->renamers[$mode])){
-            $this->traversers[Priority::HIGH]->addVisitor(new ImportRenamingVisitor(clone $this->renamers[$mode]));
-        }elseif($mode === "resolve"){
+        if($mode === "resolve"){
             $this->traversers[Priority::HIGH]->addVisitor(new ImportRemovingVisitor());
+        }else{
+            if(isset($this->renamers[$mode])){
+                $this->traversers[Priority::HIGH]->addVisitor(new ImportRenamingVisitor(clone $this->renamers[$mode]));
+            }
+            if($config->getNested("preprocessing.importing.forcing", true)){
+                $this->traversers[Priority::NORMAL]->addVisitor(new ImportForcingVisitor());
+            }
+            if($config->getNested("preprocessing.importing.grouping", true)){
+                $this->traversers[Priority::HIGHEST]->addVisitor(new ImportGroupingVisitor());
+            }
+            if($config->getNested("preprocessing.importing.sorting", true)){
+                $this->traversers[Priority::HIGHEST]->addVisitor(new ImportSortingVisitor());
+            }
         }
 
         //Load build settings

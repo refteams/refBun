@@ -13,6 +13,11 @@ preprocessing:
     private-const: serial
 
   importing:
+    #임포트 이름 재정의 모드 설정
+    #지원하는 모드 : {모든 이름 재정의 모드}, resolve(임포트 구문 제거), false(비활성화)
+    #resolve 모드 선택 시 forcing, grouping, sorting는 모두 비활성화됩니다
+    renaming: serial
+
     #임포트 강제 여부
     forcing: true
 
@@ -21,10 +26,6 @@ preprocessing:
 
     #임포트 정렬 여부
     sorting: true
-
-    #임포트 이름 재정의 모드 설정
-    #지원하는 모드 : {모든 이름 재정의 모드}, resolve(임포트 구문 제거), false(비활성화)
-    renaming: serial
 
   #사소한 코드 최적화
   minor-optimizating: true

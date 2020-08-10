@@ -14,6 +14,11 @@ preprocessing:
 
   #Import processing settings
   importing:
+    #Import renaming  settings
+    #Modes Supported : {ALL renaming mode}, resolve(Remove import statement), false(disable)
+    #Selecting a resolve mode disables forcing, grouping, and sorting.
+    renaming: serial
+
     #Whether to make import force
     forcing: true
 
@@ -22,10 +27,6 @@ preprocessing:
 
     #Whether to sort import
     sorting: true
-
-    #Import renaming  settings
-    #Modes Supported : {ALL renaming mode}, resolve(Remove import statement), false(disable)
-    renaming: serial
 
   #Minor code optimization
   minor-optimizating: true
