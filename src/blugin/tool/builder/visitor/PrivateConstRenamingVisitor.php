@@ -37,7 +37,7 @@ use PhpParser\Node\Stmt\ClassConst;
 class PrivateConstRenamingVisitor extends PrivateRenamingVisitor{
     /** @param Renamer $renamer */
     public function setRenamer(Renamer $renamer) : void{
-        parent::setRenamer($renamer);
+        $this->renamer = $renamer;
         $renamer->setIgnorecase();
     }
 

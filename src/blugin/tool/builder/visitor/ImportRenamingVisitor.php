@@ -27,7 +27,9 @@ declare(strict_types=1);
 
 namespace blugin\tool\builder\visitor;
 
+use blugin\tool\builder\visitor\renamer\IRenamerHolder;
 use blugin\tool\builder\visitor\renamer\Renamer;
+use blugin\tool\builder\visitor\renamer\RenamerHolderTrait;
 use PhpParser\ErrorHandler;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ConstFetch;
@@ -98,7 +100,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
     public function leaveNode(Node $node){
         if($node instanceof Use_ || $node instanceof GroupUse){
             foreach($node->uses as $k => $use){
-                $newName = $this->rename(new Identifier($this->getFullyQualifiedString($use, $node)));
+                $newName = $this->renamer->rename(new Identifier($this->getFullyQualifiedString($use, $node)));
                 if($newName instanceof Identifier){
                     $use->alias = $newName;
                 }
@@ -119,7 +121,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         if(!$this->replaceNodes)
             return $result;
 
-        $newName = $this->rename(new Identifier(ltrim($result->toCodeString(), "\\")));
+        $newName = $this->renamer->rename(new Identifier(ltrim($result->toCodeString(), "\\")));
         if($newName instanceof Identifier)
             return new Name($newName->name, $result->getAttributes());
         return $result;
@@ -136,7 +138,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){
                 foreach($node->uses as $k => $use){
-                    $this->generate(new Identifier($this->getFullyQualifiedString($use, $node)));
+                    $this->renamer->generate(new Identifier($this->getFullyQualifiedString($use, $node)));
                 }
             }
 

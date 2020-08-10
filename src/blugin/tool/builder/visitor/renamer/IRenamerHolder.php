@@ -35,18 +35,4 @@ interface IRenamerHolder{
 
     /** @param Renamer $renamer */
     public function setRenamer(Renamer $renamer) : void;
-
-    /**
-     * @param Node   $node
-     * @param string $property = "name"
-     */
-    public function generate(Node $node, string $property = "name") : void;
-
-    /**
-     * @param Node   $node
-     * @param string $property = "name"
-     *
-     * @return Node|null
-     */
-    public function rename(Node $node, string $property = "name") : ?Node;
 }

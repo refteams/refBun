@@ -28,13 +28,13 @@ declare(strict_types=1);
 namespace blugin\tool\builder\visitor;
 
 use blugin\tool\builder\visitor\renamer\IRenamerHolder;
-use blugin\tool\builder\visitor\renamer\RenamerHolderTrait;
+use blugin\tool\builder\visitor\renamer\RenamerHolderVisitorTrait;
 use PhpParser\Node;
 use PhpParser\Node\Const_;
 use PhpParser\NodeVisitorAbstract;
 
 abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRenamerHolder{
-    use RenamerHolderTrait;
+    use RenamerHolderVisitorTrait;
 
     /** @var Const_[] */
     protected $privateNodes = [];

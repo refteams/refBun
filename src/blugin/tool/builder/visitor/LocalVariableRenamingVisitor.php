@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\builder\visitor;
 
 use blugin\tool\builder\visitor\renamer\IRenamerHolder;
-use blugin\tool\builder\visitor\renamer\RenamerHolderTrait;
+use blugin\tool\builder\visitor\renamer\RenamerHolderVisitorTrait;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClosureUse;
 use PhpParser\Node\Expr\Variable;
@@ -38,7 +38,7 @@ use PhpParser\Node\Stmt\StaticVar;
 use PhpParser\NodeVisitorAbstract;
 
 class LocalVariableRenamingVisitor extends NodeVisitorAbstract implements IRenamerHolder{
-    use RenamerHolderTrait;
+    use RenamerHolderVisitorTrait;
 
     /** @const string[] list of ignore name, The global variables and $this */
     private const IGNORE_LIST = [
