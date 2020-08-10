@@ -88,7 +88,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
     public function leaveNode(Node $node){
         if($node instanceof Use_ || $node instanceof GroupUse){
             foreach($node->uses as $k => $use){
-                $newName = $this->rename(new Identifier($this->getFullyQualified($use, $node)->toCodeString()));
+                $newName = $this->rename(new Identifier(ltrim($this->getFullyQualified($use, $node)->toCodeString(), "\\")));
                 if($newName instanceof Identifier){
                     $use->alias = $newName;
                 }
@@ -109,12 +109,9 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         if(!$this->replaceNodes)
             return $result;
 
-        if($result instanceof FullyQualified){
-            $name = new Identifier($result->toCodeString());
-            $newName = $this->rename(clone $name);
-            if($newName instanceof Identifier)
-                return new Name($newName->name, $result->getAttributes());
-        }
+        $newName = $this->rename(new Identifier(ltrim($result->toCodeString(), "\\")));
+        if($newName instanceof Identifier)
+            return new Name($newName->name, $result->getAttributes());
         return $result;
     }
 
@@ -129,7 +126,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){
                 foreach($node->uses as $k => $use){
-                    $this->generate(new Identifier($this->getFullyQualified($use, $node)->toCodeString()));
+                    $this->generate(new Identifier(ltrim($this->getFullyQualified($use, $node)->toCodeString(), "\\")));
                 }
             }
 
