@@ -28,8 +28,8 @@ declare(strict_types=1);
 namespace blugin\tool\builder;
 
 use blugin\tool\builder\printer\IPrinter;
-use blugin\tool\builder\printer\StandardPrinter;
 use blugin\tool\builder\printer\ShortenPrinter;
+use blugin\tool\builder\printer\StandardPrinter;
 use blugin\tool\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\builder\visitor\ImportForcingVisitor;
 use blugin\tool\builder\visitor\ImportGroupingVisitor;
@@ -318,5 +318,29 @@ class BluginBuilder extends PluginBase{
      */
     public function registerPrinter(string $mode, IPrinter $printer) : void{
         $this->printers[$mode] = $printer;
+    }
+
+    /**
+     * @return Renamer[]
+     */
+    public function getRenamers() : array{
+        return $this->renamers;
+    }
+
+    /**
+     * @param string $mode
+     *
+     * @return Renamer|null
+     */
+    public function getRenamer(string $mode) : ?Renamer{
+        return clone $this->renamers[$mode] ?? null;
+    }
+
+    /**
+     * @param string  $mode
+     * @param Renamer $renamer
+     */
+    public function registerRenamer(string $mode, Renamer $renamer) : void{
+        $this->renamers[$mode] = $renamer;
     }
 }
