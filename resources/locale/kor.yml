@@ -33,8 +33,8 @@ preprocessing:
 #빌드 설정
 build:
   #코드 출력 포맷 설정
-  #지원하는 모드 : pretty(기본 코드 스타일), shorten(단축 코드 스타일)
-  print-format: shorten
+  #지원하는 모드 : standard(기본 코드 스타일), shorten(단축 코드 스타일)
+  print-format: standard
 
   #최소한의 파일만 포함할 지 설정
   include-minimal: true

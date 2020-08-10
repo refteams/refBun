@@ -30,7 +30,7 @@ namespace blugin\tool\builder\printer;
 use PhpParser\Node;
 use PhpParser\PrettyPrinter\Standard;
 
-class PrettyPrinter extends Standard implements IPrinter{
+class StandardPrinter extends Standard implements IPrinter{
     /**
      * @param Node[] $stmts
      *

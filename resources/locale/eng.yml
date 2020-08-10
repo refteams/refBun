@@ -34,8 +34,8 @@ preprocessing:
 #Build settings
 build:
   #Code output format setting
-  #Modes Supported : pretty(Default code style), shorten(Short code style)
-  print-format: shorten
+  #Modes Supported : standard(Default code style), shorten(Short code style)
+  print-format: standard
 
   #Set whether to include only minimal files
   include-minimal: true
