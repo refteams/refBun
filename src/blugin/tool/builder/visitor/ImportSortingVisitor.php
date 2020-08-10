@@ -61,8 +61,9 @@ class ImportSortingVisitor extends NodeVisitorAbstract{
                         $typeDiff = $a->type <=> $b->type;
                         if($typeDiff !== 0)
                             return $typeDiff;
+                        return $this->getName($a) <=> $this->getName($b);
                     }
-                    return $this->getName($a)  <=> $this->getName($b);
+                    return 0;
                 });
             }elseif($this->isUse($node)){
                 usort($node->uses, function(UseUse $a, UseUse $b){
