@@ -36,7 +36,7 @@ use PhpParser\NodeVisitorAbstract;
  */
 trait RenamerHolderTrait{
     /** @var Renamer */
-    private $renamer;
+    protected $renamer;
 
     /** @param Renamer $renamer */
     public function __construct(Renamer $renamer){
