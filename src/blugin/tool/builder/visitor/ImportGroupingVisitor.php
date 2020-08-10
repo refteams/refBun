@@ -29,7 +29,6 @@ namespace blugin\tool\builder\visitor;
 
 use PhpParser\Node;
 use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
@@ -37,6 +36,7 @@ use PhpParser\Node\Stmt\UseUse;
 use PhpParser\NodeVisitorAbstract;
 
 class ImportGroupingVisitor extends NodeVisitorAbstract{
+    use GetFullyQualifiedTrait;
     /**
      * @param Node[] $nodes
      *
@@ -130,15 +130,5 @@ class ImportGroupingVisitor extends NodeVisitorAbstract{
                 $this->writeUses($node->stmts, $usesList);
             }
         }
-    }
-
-    /**
-     * @param UseUse $use
-     * @param Node   $node
-     *
-     * @return Name
-     */
-    private function getFullyQualifiedName(UseUse $use, Node $node) : Name{
-        return new Name(ltrim((new FullyQualified($node instanceof GroupUse && $node->prefix ? Name::concat($node->prefix, $use->name) : $use->name, $use->getAttributes()))->toCodeString(), "\\"));
     }
 }

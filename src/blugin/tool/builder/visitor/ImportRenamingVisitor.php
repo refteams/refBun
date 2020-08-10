@@ -32,14 +32,12 @@ use PhpParser\ErrorHandler;
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\Use_;
-use PhpParser\Node\Stmt\UseUse;
 use PhpParser\NodeVisitor\NameResolver;
 
 class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
-    use RenamerHolderTrait;
+    use RenamerHolderTrait, GetFullyQualifiedTrait;
 
     /**
      * @param Renamer           $renamer
@@ -88,7 +86,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
     public function leaveNode(Node $node){
         if($node instanceof Use_ || $node instanceof GroupUse){
             foreach($node->uses as $k => $use){
-                $newName = $this->rename(new Identifier(ltrim($this->getFullyQualified($use, $node)->toCodeString(), "\\")));
+                $newName = $this->rename(new Identifier($this->getFullyQualifiedString($use, $node)));
                 if($newName instanceof Identifier){
                     $use->alias = $newName;
                 }
@@ -126,7 +124,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){
                 foreach($node->uses as $k => $use){
-                    $this->generate(new Identifier(ltrim($this->getFullyQualified($use, $node)->toCodeString(), "\\")));
+                    $this->generate(new Identifier($this->getFullyQualifiedString($use, $node)));
                 }
             }
 
@@ -135,15 +133,5 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
                 $this->registerUses($node->stmts);
             }
         }
-    }
-
-    /**
-     * @param UseUse $use
-     * @param Node   $node
-     *
-     * @return FullyQualified
-     */
-    private function getFullyQualified(UseUse $use, Node $node) : FullyQualified{
-        return new FullyQualified($node instanceof GroupUse && $node->prefix ? Name::concat($node->prefix, $use->name) : $use->name, $use->getAttributes());
     }
 }

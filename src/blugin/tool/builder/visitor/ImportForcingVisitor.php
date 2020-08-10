@@ -38,6 +38,8 @@ use PhpParser\Node\Stmt\UseUse;
 use PhpParser\NodeVisitor\NameResolver;
 
 class ImportForcingVisitor extends NameResolver{
+    use GetFullyQualifiedTrait;
+
     /** @var UseUse[] */
     private $uses = [], $unregisterUses = [];
 
@@ -103,7 +105,7 @@ class ImportForcingVisitor extends NameResolver{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){
                 foreach($node->uses as $k => $use){
-                    $this->uses[$this->getFullyQualified($use, $node)->toCodeString()] = $use;
+                    $this->uses[$this->getFullyQualifiedString($use, $node, false)] = $use;
                 }
             }
 
@@ -138,15 +140,5 @@ class ImportForcingVisitor extends NameResolver{
                 $this->appendUsesToNamespace($node->stmts);
             }
         }
-    }
-
-    /**
-     * @param UseUse $use
-     * @param Node   $node
-     *
-     * @return FullyQualified
-     */
-    private function getFullyQualified(UseUse $use, Node $node) : FullyQualified{
-        return new FullyQualified($node instanceof GroupUse && $node->prefix ? Name::concat($node->prefix, $use->name) : $use->name, $use->getAttributes());
     }
 }
