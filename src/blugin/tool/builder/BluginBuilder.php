@@ -311,4 +311,12 @@ class BluginBuilder extends PluginBase{
     public function getPrinter() : IPrinter{
         return $this->printer;
     }
+
+    /**
+     * @param string   $mode
+     * @param IPrinter $printer
+     */
+    public function registerPrinter(string $mode, IPrinter $printer) : void{
+        $this->printers[$mode] = $printer;
+    }
 }
