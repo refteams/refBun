@@ -307,6 +307,22 @@ class BluginBuilder extends PluginBase{
         return $this->traversers[$priority] ?? null;
     }
 
+    /**
+     * @param int                 $priority
+     *
+     * @param NodeVisitorAbstract $visitor
+     *
+     * @return void
+     */
+    public function registerVisitor(int $priority, NodeVisitorAbstract $visitor) : bool{
+        $traverser = $this->getTraverser($priority);
+        if($traverser === null)
+            return false;
+
+        $traverser->addVisitor($visitor);
+        return true;
+    }
+
     /** @return IPrinter */
     public function getPrinter() : IPrinter{
         return $this->printer;
