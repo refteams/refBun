@@ -30,6 +30,8 @@ namespace blugin\tool\builder\visitor;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
 
 class PrivateMethodRenamingVisitor extends PrivateRenamingVisitor{
@@ -53,6 +55,8 @@ class PrivateMethodRenamingVisitor extends PrivateRenamingVisitor{
      * @return bool
      */
     protected function isTarget(Node $node) : bool{
-        return $node instanceof ClassMethod || $node instanceof MethodCall || $node instanceof StaticCall;
+        return $node instanceof ClassMethod
+            || $node instanceof MethodCall  && $node->var instanceof Variable   && $node->var->name === "this"
+            || $node instanceof StaticCall  && $node->class instanceof Name     && $node->class->parts[0] === "self";
     }
 }
