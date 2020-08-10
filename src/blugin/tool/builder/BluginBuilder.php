@@ -47,6 +47,7 @@ use blugin\tool\builder\visitor\renamer\SerialRenamer;
 use blugin\tool\builder\visitor\renamer\ShortenRenamer;
 use blugin\tool\builder\visitor\renamer\SpaceRenamer;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
 use pocketmine\event\EventPriority as Priority;
@@ -76,20 +77,21 @@ class BluginBuilder extends PluginBase{
 
     /** @var NodeTraverser[] event priority => NodeTraverser */
     private $traversers;
-    /** @var IPrinter */
-    private $printer;
+
+    /** @var string */
+    private $printerMode = self::PRINTER_STANDARD;
 
     public function onLoad(){
         self::$instance = $this;
 
-        $this->renamers[self::RENAMER_PROECT] = new ProtectRenamer();
-        $this->renamers[self::RENAMER_SHORTEN] = new ShortenRenamer();
-        $this->renamers[self::RENAMER_SERIAL] = new SerialRenamer();
-        $this->renamers[self::RENAMER_SPACE] = new SpaceRenamer();
-        $this->renamers[self::RENAMER_MD5] = new MD5Renamer();
+        $this->registerRenamer(self::RENAMER_PROECT, new ProtectRenamer());
+        $this->registerRenamer(self::RENAMER_SHORTEN, new ShortenRenamer());
+        $this->registerRenamer(self::RENAMER_SERIAL, new SerialRenamer());
+        $this->registerRenamer(self::RENAMER_SPACE, new SpaceRenamer());
+        $this->registerRenamer(self::RENAMER_MD5, new MD5Renamer());
 
-        $this->printers[self::PRINTER_STANDARD] = new StandardPrinter();
-        $this->printers[self::PRINTER_SHORTEN] = new ShortenPrinter();
+        $this->registerPrinter(self::PRINTER_STANDARD, new StandardPrinter());
+        $this->registerPrinter(self::PRINTER_SHORTEN, new ShortenPrinter());
 
         $config = $this->getConfig();
         //Load pre-processing settings
@@ -98,7 +100,7 @@ class BluginBuilder extends PluginBase{
         }
 
         if($config->getNested("preprocessing.comment-optimizing", true)){
-            $this->traversers[Priority::NORMAL]->addVisitor(new CommentOptimizingVisitor());
+            $this->registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
         }
 
         //Load renaming mode settings
@@ -109,33 +111,32 @@ class BluginBuilder extends PluginBase{
             "private-const" => PrivateConstRenamingVisitor::class
         ] as $key => $class){
             if(isset($this->renamers[$mode = $config->getNested("preprocessing.renaming.$key", "serial")])){
-                $this->traversers[Priority::NORMAL]->addVisitor(new $class(clone $this->renamers[$mode]));
+                $this->registerVisitor(Priority::NORMAL, new $class(clone $this->renamers[$mode]));
             }
         }
 
         //Load import processing mode settings
         $mode = $config->getNested("preprocessing.importing.renaming", "serial");
         if($mode === "resolve"){
-            $this->traversers[Priority::HIGH]->addVisitor(new ImportRemovingVisitor());
+            $this->registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
         }else{
             if(isset($this->renamers[$mode])){
-                $this->traversers[Priority::HIGH]->addVisitor(new ImportRenamingVisitor(clone $this->renamers[$mode]));
+                $this->registerVisitor(Priority::HIGH, new ImportRenamingVisitor(clone $this->renamers[$mode]));
             }
             if($config->getNested("preprocessing.importing.forcing", true)){
-                $this->traversers[Priority::NORMAL]->addVisitor(new ImportForcingVisitor());
+                $this->registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
             }
             if($config->getNested("preprocessing.importing.grouping", true)){
-                $this->traversers[Priority::HIGHEST]->addVisitor(new ImportGroupingVisitor());
+                $this->registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
             }
             if($config->getNested("preprocessing.importing.sorting", true)){
-                $this->traversers[Priority::HIGHEST]->addVisitor(new ImportSortingVisitor());
+                $this->registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
             }
         }
 
         //Load build settings
         $printerMode = $config->getNested("build.print-format");
-        $printerMode = isset($this->printers[$printerMode]) ? $printerMode : "shorten";
-        $this->printer = $this->printers[$printerMode];
+        $this->printerMode = isset($this->printers[$printerMode]) ? $printerMode : "standard";
     }
 
     public function onEnable(){
@@ -214,7 +215,7 @@ class BluginBuilder extends PluginBase{
                     foreach($this->traversers as $priority => $traverser){
                         $stmts = $traverser->traverse($stmts);
                     }
-                    $contents = $this->printer->print($stmts);
+                    $contents = $this->getPrinter()->print($stmts);
                     file_put_contents($out, $contents);
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
@@ -323,9 +324,13 @@ class BluginBuilder extends PluginBase{
         return true;
     }
 
-    /** @return IPrinter */
-    public function getPrinter() : IPrinter{
-        return $this->printer;
+    /**
+     * @param string|null $mode
+     *
+     * @return IPrinter
+     */
+    public function getPrinter(string $mode = null) : IPrinter{
+        return $this->printers[$mode] ?? $this->printers[$this->printerMode];
     }
 
     /**
