@@ -37,6 +37,7 @@ use PhpParser\NodeVisitorAbstract;
 
 class ImportGroupingVisitor extends NodeVisitorAbstract{
     use GetFullyQualifiedTrait;
+
     /**
      * @param Node[] $nodes
      *

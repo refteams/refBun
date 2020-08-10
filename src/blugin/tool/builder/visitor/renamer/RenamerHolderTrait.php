@@ -25,9 +25,8 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\builder\visitor;
+namespace blugin\tool\builder\visitor\renamer;
 
-use blugin\tool\builder\visitor\renamer\Renamer;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
