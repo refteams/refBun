@@ -68,7 +68,7 @@ class ImportGroupingVisitor extends NodeVisitorAbstract{
                 foreach($node->uses as $k => $use){
                     //Re-create for reset use type
                     $type = $use->type !== 0 ? $use->type : $node->type;
-                    $newUse = new UseUse($use->name, $use->alias);
+                    $newUse = new UseUse($this->getFullyQualifiedName($use, $node), $use->alias);
                     $usesList[$type][] = $newUse;
                 }
                 //Remove old use node
