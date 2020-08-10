@@ -27,9 +27,6 @@ preprocessing:
     #임포트 정렬 여부
     sorting: true
 
-  #사소한 코드 최적화
-  minor-optimizating: true
-
   #무의미한 주석 정리
   comment-optimizing: true
 

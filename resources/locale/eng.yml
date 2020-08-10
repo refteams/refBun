@@ -28,9 +28,6 @@ preprocessing:
     #Whether to sort import
     sorting: true
 
-  #Minor code optimization
-  minor-optimizating: true
-
   #Meaningless comment cleanup
   comment-optimizing: true
 

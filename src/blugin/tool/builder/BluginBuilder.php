@@ -216,9 +216,6 @@ class BluginBuilder extends PluginBase{
                         $stmts = $traverser->traverse($stmts);
                     }
                     $contents = $this->printer->print($stmts);
-                    if($config->getNested("preprocessing.minor-optimizating", true)){
-                        $contents = (new OptimizePrinter())->print($parser->parse($contents));
-                    }
                     file_put_contents($out, $contents);
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
