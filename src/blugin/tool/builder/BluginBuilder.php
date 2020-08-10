@@ -49,6 +49,7 @@ use blugin\tool\builder\visitor\renamer\SpaceRenamer;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
+use pocketmine\event\EventPriority as Priority;
 use pocketmine\plugin\PluginBase;
 
 class BluginBuilder extends PluginBase{
@@ -73,8 +74,8 @@ class BluginBuilder extends PluginBase{
     /** @var IPrinter[] printer tag -> printer instance */
     private $printers = [];
 
-    /** @var NodeTraverser */
-    private $traverser;
+    /** @var NodeTraverser[] event priority => NodeTraverser */
+    private $traversers;
     /** @var IPrinter */
     private $printer;
 
@@ -92,10 +93,12 @@ class BluginBuilder extends PluginBase{
 
         $config = $this->getConfig();
         //Load pre-processing settings
-        $this->traverser = new NodeTraverser();
+        foreach(Priority::ALL as $priority){
+            $this->traversers[$priority] = new NodeTraverser();
+        }
 
         if($config->getNested("preprocessing.comment-optimizing", true)){
-            $this->traverser->addVisitor(new CommentOptimizingVisitor());
+            $this->traversers[Priority::NORMAL]->addVisitor(new CommentOptimizingVisitor());
         }
 
         //Load renaming mode settings
@@ -106,22 +109,22 @@ class BluginBuilder extends PluginBase{
             "private-const" => PrivateConstRenamingVisitor::class
         ] as $key => $class){
             if(isset($this->renamers[$mode = $config->getNested("preprocessing.renaming.$key", "serial")])){
-                $this->traverser->addVisitor(new $class(clone $this->renamers[$mode]));
+                $this->traversers[Priority::NORMAL]->addVisitor(new $class(clone $this->renamers[$mode]));
             }
         }
 
         //Load import processing mode settings
         if($config->getNested("preprocessing.importing.forcing", true)){
-            $this->traverser->addVisitor(new ImportForcingVisitor());
+            $this->traversers[Priority::NORMAL]->addVisitor(new ImportForcingVisitor());
         }
         if($config->getNested("preprocessing.importing.grouping", true)){
-            $this->traverser->addVisitor(new ImportGroupingVisitor());
+            $this->traversers[Priority::HIGHEST]->addVisitor(new ImportGroupingVisitor());
         }
         $mode = $config->getNested("preprocessing.importing.renaming", "serial");
         if(isset($this->renamers[$mode])){
-            $this->traverser->addVisitor(new ImportRenamingVisitor(clone $this->renamers[$mode]));
+            $this->traversers[Priority::HIGH]->addVisitor(new ImportRenamingVisitor(clone $this->renamers[$mode]));
         }elseif($mode === "resolve"){
-            $this->traverser->addVisitor(new ImportRemovingVisitor());
+            $this->traversers[Priority::HIGH]->addVisitor(new ImportRemovingVisitor());
         }
 
         //Load build settings
@@ -203,7 +206,9 @@ class BluginBuilder extends PluginBase{
                 try{
                     $contents = file_get_contents($fileInfo->getPathName());
                     $stmts = $parser->parse($contents);
-                    $stmts = $this->traverser->traverse($stmts);
+                    foreach($this->traversers as $priority => $traverser){
+                        $stmts = $traverser->traverse($stmts);
+                    }
                     $contents = $this->printer->print($stmts);
                     if($config->getNested("preprocessing.minor-optimizating", true)){
                         $contents = (new OptimizePrinter())->print($parser->parse($contents));
@@ -286,9 +291,18 @@ class BluginBuilder extends PluginBase{
         return (count(scandir($directory)) == 2);
     }
 
-    /** @return NodeTraverser */
-    public function getTraverser() : NodeTraverser{
-        return $this->traverser;
+    /** @return NodeTraverser[] */
+    public function getTraversers() : array{
+        return $this->traversers;
+    }
+
+    /**
+     * @param int $priority
+     *
+     * @return NodeTraverser|null
+     */
+    public function getTraverser(int $priority = Priority::NORMAL) : ?NodeTraverser{
+        return $this->traversers[$priority] ?? null;
     }
 
     /** @return IPrinter */
