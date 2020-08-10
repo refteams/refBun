@@ -20,6 +20,9 @@ preprocessing:
     #Whether to make import grouping
     grouping: true
 
+    #Whether to sort import
+    sorting: true
+
     #Import renaming  settings
     #Modes Supported : {ALL renaming mode}, resolve(Remove import statement), false(disable)
     renaming: serial

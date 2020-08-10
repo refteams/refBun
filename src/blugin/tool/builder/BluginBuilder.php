@@ -36,6 +36,7 @@ use blugin\tool\builder\visitor\ImportForcingVisitor;
 use blugin\tool\builder\visitor\ImportGroupingVisitor;
 use blugin\tool\builder\visitor\ImportRemovingVisitor;
 use blugin\tool\builder\visitor\ImportRenamingVisitor;
+use blugin\tool\builder\visitor\ImportSortingVisitor;
 use blugin\tool\builder\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\builder\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\builder\visitor\PrivateMethodRenamingVisitor;
@@ -119,6 +120,9 @@ class BluginBuilder extends PluginBase{
         }
         if($config->getNested("preprocessing.importing.grouping", true)){
             $this->traversers[Priority::HIGHEST]->addVisitor(new ImportGroupingVisitor());
+        }
+        if($config->getNested("preprocessing.importing.sorting", true)){
+            $this->traversers[Priority::HIGHEST]->addVisitor(new ImportSortingVisitor());
         }
         $mode = $config->getNested("preprocessing.importing.renaming", "serial");
         if(isset($this->renamers[$mode])){
