@@ -73,16 +73,15 @@ class ImportForcingVisitor extends NameResolver{
      * @return Name
      */
     protected function resolveName(Name $name, int $type) : Name{
+        $originalName = str_replace("\\", "", $name->toCodeString());
         $result = parent::resolveName($name, $type);
         $code = $result->toCodeString();
         if($result instanceof FullyQualified){
             if(!isset($this->uses[$code])){
-                $parts = $name->parts;
+                $parts = $result->parts;
                 $lastPart = array_pop($parts);
-                $this->unregisterUses[$code] = new UseUse(new Name(ltrim($code, "\\")), ltrim($name->toCodeString(), "\\") === $lastPart ? null : new Node\Identifier($name->toCodeString()), Use_::TYPE_NORMAL);
-                if(count($parts) === 0){ //Replace root namespace uses
-                    return new Name($lastPart, $name->getAttributes());
-                }
+                $this->unregisterUses[$code] = new UseUse(new Name(ltrim($code, "\\")), $lastPart === $originalName ? null : new Node\Identifier($originalName), Use_::TYPE_NORMAL);
+                return new Name($originalName, $name->getAttributes());
             }
         }else{
             $code = ltrim($code, "\\");
