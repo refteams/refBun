@@ -34,16 +34,12 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\GroupUse;
-use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\Node\Stmt\UseUse;
 use PhpParser\NodeVisitor\NameResolver;
 
 class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
     use RenamerHolderTrait;
-
-    /** @var Use_[] */
-    private $uses = [];
 
     /**
      * @param Renamer           $renamer
@@ -71,20 +67,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
     public function beforeTraverse(array $nodes){
         $this->nameContext->startNamespace();
         $this->getRenamer()->init();
-        $this->uses = [];
         $this->registerUses($nodes);
-        return $nodes;
-    }
-
-    /**
-     * Add uses
-     *
-     * @param Node[] $nodes
-     *
-     * @return array
-     **/
-    public function afterTraverse(array $nodes){
-        $this->addUses($nodes);
         return $nodes;
     }
 
@@ -131,15 +114,6 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
             $newName = $this->rename(clone $name);
             if($newName instanceof Identifier)
                 return new Name($newName->name, $result->getAttributes());
-
-            $this->generate($name);
-            $newName = $this->rename(clone $name);
-            if($newName instanceof Identifier){
-                $this->uses[] = new Use_([
-                    new UseUse(new Name(substr($name->name, 1)), $newName, Use_::TYPE_NORMAL)
-                ]);
-                return new Name($newName->name, $result->getAttributes());
-            }
         }
         return $result;
     }
@@ -162,29 +136,6 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
             //Child node with recursion processing
             if(isset($node->stmts) && is_array($node->stmts)){
                 $this->registerUses($node->stmts);
-            }
-        }
-    }
-
-    /**
-     * Add uses nodes with recursion
-     *
-     * @param Node[] $nodes
-     *
-     * @return void
-     **/
-    private function addUses(array $nodes) : void{
-        foreach($nodes as $node){
-            if($node instanceof Namespace_){
-                foreach($this->uses as $_ => $use){
-                    array_unshift($node->stmts, $use);
-                }
-                return;
-            }
-
-            //Child node with recursion processing
-            if(isset($node->stmts) && is_array($node->stmts)){
-                $this->addUses($node->stmts);
             }
         }
     }
