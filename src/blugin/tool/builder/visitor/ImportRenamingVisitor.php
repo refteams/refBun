@@ -30,6 +30,8 @@ namespace blugin\tool\builder\visitor;
 use blugin\tool\builder\visitor\renamer\Renamer;
 use PhpParser\ErrorHandler;
 use PhpParser\Node;
+use PhpParser\Node\Expr\ConstFetch;
+use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\GroupUse;
@@ -75,6 +77,16 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
      * @return int|Node|null
      */
     public function enterNode(Node $node){
+        if($node instanceof FunctionLike){
+            foreach($node->getParams() as $key => $param){
+                if($param->default instanceof ConstFetch && $param->default->name->parts[0] === "null"){
+                    $param->default->setAttribute("byParams", $param);
+                }
+            }
+        }
+        if($node instanceof ConstFetch && $node->hasAttribute("byParams")){
+            return $node;
+        }
         return parent::enterNode($node);
     }
 
