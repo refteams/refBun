@@ -33,15 +33,7 @@ use PhpParser\NodeVisitorAbstract;
 
 class CommentOptimizingVisitor extends NodeVisitorAbstract{
     /** string[] regex format[] */
-    private $meaningfullList = [];
-
-    public function __construct(){
-        $this->register("/^[\t ]*\* @(notHandler)/m");
-        $this->register("/^[\t ]*\* @(ignoreCancelled)/m");
-        $this->register("/^[\t ]*\* @(handleCancelled)/m");
-        $this->register("/^[\t ]*\* @(softDepend)[\t ]+([a-zA-Z]+)/m");
-        $this->register("/^[\t ]*\* @(priority)[\t ]+([a-zA-Z]+)/m");
-    }
+    private static $meaningfullList = null;
 
     /**
      * Remove meaningless comment
@@ -63,7 +55,7 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
         //Store meaningfull comments
         $docComments = [];
         $docText = $doc->getText();
-        foreach($this->getMeaningfullList() as $_ => $regex){
+        foreach(self::getMeaningfullList() as $_ => $regex){
             if(preg_match($regex, $docText, $matches) > 0){
                 $docComments[] = implode(" ", array_slice($matches, 1));
             }
@@ -84,12 +76,27 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
     }
 
     /** @return array */
-    public function getMeaningfullList() : array{
-        return $this->meaningfullList;
+    public static function getMeaningfullList() : array{
+        if(self::$meaningfullList === null){
+            self::initMeaningfullList();;
+        }
+        return self::$meaningfullList;
     }
 
     /** @param string $regex */
-    public function register(string $regex) : void{
-        $this->meaningfullList[] = $regex;
+    public static function register(string $regex) : void{
+        if(self::$meaningfullList === null){
+            self::initMeaningfullList();;
+        }
+        self::$meaningfullList[] = $regex;
+    }
+
+    public static function initMeaningfullList() : void{
+        self::$meaningfullList = [];
+        self::register("/^[\t ]*\* @(notHandler)/m");
+        self::register("/^[\t ]*\* @(ignoreCancelled)/m");
+        self::register("/^[\t ]*\* @(handleCancelled)/m");
+        self::register("/^[\t ]*\* @(softDepend)[\t ]+([a-zA-Z]+)/m");
+        self::register("/^[\t ]*\* @(priority)[\t ]+([a-zA-Z]+)/m");
     }
 }
