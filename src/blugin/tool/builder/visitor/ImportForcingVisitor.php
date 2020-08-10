@@ -79,18 +79,15 @@ class ImportForcingVisitor extends NameResolver{
         if($result instanceof FullyQualified){
             if(!isset($this->uses[$code])){
                 $parts = $result->parts;
+                if(count($parts) === 1){ //Replace to global function/constant
+                    return $this->resolveGlobal($result) ?? $name;
+                }
                 $lastPart = array_pop($parts);
                 $this->unregisterUses[$code] = new UseUse(new Name(ltrim($code, "\\")), $lastPart === $originalName ? null : new Node\Identifier($originalName), Use_::TYPE_NORMAL);
                 return new Name($originalName, $name->getAttributes());
             }
         }else{
-            $code = ltrim($code, "\\");
-            if(defined("\\" . $code)){ //Replace global const
-                $this->unregisterUses[$code] = new UseUse(new Name($code), null, Use_::TYPE_CONSTANT);
-            }elseif(function_exists("\\" . $code)){ //Replace global function
-                $this->unregisterUses[$code] = new UseUse(new Name($code), null, Use_::TYPE_FUNCTION);
-            }
-            return new Name($code, $name->getAttributes());
+            return $this->resolveGlobal($result) ?? $name;
         }
         return $name; //Return original name instead of resolved name
     }
@@ -139,5 +136,26 @@ class ImportForcingVisitor extends NameResolver{
                 $this->appendUsesToNamespace($node->stmts);
             }
         }
+    }
+
+    /**
+     * @param Name $name
+     *
+     * @return Name
+     */
+    private function resolveGlobal(Name $name) : Name{
+        $code = ltrim($name->toCodeString(), "\\");
+        if($code === "self" || $code === "parent" || $code === "static")
+            return $name;
+
+        $fullCode = "\\" . $code;
+        $use = new UseUse(new Name($code), null, Use_::TYPE_UNKNOWN);
+        if(function_exists($fullCode)){
+            $use->type = Use_::TYPE_FUNCTION;
+        }elseif(defined($fullCode)){
+            $use->type = Use_::TYPE_CONSTANT;
+        }
+        $this->unregisterUses[$fullCode] = $use;
+        return new Name($code, $name->getAttributes());
     }
 }
