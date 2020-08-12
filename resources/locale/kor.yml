@@ -4,6 +4,9 @@
 
 #빌드 전처리 설정
 preprocessing:
+  #여러개의 class/trait/interface 분리
+  spliting: true
+
   #이름 재정의 모드 설정
   #지원하는 모드 : protect(변수명 숨기기), shorten(짧은 변수명), serial(순차적인 변수명), space(투명문자), md5(5글자 해쉬 텍스트), false(비활성화)
   renaming:

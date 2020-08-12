@@ -204,19 +204,28 @@ class BluginBuilder extends PluginBase{
             }
 
             $out = substr_replace($path, $buildPath, 0, strlen($filePath));
-            if(!file_exists(dirname($out))){
-                mkdir(dirname($out), 0777, true);
+            $outDir = dirname($out);
+            if(!file_exists($outDir)){
+                mkdir($outDir, 0777, true);
             }
 
-            if(preg_match("/\.php$/", $path)){
+            if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
                 try{
                     $contents = file_get_contents($fileInfo->getPathName());
-                    $stmts = $parser->parse($contents);
-                    foreach(TraverserPriority::DEFAULTS as $priority){
-                        $stmts = $this->traversers[$priority]->traverse($stmts);
+                    $originalStmts = $parser->parse($contents);
+                    $originalStmts = $this->traversers[TraverserPriority::BEFORE_SPLIT]->traverse($originalStmts);
+
+                    $files = [$matchs[1] => $originalStmts];
+                    if($config->getNested("preprocessing.spliting", true)){
+                        $files = CodeSpliter::splitNodes($originalStmts, $matchs[1]);
                     }
-                    $contents = $this->getPrinter()->print($stmts);
-                    file_put_contents($out, $contents);
+
+                    foreach($files as $filename => $stmts){
+                        foreach(TraverserPriority::DEFAULTS as $priority){
+                            $stmts = $this->traversers[$priority]->traverse($stmts);
+                        }
+                        file_put_contents($outDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter()->print($stmts));
+                    }
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
                 }
