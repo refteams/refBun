@@ -55,4 +55,11 @@ final class TraverserPriority{
      * Traserver call before split files
      */
     public const BEFORE_SPLIT = 6;
+
+    public const LOWEST = Priority::LOWEST;
+    public const LOW = Priority::LOW;
+    public const NORMAL = Priority::NORMAL;
+    public const HIGH = Priority::HIGH;
+    public const HIGHEST = Priority::HIGHEST;
+    public const MONITOR = Priority::MONITOR;
 }

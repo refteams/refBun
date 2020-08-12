@@ -50,7 +50,7 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
-use pocketmine\event\EventPriority as Priority;
+use blugin\tool\builder\TraverserPriority as Priority;
 use pocketmine\plugin\PluginBase;
 
 class BluginBuilder extends PluginBase{
@@ -95,7 +95,7 @@ class BluginBuilder extends PluginBase{
 
         $config = $this->getConfig();
         //Load pre-processing settings
-        foreach(TraverserPriority::ALL as $priority){
+        foreach(Priority::ALL as $priority){
             $this->traversers[$priority] = new NodeTraverser();
         }
 
@@ -213,7 +213,7 @@ class BluginBuilder extends PluginBase{
                 try{
                     $contents = file_get_contents($fileInfo->getPathName());
                     $originalStmts = $parser->parse($contents);
-                    $originalStmts = $this->traversers[TraverserPriority::BEFORE_SPLIT]->traverse($originalStmts);
+                    $originalStmts = $this->traversers[Priority::BEFORE_SPLIT]->traverse($originalStmts);
 
                     $files = [$matchs[1] => $originalStmts];
                     if($config->getNested("preprocessing.spliting", true)){
@@ -221,7 +221,7 @@ class BluginBuilder extends PluginBase{
                     }
 
                     foreach($files as $filename => $stmts){
-                        foreach(TraverserPriority::DEFAULTS as $priority){
+                        foreach(Priority::DEFAULTS as $priority){
                             $stmts = $this->traversers[$priority]->traverse($stmts);
                         }
                         file_put_contents($outDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter()->print($stmts));
