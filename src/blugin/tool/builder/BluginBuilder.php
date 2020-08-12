@@ -75,7 +75,7 @@ class BluginBuilder extends PluginBase{
     /** @var IPrinter[] printer tag -> printer instance */
     private $printers = [];
 
-    /** @var NodeTraverser[] event priority => NodeTraverser */
+    /** @var NodeTraverser[] traverser priority => NodeTraverser */
     private $traversers;
 
     /** @var string */
@@ -95,7 +95,7 @@ class BluginBuilder extends PluginBase{
 
         $config = $this->getConfig();
         //Load pre-processing settings
-        foreach(Priority::ALL as $priority){
+        foreach(TraverserPriority::ALL as $priority){
             $this->traversers[$priority] = new NodeTraverser();
         }
 
@@ -212,8 +212,8 @@ class BluginBuilder extends PluginBase{
                 try{
                     $contents = file_get_contents($fileInfo->getPathName());
                     $stmts = $parser->parse($contents);
-                    foreach($this->traversers as $priority => $traverser){
-                        $stmts = $traverser->traverse($stmts);
+                    foreach(TraverserPriority::DEFAULTS as $priority){
+                        $stmts = $this->traversers[$priority]->traverse($stmts);
                     }
                     $contents = $this->getPrinter()->print($stmts);
                     file_put_contents($out, $contents);
