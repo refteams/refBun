@@ -313,7 +313,7 @@ class BluginBuilder extends PluginBase{
      *
      * @param NodeVisitorAbstract $visitor
      *
-     * @return void
+     * @return bool
      */
     public function registerVisitor(int $priority, NodeVisitorAbstract $visitor) : bool{
         $traverser = $this->getTraverser($priority);
