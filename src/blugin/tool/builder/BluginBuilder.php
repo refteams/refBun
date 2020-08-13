@@ -30,6 +30,7 @@ namespace blugin\tool\builder;
 use blugin\tool\builder\printer\IPrinter;
 use blugin\tool\builder\printer\ShortenPrinter;
 use blugin\tool\builder\printer\StandardPrinter;
+use blugin\tool\builder\TraverserPriority as Priority;
 use blugin\tool\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\builder\visitor\ImportForcingVisitor;
 use blugin\tool\builder\visitor\ImportGroupingVisitor;
@@ -50,7 +51,6 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
-use blugin\tool\builder\TraverserPriority as Priority;
 use pocketmine\plugin\PluginBase;
 
 class BluginBuilder extends PluginBase{
@@ -339,7 +339,7 @@ class BluginBuilder extends PluginBase{
      * @return IPrinter
      */
     public function getPrinter(string $mode = null) : IPrinter{
-        return $this->printers[$mode] ?? $this->printers[$this->printerMode];
+        return clone($this->printers[$mode] ?? $this->printers[$this->printerMode]);
     }
 
     /**
@@ -363,7 +363,7 @@ class BluginBuilder extends PluginBase{
      * @return Renamer|null
      */
     public function getRenamer(string $mode) : ?Renamer{
-        return clone $this->renamers[$mode] ?? null;
+        return isset($this->renamers[$mode]) ? clone $this->renamers[$mode] : null;
     }
 
     /**
