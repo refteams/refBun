@@ -135,8 +135,7 @@ class BluginBuilder extends PluginBase{
         }
 
         //Load build settings
-        $printerMode = $config->getNested("build.print-format");
-        $this->printerMode = isset($this->printers[$printerMode]) ? $printerMode : "standard";
+        $this->printerMode = $config->getNested("build.print-format");
     }
 
     public function onEnable(){
