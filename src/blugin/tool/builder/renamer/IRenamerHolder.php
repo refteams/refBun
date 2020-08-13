@@ -25,9 +25,7 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\builder\visitor\renamer;
-
-use PhpParser\Node;
+namespace blugin\tool\builder\renamer;
 
 interface IRenamerHolder{
     /** @return Renamer */

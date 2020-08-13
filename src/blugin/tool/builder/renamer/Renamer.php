@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\builder\visitor\renamer;
+namespace blugin\tool\builder\renamer;
 
 use PhpParser\Node;
 

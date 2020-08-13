@@ -25,11 +25,11 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\builder\visitor\renamer;
+namespace blugin\tool\builder\renamer;
 
 use PhpParser\Node;
 
-class MD5Renamer extends Renamer{
+class ShortenRenamer extends Renamer{
     /**
      * @param Node   $node
      * @param string $property = "name"
@@ -39,12 +39,13 @@ class MD5Renamer extends Renamer{
         if(isset($nameTable[$node->$property]))
             return;
 
+        $name = $this->clean($node->$property);
+        $length = 1;
+        $num = 0;
         do{
-            $hash = md5($node->$property . lcg_value());
-            if($this->requireInitialValid()){
-                $hash = range("a", "z")[mt_rand(0, 25)] . $hash;
-            }
-            $newName = substr($hash, 0, 5);
+            $newName = substr($name, 0, $length++);
+            if($newName === $node->$property || $length > 2)
+                $newName = substr($name, 0, 2) . $num++;
         }while($this->in_array($newName, $nameTable));
 
         $this->setName($node->$property, $newName);

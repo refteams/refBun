@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\builder\visitor;
 
-use blugin\tool\builder\visitor\renamer\Renamer;
+use blugin\tool\builder\renamer\Renamer;
 use PhpParser\Node;
 use PhpParser\Node\Const_;
 use PhpParser\Node\Expr\ClassConstFetch;
@@ -63,7 +63,6 @@ class PrivateConstRenamingVisitor extends PrivateRenamingVisitor{
      * @return bool
      */
     protected function isTarget(Node $node) : bool{
-        return $node instanceof Const_
-            || $node instanceof ClassConstFetch && $node->class instanceof Name && $node->class->parts[0] === "self";
+        return $node instanceof Const_ || $node instanceof ClassConstFetch && $node->class instanceof Name && $node->class->parts[0] === "self";
     }
 }

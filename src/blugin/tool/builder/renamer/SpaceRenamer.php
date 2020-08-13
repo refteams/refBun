@@ -25,17 +25,27 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\builder\visitor\renamer;
+namespace blugin\tool\builder\renamer;
 
 use PhpParser\Node;
 
-class SerialRenamer extends Renamer{
-    /** @var string[] */
-    private $firstChars, $otherChars;
-
-    public function __construct(){
-        $this->generateChars();
-    }
+class SpaceRenamer extends Renamer{
+    private const SPACE_TABLE = [
+        "\u{2000}",
+        "\u{2001}",
+        "\u{2002}",
+        "\u{2003}",
+        "\u{2004}",
+        "\u{2005}",
+        "\u{2006}",
+        "\u{2007}",
+        "\u{2008}",
+        "\u{2009}",
+        "\u{200A}",
+        "\u{2028}",
+        "\u{205F}",
+        "\u{3000}"
+    ];
 
     /**
      * @param Node   $node
@@ -46,27 +56,12 @@ class SerialRenamer extends Renamer{
             return;
 
         $variableCount = count($this->getNameTable());
-        $firstCount = count($this->firstChars);
-        $newName = $this->firstChars[$variableCount % $firstCount];
+        $newName = self::SPACE_TABLE[$variableCount % count(self::SPACE_TABLE)];
         if($variableCount){
-            if(($sub = floor($variableCount / $firstCount) - 1) > -1){
-                $newName .= $this->otherChars[$sub];
+            if(($sub = floor($variableCount / count(self::SPACE_TABLE)) - 1) > -1){
+                $newName .= self::SPACE_TABLE[$sub];
             }
         }
         $this->setName($node->$property, $newName);
-    }
-
-    /** @param bool $value */
-    public function setIgnorecase(bool $value = true) : void{
-        parent::setIgnorecase($value);
-        $this->generateChars();
-    }
-
-    private function generateChars() : void{
-        $this->firstChars = array_merge(["_"], range("a", "z"));
-        if(!$this->isIgnorecase()){
-            $this->firstChars = array_merge($this->firstChars, range("A", "Z"));
-        }
-        $this->otherChars = array_merge(range("0", "9"), $this->firstChars);
     }
 }

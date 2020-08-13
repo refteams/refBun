@@ -28,10 +28,10 @@ declare(strict_types=1);
 namespace blugin\tool\builder\visitor;
 
 use PhpParser\Node;
-use PhpParser\Node\Name;
 use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Expr\StaticPropertyFetch;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
 
@@ -58,8 +58,6 @@ class PrivatePropertyRenamingVisitor extends PrivateRenamingVisitor{
      * @return bool
      */
     protected function isTarget(Node $node) : bool{
-        return $node instanceof PropertyProperty
-            || $node instanceof PropertyFetch       && $node->var instanceof Variable   && $node->var->name === "this"
-            || $node instanceof StaticPropertyFetch && $node->class instanceof Name     && $node->class->parts[0] === "self";
+        return $node instanceof PropertyProperty || $node instanceof PropertyFetch && $node->var instanceof Variable && $node->var->name === "this" || $node instanceof StaticPropertyFetch && $node->class instanceof Name && $node->class->parts[0] === "self";
     }
 }
