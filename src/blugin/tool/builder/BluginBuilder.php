@@ -42,7 +42,6 @@ use blugin\tool\builder\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\builder\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\builder\visitor\PrivatePropertyRenamingVisitor;
 use blugin\tool\builder\visitor\renamer\MD5Renamer;
-use blugin\tool\builder\visitor\renamer\ProtectRenamer;
 use blugin\tool\builder\visitor\renamer\Renamer;
 use blugin\tool\builder\visitor\renamer\SerialRenamer;
 use blugin\tool\builder\visitor\renamer\ShortenRenamer;
@@ -62,7 +61,6 @@ class BluginBuilder extends PluginBase{
         return self::$instance;
     }
 
-    public const RENAMER_PROECT = "protect";
     public const RENAMER_SHORTEN = "shorten";
     public const RENAMER_SERIAL = "serial";
     public const RENAMER_SPACE = "space";
@@ -84,7 +82,6 @@ class BluginBuilder extends PluginBase{
     public function onLoad(){
         self::$instance = $this;
 
-        $this->registerRenamer(self::RENAMER_PROECT, new ProtectRenamer());
         $this->registerRenamer(self::RENAMER_SHORTEN, new ShortenRenamer());
         $this->registerRenamer(self::RENAMER_SERIAL, new SerialRenamer());
         $this->registerRenamer(self::RENAMER_SPACE, new SpaceRenamer());
