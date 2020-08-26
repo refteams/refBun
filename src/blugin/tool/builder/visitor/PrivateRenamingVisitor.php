@@ -31,6 +31,8 @@ use blugin\tool\builder\renamer\IRenamerHolder;
 use blugin\tool\builder\renamer\RenamerHolderVisitorTrait;
 use PhpParser\Node;
 use PhpParser\Node\Const_;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\NodeVisitorAbstract;
 
 abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRenamerHolder{
@@ -62,6 +64,9 @@ abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRe
      **/
     private function registerPrivateNodes(array $nodes) : void{
         foreach($nodes as $node){
+            if($node instanceof ClassLike && !$node instanceof Class_)
+                continue;
+
             $this->registerNode($node);
 
             //Child node with recursion processing
