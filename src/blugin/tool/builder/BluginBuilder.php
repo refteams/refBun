@@ -82,13 +82,6 @@ class BluginBuilder extends PluginBase{
     public function onLoad(){
         self::$instance = $this;
 
-        //Load pre-processing settings
-        foreach(Priority::ALL as $priority){
-            $this->traversers[$priority] = new NodeTraverser();
-        }
-    }
-
-    public function onEnable(){
         $this->registerRenamer(self::RENAMER_SHORTEN, new ShortenRenamer());
         $this->registerRenamer(self::RENAMER_SERIAL, new SerialRenamer());
         $this->registerRenamer(self::RENAMER_SPACE, new SpaceRenamer());
@@ -97,6 +90,13 @@ class BluginBuilder extends PluginBase{
         $this->registerPrinter(self::PRINTER_STANDARD, new StandardPrinter());
         $this->registerPrinter(self::PRINTER_SHORTEN, new ShortenPrinter());
 
+        //Load pre-processing settings
+        foreach(Priority::ALL as $priority){
+            $this->traversers[$priority] = new NodeTraverser();
+        }
+    }
+
+    public function onEnable(){
         $config = $this->getConfig();
 
         if($config->getNested("preprocessing.comment-optimizing", true)){
