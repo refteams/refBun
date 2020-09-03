@@ -50,7 +50,6 @@
   
 ## :warning: Required dependency plugins
 - [**pmmp/DevTools-PMMP**](https://github.com/pmmp/DevTools)
-- [**Blugin/libPhpParser-PMMP**](https://github.com/Blugin/libPhpParser-PMMP) 
 
 <br>  
   
