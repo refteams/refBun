@@ -178,7 +178,7 @@ class AdvancedBuilder{
                         foreach(Priority::DEFAULTS as $priority){
                             $stmts = $this->traversers[$priority]->traverse($stmts);
                         }
-                        file_put_contents($outDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter()->print($stmts));
+                        file_put_contents($outDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter($this->printerMode)->print($stmts));
                     }
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
@@ -282,8 +282,8 @@ class AdvancedBuilder{
         return true;
     }
 
-    public function getPrinter(?string $mode = null) : IPrinter{
-        return clone($this->printers[$mode] ?? $this->printers[$this->printerMode]);
+    public function getPrinter(string $mode = self::PRINTER_STANDARD) : IPrinter{
+        return clone($this->printers[$mode] ?? $this->printers[self::PRINTER_STANDARD]);
     }
 
     public function registerPrinter(string $mode, IPrinter $printer) : void{
