@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\dev;
 
 use blugin\lib\translator\traits\MultilingualConfigTrait;
-use blugin\tool\dev\builder\BluginBuilder;
+use blugin\tool\dev\builder\AdvancedBuilder;
 use pocketmine\plugin\PluginBase;
 
 class BluginTools extends PluginBase{
@@ -42,13 +42,13 @@ class BluginTools extends PluginBase{
         return self::$instance;
     }
 
-    /** @var BluginBuilder */
+    /** @var AdvancedBuilder */
     private $builder = null;
 
     public function onLoad(){
         self::$instance = $this;
 
-        $this->builder = new BluginBuilder($this);
+        $this->builder = new AdvancedBuilder($this);
     }
 
     public function onEnable(){
@@ -58,7 +58,7 @@ class BluginTools extends PluginBase{
         $this->builder->init();
     }
 
-    public function getBuilder() : BluginBuilder{
+    public function getBuilder() : AdvancedBuilder{
         return $this->builder;
     }
 }

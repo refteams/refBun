@@ -36,10 +36,10 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
 class BuildCommandExecutor implements CommandExecutor{
-    /** @var BluginBuilder */
+    /** @var AdvancedBuilder */
     private $plugin;
 
-    public function __construct(BluginBuilder $plugin){
+    public function __construct(AdvancedBuilder $plugin){
         $this->plugin = $plugin;
     }
 

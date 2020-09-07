@@ -54,7 +54,7 @@ use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
 use pocketmine\plugin\PluginBase;
 
-class BluginBuilder{
+class AdvancedBuilder{
     /** @var BluginTools */
     private $tools;
 
