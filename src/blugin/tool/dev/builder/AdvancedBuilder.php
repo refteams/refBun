@@ -37,6 +37,7 @@ use blugin\tool\dev\builder\renamer\Renamer;
 use blugin\tool\dev\builder\renamer\SerialRenamer;
 use blugin\tool\dev\builder\renamer\ShortenRenamer;
 use blugin\tool\dev\builder\renamer\SpaceRenamer;
+use blugin\tool\dev\builder\traverser\AdvancedeTraverser;
 use blugin\tool\dev\builder\TraverserPriority as Priority;
 use blugin\tool\dev\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\dev\builder\visitor\ImportForcingVisitor;
@@ -49,7 +50,6 @@ use blugin\tool\dev\builder\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivatePropertyRenamingVisitor;
 use blugin\tool\dev\utils\Utils;
-use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
@@ -71,7 +71,7 @@ class AdvancedBuilder{
     /** @var IPrinter[] printer tag -> printer instance */
     private $printers = [];
 
-    /** @var NodeTraverser[] traverser priority => NodeTraverser */
+    /** @var AdvancedeTraverser[] traverser priority => AdvancedeTraverser */
     private $traversers;
 
     /** @var string */
@@ -90,7 +90,7 @@ class AdvancedBuilder{
 
         //Load pre-processing settings
         foreach(Priority::ALL as $priority){
-            $this->traversers[$priority] = new NodeTraverser();
+            $this->traversers[$priority] = new AdvancedeTraverser();
         }
     }
 
@@ -244,12 +244,12 @@ class AdvancedBuilder{
         return $this->tools;
     }
 
-    /** @return NodeTraverser[] */
+    /** @return AdvancedeTraverser[] */
     public function getTraversers() : array{
         return $this->traversers;
     }
 
-    public function getTraverser(int $priority = Priority::NORMAL) : ?NodeTraverser{
+    public function getTraverser(int $priority = Priority::NORMAL) : ?AdvancedeTraverser{
         return $this->traversers[$priority] ?? null;
     }
 
