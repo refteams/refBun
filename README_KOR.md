@@ -1,26 +1,26 @@
-<p align="center"> <img src="https://ghcdn.rawgit.org/Blugin/BluginBuilder-PMMP/master/icon.png" width="360"> </p>
-<br> <h1 align="center"> BluginBuilder :: 더 많은 옵션으로 플러그인을 빌드하세요! </h1>
+<p align="center"> <img src="https://ghcdn.rawgit.org/Blugin/BluginTools/master/icon.png" width="360"> </p>
+<br> <h1 align="center"> BluginTools :: 더 많은 옵션으로 플러그인을 빌드하세요! </h1>
 <p align="right">  
-  <a href="https://github.com/Blugin/BluginBuilder-PMMP/blob/master/README.md">  
+  <a href="https://github.com/Blugin/BluginTools/blob/master/README.md">  
     <img src="https://img.shields.io/static/v1?label=read%20in&message=English&color=success">
   </a>  
 </p>  
 <p align="center">  
-  <a href="https://poggit.pmmp.io/ci/Blugin/BluginBuilder-PMMP/BluginBuilder">  
-    <img src="https://poggit.pmmp.io/ci.shield/Blugin/BluginBuilder-PMMP/BluginBuilder?style=flat-square">  
+  <a href="https://poggit.pmmp.io/ci/Blugin/BluginTools/BluginTools">  
+    <img src="https://poggit.pmmp.io/ci.shield/Blugin/BluginTools/BluginTools?style=flat-square">  
   </a>  
-  <a href="https://github.com/Blugin/BluginBuilder-PMMP/releases">  
-    <img src="https://img.shields.io/github/release/Blugin/BluginBuilder-PMMP.svg?style=flat-square">  
+  <a href="https://github.com/Blugin/BluginTools/releases">  
+    <img src="https://img.shields.io/github/release/Blugin/BluginTools.svg?style=flat-square">  
   </a>  
-  <a href="https://github.com/Blugin/BluginBuilder-PMMP/releases">  
-    <img src="https://img.shields.io/github/downloads/Blugin/BluginBuilder-PMMP/total.svg?style=flat-square">  
+  <a href="https://github.com/Blugin/BluginTools/releases">  
+    <img src="https://img.shields.io/github/downloads/Blugin/BluginTools/total.svg?style=flat-square">  
   </a>  
   </a>  
-  <a href="https://github.com/Blugin/BluginBuilder-PMMP/blob/master/LICENSE">  
-    <img src="https://img.shields.io/github/license/Blugin/BluginBuilder-PMMP.svg?style=flat-square">  
+  <a href="https://github.com/Blugin/BluginTools/blob/master/LICENSE">  
+    <img src="https://img.shields.io/github/license/Blugin/BluginTools.svg?style=flat-square">  
   </a>  
-  <a href="http://hits.dwyl.com/Blugin/BluginBuilder-PMMP">  
-    <img src="http://hits.dwyl.com/Blugin/BluginBuilder-PMMP.svg"> 
+  <a href="http://hits.dwyl.com/Blugin/BluginTools">  
+    <img src="http://hits.dwyl.com/Blugin/BluginTools.svg"> 
   </a>  
   <strong>
   <br> ✔️ 다양한 포맷으로 <code>local</code>/<code>private</code> 요소의 이름을 변경하세요!
@@ -57,13 +57,13 @@
   
 | Version | Phar Download | Updates Note |  
 | :-----: | :-----------: | :----------: |    
-| 2.0.0 | [GitHub](https://github.com/Blugin/BluginBuilder-PMMP/releases/download/2.0.0/BluginBuilder_v2.0.0.phar) | **플러그인 게시 (플러그인 기능 구현)** |  
+| 2.0.0 | [GitHub](https://github.com/Blugin/BluginTools/releases/download/2.0.0/BluginTools_v2.0.0.phar) | **플러그인 게시 (플러그인 기능 구현)** |  
   
-> **모든 출시 버전은 [여기](https://github.com/Blugin/BluginBuilder-PMMP/releases) 에서 확인할 수 있습니다**  
+> **모든 출시 버전은 [여기](https://github.com/Blugin/BluginTools/releases) 에서 확인할 수 있습니다**  
   
 <br>  
   
 ## :memo: 라이센스 
-> 라이센스 전문은 [여기](https://github.com/Blugin/BluginBuilder-PMMP/blob/master/LICENSE) 에서 확인할 수 있습니다  
+> 라이센스 전문은 [여기](https://github.com/Blugin/BluginTools/blob/master/LICENSE) 에서 확인할 수 있습니다  
   
 이 프로젝트는 **LGPL 3.0** 라이센스 조건에 따라 라이센스가 부여됩니다
