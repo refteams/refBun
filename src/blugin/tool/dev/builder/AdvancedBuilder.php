@@ -107,30 +107,6 @@ class AdvancedBuilder{
         }
     }
 
-    /** @throws \ReflectionException */
-    public function buildPlugin(PluginBase $plugin) : void{
-        $reflection = new \ReflectionClass(PluginBase::class);
-        $fileProperty = $reflection->getProperty("file");
-        $fileProperty->setAccessible(true);
-        $sourcePath = rtrim(realpath($fileProperty->getValue($plugin)), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-
-        $pharPath = "{$this->getTools()->getDataFolder()}{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar";
-
-        $description = $plugin->getDescription();
-        $metadata = [
-            "name" => $description->getName(),
-            "version" => $description->getVersion(),
-            "main" => $description->getMain(),
-            "api" => $description->getCompatibleApis(),
-            "depend" => $description->getDepend(),
-            "description" => $description->getDescription(),
-            "authors" => $description->getAuthors(),
-            "website" => $description->getWebsite(),
-            "creationDate" => time()
-        ];
-        $this->buildPhar($sourcePath, $pharPath, $metadata);
-    }
-
     /** @param mixed[] $metadata */
     public function buildPhar(string $filePath, string $pharPath, array $metadata) : void{
         //Remove the existing PHAR file
