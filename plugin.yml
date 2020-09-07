@@ -1,21 +1,21 @@
 ---
-name: BluginBuilder
 main: blugin\tool\builder\BluginBuilder
 version: 2.1.0
 api: [3.0.0]
+name: BluginTools
 authors: ['Blugin-team', 'PresentKim']
-description: '[tool] Plugin builder plugin for Blugin-team'
-depend: ['DevTools']
+description: '[tool] Several tools to help with pmmp plugin development'
+depend: ['DevTools', 'libTranslator']
 
 commands:
   bluginbuilder:
-    description: Plugin builder with more option
+    description: Build plugin with more option
     usage: /bluginbuilder <plugin name | *>
     aliases: [build, bb]
     permission: bluginbuilder.cmd
 
 permissions:
   bluginbuilder.cmd:
-    description: '[BluginBuilder] Build folder plugin with more option'
+    description: 'Build plugin with more option'
     default: op
 ...
