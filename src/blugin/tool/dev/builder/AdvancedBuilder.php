@@ -54,10 +54,14 @@ use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\Config;
 
 class AdvancedBuilder{
     /** @var BluginTools */
     private $tools;
+
+    /** @var mixed[] */
+    private $baseOption = [];
 
     public const RENAMER_SHORTEN = "shorten";
     public const RENAMER_SERIAL = "serial";
@@ -95,45 +99,7 @@ class AdvancedBuilder{
     }
 
     public function init(){
-        $config = $this->getTools()->getConfig();
-
-        if($config->getNested("preprocessing.comment-optimizing", true)){
-            $this->registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
-        }
-
-        //Load renaming mode settings
-        foreach([
-            "local-variable" => LocalVariableRenamingVisitor::class,
-            "private-property" => PrivatePropertyRenamingVisitor::class,
-            "private-method" => PrivateMethodRenamingVisitor::class,
-            "private-const" => PrivateConstRenamingVisitor::class
-        ] as $key => $class){
-            if(isset($this->renamers[$mode = $config->getNested("preprocessing.renaming.$key", "serial")])){
-                $this->registerVisitor(Priority::NORMAL, new $class(clone $this->renamers[$mode]));
-            }
-        }
-
-        //Load import processing mode settings
-        $mode = $config->getNested("preprocessing.importing.renaming", "serial");
-        if($mode === "resolve"){
-            $this->registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
-        }else{
-            if(isset($this->renamers[$mode])){
-                $this->registerVisitor(Priority::HIGH, new ImportRenamingVisitor(clone $this->renamers[$mode]));
-            }
-            if($config->getNested("preprocessing.importing.forcing", true)){
-                $this->registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
-            }
-            if($config->getNested("preprocessing.importing.grouping", true)){
-                $this->registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
-            }
-            if($config->getNested("preprocessing.importing.sorting", true)){
-                $this->registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
-            }
-        }
-
-        //Load build settings
-        $this->printerMode = $config->getNested("build.print-format");
+        $this->baseOption = $this->getTools()->getConfig()->getAll();
 
         $command = $this->getTools()->getCommand("bluginbuilder");
         if($command instanceof PluginCommand){
@@ -181,7 +147,8 @@ class AdvancedBuilder{
         Utils::clearDirectory($buildPath);
 
         //Pre-build processing execution
-        $config = $this->getTools()->getConfig();
+        $config = $this->loadOption($filePath);
+
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath, \FilesystemIterator::SKIP_DOTS)) as $path => $fileInfo){
             if($config->getNested("build.include-minimal", true)){
@@ -242,6 +209,59 @@ class AdvancedBuilder{
 
     public function getTools() : BluginTools{
         return $this->tools;
+    }
+
+    public function loadOption(string $path, int $type = Config::DETECT) : Config{
+        if(!is_file($file = "$path.advancedbuilder.yml")){
+            $file = "{$this->getTools()->getDataFolder()}build/.advancedbuilder.yml";
+        }
+        $option = new Config($file, $type, $this->baseOption);
+
+        //Remove old visitors of traserver
+        foreach(Priority::ALL as $priority){
+            $this->traversers[$priority]->removeVisitors();
+        }
+
+        //Load pre-processing settings
+        if($option->getNested("preprocessing.comment-optimizing", true)){
+            $this->registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
+        }
+
+        //Load renaming mode settings
+        foreach([
+            "local-variable" => LocalVariableRenamingVisitor::class,
+            "private-property" => PrivatePropertyRenamingVisitor::class,
+            "private-method" => PrivateMethodRenamingVisitor::class,
+            "private-const" => PrivateConstRenamingVisitor::class
+        ] as $key => $class){
+            if(isset($this->renamers[$mode = $option->getNested("preprocessing.renaming.$key", "serial")])){
+                $this->registerVisitor(Priority::NORMAL, new $class(clone $this->renamers[$mode]));
+            }
+        }
+
+        //Load import processing mode settings
+        $mode = $option->getNested("preprocessing.importing.renaming", "serial");
+        if($mode === "resolve"){
+            $this->registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
+        }else{
+            if(isset($this->renamers[$mode])){
+                $this->registerVisitor(Priority::HIGH, new ImportRenamingVisitor(clone $this->renamers[$mode]));
+            }
+            if($option->getNested("preprocessing.importing.forcing", true)){
+                $this->registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
+            }
+            if($option->getNested("preprocessing.importing.grouping", true)){
+                $this->registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
+            }
+            if($option->getNested("preprocessing.importing.sorting", true)){
+                $this->registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
+            }
+        }
+
+        //Load build settings
+        $this->printerMode = $option->getNested("build.print-format");
+
+        return $option;
     }
 
     /** @return AdvancedeTraverser[] */
