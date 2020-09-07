@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\dev\builder;
+namespace blugin\tool\dev\builder\processor;
 
 use blugin\tool\dev\BluginTools;
 use PhpParser\Node;

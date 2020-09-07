@@ -31,6 +31,7 @@ use blugin\tool\dev\BluginTools;
 use blugin\tool\dev\builder\printer\IPrinter;
 use blugin\tool\dev\builder\printer\ShortenPrinter;
 use blugin\tool\dev\builder\printer\StandardPrinter;
+use blugin\tool\dev\builder\processor\CodeSpliter;
 use blugin\tool\dev\builder\renamer\MD5Renamer;
 use blugin\tool\dev\builder\renamer\Renamer;
 use blugin\tool\dev\builder\renamer\SerialRenamer;
