@@ -1,8 +1,8 @@
 ---
-main: blugin\tool\builder\BluginBuilder
+name: BluginTools
+main: blugin\tool\dev\BluginTools
 version: 2.1.0
 api: [3.0.0]
-name: BluginTools
 authors: ['Blugin-team', 'PresentKim']
 description: '[tool] Several tools to help with pmmp plugin development'
 depend: ['DevTools', 'libTranslator']
