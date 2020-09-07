@@ -32,11 +32,7 @@ use pocketmine\Server;
 
 class Utils{
     public static function clearDirectory(string $directory) : bool{
-        if(!file_exists($directory))
-            return mkdir($directory, 0777, true);
-
-        $files = array_diff(scandir($directory), [".", ".."]);
-        foreach($files as $file){
+        foreach(self::readDirectory($directory) as $file){
             $path = "{$directory}/{$file}";
             if(is_dir($path)){
                 self::clearDirectory($path);
@@ -46,6 +42,17 @@ class Utils{
             }
         }
         return (count(scandir($directory)) == 2);
+    }
+
+    public static function readDirectory(string $directory) : array{
+        if(!file_exists($directory))
+            mkdir($directory, 0777, true);
+
+        return array_diff(scandir($directory), [".", ".."]);
+    }
+
+    public static function cleanDirPath(string $path) : string{
+        return rtrim(str_replace("\\", "/", $path), "/") . "/";
     }
 
     public static function getPlugin(string $name) : ?Plugin{
