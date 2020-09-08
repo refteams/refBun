@@ -28,6 +28,8 @@ declare(strict_types=1);
 namespace blugin\tool\dev\builder;
 
 use blugin\tool\dev\BluginTools;
+use blugin\tool\dev\builder\event\BuildCompleteEvent;
+use blugin\tool\dev\builder\event\BuildPrepareEvent;
 use blugin\tool\dev\builder\printer\IPrinter;
 use blugin\tool\dev\builder\printer\ShortenPrinter;
 use blugin\tool\dev\builder\printer\StandardPrinter;
@@ -53,7 +55,6 @@ use blugin\tool\dev\utils\Utils;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
-use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 
 class AdvancedBuilder{
@@ -124,6 +125,7 @@ class AdvancedBuilder{
 
         //Pre-build processing execution
         $config = $this->loadOption($filePath);
+        (new BuildPrepareEvent($this, $filePath, $config))->call();
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath, \FilesystemIterator::SKIP_DOTS)) as $path => $fileInfo){
@@ -181,6 +183,7 @@ class AdvancedBuilder{
             $phar->compressFiles(\Phar::GZ);
         }
         $phar->stopBuffering();
+        (new BuildCompleteEvent($this, $filePath, $config))->call();
     }
 
     public function getTools() : BluginTools{
