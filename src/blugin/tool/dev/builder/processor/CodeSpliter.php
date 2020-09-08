@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\dev\builder\processor;
 
 use blugin\tool\dev\BluginTools;
+use blugin\tool\dev\builder\AdvancedBuilder;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Namespace_;

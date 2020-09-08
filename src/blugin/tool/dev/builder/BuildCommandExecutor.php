@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\dev\builder;
 
+use blugin\tool\dev\BluginTools;
 use blugin\tool\dev\utils\Utils;
 use FolderPluginLoader\FolderPluginLoader;
 use pocketmine\command\Command;
@@ -37,10 +38,10 @@ use pocketmine\Server;
 
 class BuildCommandExecutor implements CommandExecutor{
     /** @var AdvancedBuilder */
-    private $plugin;
+    private $builder;
 
     public function __construct(AdvancedBuilder $plugin){
-        $this->plugin = $plugin;
+        $this->builder = $plugin;
     }
 
     /**
@@ -76,15 +77,39 @@ class BuildCommandExecutor implements CommandExecutor{
         $pluginCount = count($plugins);
         $sender->sendMessage("Start build the {$pluginCount} plugins");
 
-        if(!file_exists($dataFolder = $this->plugin->getTools()->getDataFolder())){
+        if(!file_exists($dataFolder = $this->builder->getTools()->getDataFolder())){
             mkdir($dataFolder, 0777, true);
         }
         foreach($plugins as $pluginName => $plugin){
             $pharName = "{$pluginName}_v{$plugin->getDescription()->getVersion()}.phar";
-            $this->plugin->buildPlugin($plugin);
+            $this->buildPlugin($plugin);
             $sender->sendMessage("$pharName has been created on $dataFolder");
         }
         $sender->sendMessage("Complete built the {$pluginCount} plugins");
         return true;
+    }
+
+    /** @throws \ReflectionException */
+    public function buildPlugin(PluginBase $plugin) : void{
+        $reflection = new \ReflectionClass(PluginBase::class);
+        $fileProperty = $reflection->getProperty("file");
+        $fileProperty->setAccessible(true);
+        $sourcePath = rtrim(realpath($fileProperty->getValue($plugin)), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        $pharPath = BluginTools::getInstance()->getDataFolder() . "{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar";
+
+        $description = $plugin->getDescription();
+        $metadata = [
+            "name" => $description->getName(),
+            "version" => $description->getVersion(),
+            "main" => $description->getMain(),
+            "api" => $description->getCompatibleApis(),
+            "depend" => $description->getDepend(),
+            "description" => $description->getDescription(),
+            "authors" => $description->getAuthors(),
+            "website" => $description->getWebsite(),
+            "creationDate" => time()
+        ];
+        $this->builder->buildPhar($sourcePath, $pharPath, $metadata);
     }
 }

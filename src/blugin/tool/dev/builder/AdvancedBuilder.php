@@ -28,6 +28,8 @@ declare(strict_types=1);
 namespace blugin\tool\dev\builder;
 
 use blugin\tool\dev\BluginTools;
+use blugin\tool\dev\builder\event\BuildCompleteEvent;
+use blugin\tool\dev\builder\event\BuildPrepareEvent;
 use blugin\tool\dev\builder\printer\IPrinter;
 use blugin\tool\dev\builder\printer\ShortenPrinter;
 use blugin\tool\dev\builder\printer\StandardPrinter;
@@ -37,6 +39,7 @@ use blugin\tool\dev\builder\renamer\Renamer;
 use blugin\tool\dev\builder\renamer\SerialRenamer;
 use blugin\tool\dev\builder\renamer\ShortenRenamer;
 use blugin\tool\dev\builder\renamer\SpaceRenamer;
+use blugin\tool\dev\builder\traverser\AdvancedeTraverser;
 use blugin\tool\dev\builder\TraverserPriority as Priority;
 use blugin\tool\dev\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\dev\builder\visitor\ImportForcingVisitor;
@@ -49,15 +52,17 @@ use blugin\tool\dev\builder\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivatePropertyRenamingVisitor;
 use blugin\tool\dev\utils\Utils;
-use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
-use pocketmine\plugin\PluginBase;
+use pocketmine\utils\Config;
 
 class AdvancedBuilder{
     /** @var BluginTools */
     private $tools;
+
+    /** @var mixed[] */
+    private $baseOption = [];
 
     public const RENAMER_SHORTEN = "shorten";
     public const RENAMER_SERIAL = "serial";
@@ -71,7 +76,7 @@ class AdvancedBuilder{
     /** @var IPrinter[] printer tag -> printer instance */
     private $printers = [];
 
-    /** @var NodeTraverser[] traverser priority => NodeTraverser */
+    /** @var AdvancedeTraverser[] traverser priority => AdvancedeTraverser */
     private $traversers;
 
     /** @var string */
@@ -90,79 +95,17 @@ class AdvancedBuilder{
 
         //Load pre-processing settings
         foreach(Priority::ALL as $priority){
-            $this->traversers[$priority] = new NodeTraverser();
+            $this->traversers[$priority] = new AdvancedeTraverser();
         }
     }
 
     public function init(){
-        $config = $this->getTools()->getConfig();
-
-        if($config->getNested("preprocessing.comment-optimizing", true)){
-            $this->registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
-        }
-
-        //Load renaming mode settings
-        foreach([
-            "local-variable" => LocalVariableRenamingVisitor::class,
-            "private-property" => PrivatePropertyRenamingVisitor::class,
-            "private-method" => PrivateMethodRenamingVisitor::class,
-            "private-const" => PrivateConstRenamingVisitor::class
-        ] as $key => $class){
-            if(isset($this->renamers[$mode = $config->getNested("preprocessing.renaming.$key", "serial")])){
-                $this->registerVisitor(Priority::NORMAL, new $class(clone $this->renamers[$mode]));
-            }
-        }
-
-        //Load import processing mode settings
-        $mode = $config->getNested("preprocessing.importing.renaming", "serial");
-        if($mode === "resolve"){
-            $this->registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
-        }else{
-            if(isset($this->renamers[$mode])){
-                $this->registerVisitor(Priority::HIGH, new ImportRenamingVisitor(clone $this->renamers[$mode]));
-            }
-            if($config->getNested("preprocessing.importing.forcing", true)){
-                $this->registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
-            }
-            if($config->getNested("preprocessing.importing.grouping", true)){
-                $this->registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
-            }
-            if($config->getNested("preprocessing.importing.sorting", true)){
-                $this->registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
-            }
-        }
-
-        //Load build settings
-        $this->printerMode = $config->getNested("build.print-format");
+        $this->baseOption = $this->getTools()->getConfig()->getAll();
 
         $command = $this->getTools()->getCommand("bluginbuilder");
         if($command instanceof PluginCommand){
             $command->setExecutor(new BuildCommandExecutor($this));
         }
-    }
-
-    /** @throws \ReflectionException */
-    public function buildPlugin(PluginBase $plugin) : void{
-        $reflection = new \ReflectionClass(PluginBase::class);
-        $fileProperty = $reflection->getProperty("file");
-        $fileProperty->setAccessible(true);
-        $sourcePath = rtrim(realpath($fileProperty->getValue($plugin)), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-
-        $pharPath = "{$this->getTools()->getDataFolder()}{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar";
-
-        $description = $plugin->getDescription();
-        $metadata = [
-            "name" => $description->getName(),
-            "version" => $description->getVersion(),
-            "main" => $description->getMain(),
-            "api" => $description->getCompatibleApis(),
-            "depend" => $description->getDepend(),
-            "description" => $description->getDescription(),
-            "authors" => $description->getAuthors(),
-            "website" => $description->getWebsite(),
-            "creationDate" => time()
-        ];
-        $this->buildPhar($sourcePath, $pharPath, $metadata);
     }
 
     /** @param mixed[] $metadata */
@@ -181,7 +124,9 @@ class AdvancedBuilder{
         Utils::clearDirectory($buildPath);
 
         //Pre-build processing execution
-        $config = $this->getTools()->getConfig();
+        $config = $this->loadOption($filePath);
+        (new BuildPrepareEvent($this, $filePath, $config))->call();
+
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath, \FilesystemIterator::SKIP_DOTS)) as $path => $fileInfo){
             if($config->getNested("build.include-minimal", true)){
@@ -211,7 +156,7 @@ class AdvancedBuilder{
                         foreach(Priority::DEFAULTS as $priority){
                             $stmts = $this->traversers[$priority]->traverse($stmts);
                         }
-                        file_put_contents($outDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter()->print($stmts));
+                        file_put_contents($outDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter($this->printerMode)->print($stmts));
                     }
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
@@ -238,18 +183,72 @@ class AdvancedBuilder{
             $phar->compressFiles(\Phar::GZ);
         }
         $phar->stopBuffering();
+        (new BuildCompleteEvent($this, $filePath, $config))->call();
     }
 
     public function getTools() : BluginTools{
         return $this->tools;
     }
 
-    /** @return NodeTraverser[] */
+    public function loadOption(string $path, int $type = Config::DETECT) : Config{
+        if(!is_file($file = "$path.advancedbuilder.yml")){
+            $file = "{$this->getTools()->getDataFolder()}build/.advancedbuilder.yml";
+        }
+        $option = new Config($file, $type, $this->baseOption);
+
+        //Remove old visitors of traserver
+        foreach(Priority::ALL as $priority){
+            $this->traversers[$priority]->removeVisitors();
+        }
+
+        //Load pre-processing settings
+        if($option->getNested("preprocessing.comment-optimizing", true)){
+            $this->registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
+        }
+
+        //Load renaming mode settings
+        foreach([
+            "local-variable" => LocalVariableRenamingVisitor::class,
+            "private-property" => PrivatePropertyRenamingVisitor::class,
+            "private-method" => PrivateMethodRenamingVisitor::class,
+            "private-const" => PrivateConstRenamingVisitor::class
+        ] as $key => $class){
+            if(isset($this->renamers[$mode = $option->getNested("preprocessing.renaming.$key", "serial")])){
+                $this->registerVisitor(Priority::NORMAL, new $class(clone $this->renamers[$mode]));
+            }
+        }
+
+        //Load import processing mode settings
+        $mode = $option->getNested("preprocessing.importing.renaming", "serial");
+        if($mode === "resolve"){
+            $this->registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
+        }else{
+            if(isset($this->renamers[$mode])){
+                $this->registerVisitor(Priority::HIGH, new ImportRenamingVisitor(clone $this->renamers[$mode]));
+            }
+            if($option->getNested("preprocessing.importing.forcing", true)){
+                $this->registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
+            }
+            if($option->getNested("preprocessing.importing.grouping", true)){
+                $this->registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
+            }
+            if($option->getNested("preprocessing.importing.sorting", true)){
+                $this->registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
+            }
+        }
+
+        //Load build settings
+        $this->printerMode = $option->getNested("build.print-format");
+
+        return $option;
+    }
+
+    /** @return AdvancedeTraverser[] */
     public function getTraversers() : array{
         return $this->traversers;
     }
 
-    public function getTraverser(int $priority = Priority::NORMAL) : ?NodeTraverser{
+    public function getTraverser(int $priority = Priority::NORMAL) : ?AdvancedeTraverser{
         return $this->traversers[$priority] ?? null;
     }
 
@@ -262,8 +261,8 @@ class AdvancedBuilder{
         return true;
     }
 
-    public function getPrinter(?string $mode = null) : IPrinter{
-        return clone($this->printers[$mode] ?? $this->printers[$this->printerMode]);
+    public function getPrinter(string $mode = self::PRINTER_STANDARD) : IPrinter{
+        return clone($this->printers[$mode] ?? $this->printers[self::PRINTER_STANDARD]);
     }
 
     public function registerPrinter(string $mode, IPrinter $printer) : void{
