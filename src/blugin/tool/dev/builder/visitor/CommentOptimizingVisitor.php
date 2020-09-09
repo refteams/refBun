@@ -33,7 +33,7 @@ use PhpParser\NodeVisitorAbstract;
 
 class CommentOptimizingVisitor extends NodeVisitorAbstract{
     /** string[] regex format[] */
-    private static $meaningfullList = null;
+    private static $allowList = null;
 
     /**
      * Remove meaningless comment
@@ -55,7 +55,7 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
         //Store meaningfull comments
         $docComments = [];
         $docText = $doc->getText();
-        foreach(self::getMeaningfullList() as $_ => $regex){
+        foreach(self::getAllowList() as $_ => $regex){
             if(preg_match($regex, $docText, $matches) > 0){
                 $docComments[] = implode(" ", array_slice($matches, 1));
             }
@@ -76,23 +76,23 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
     }
 
     /** @return array */
-    public static function getMeaningfullList() : array{
-        if(self::$meaningfullList === null){
+    public static function getAllowList() : array{
+        if(self::$allowList === null){
             self::initMeaningfullList();;
         }
-        return self::$meaningfullList;
+        return self::$allowList;
     }
 
     /** @param string $regex */
     public static function register(string $regex) : void{
-        if(self::$meaningfullList === null){
+        if(self::$allowList === null){
             self::initMeaningfullList();;
         }
-        self::$meaningfullList[] = $regex;
+        self::$allowList[] = $regex;
     }
 
     public static function initMeaningfullList() : void{
-        self::$meaningfullList = [];
+        self::$allowList = [];
         self::register("/^[\t ]*\* @(notHandler)/m");
         self::register("/^[\t ]*\* @(ignoreCancelled)/m");
         self::register("/^[\t ]*\* @(handleCancelled)/m");

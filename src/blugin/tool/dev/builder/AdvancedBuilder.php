@@ -112,7 +112,7 @@ class AdvancedBuilder{
     }
 
     /** @param mixed[] $metadata */
-    public function buildPhar(string $filePath, string $pharPath, array $metadata) : void{
+    public function buildPhar(string $sourceDir, string $pharPath, array $metadata) : void{
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
@@ -122,76 +122,75 @@ class AdvancedBuilder{
             }
         }
 
-        $buildPath = $this->loadDir(self::DIR_BUILDED);
+        $buildDir = $this->loadDir(self::DIR_BUILDED);
         //Pre-build processing execution
-        $config = $this->loadOption($filePath);
-        (new BuildPrepareEvent($this, $filePath, $config))->call();
+        $option = $this->loadOption($sourceDir);
+        (new BuildPrepareEvent($this, $sourceDir, $option))->call();
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath, \FilesystemIterator::SKIP_DOTS)) as $path => $fileInfo){
-            if($config->getNested("build.include-minimal", true)){
-                $inPath = substr($path, strlen($filePath));
-                if($inPath !== "plugin.yml" && strpos($inPath, "src\\") !== 0 && strpos($inPath, "resources\\") !== 0)
+        foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourceDir, \FilesystemIterator::SKIP_DOTS)) as $path => $fileInfo){
+            if($option->getNested("build.include-minimal", true)){
+                $innerPath = substr($path, strlen($sourceDir));
+                if($innerPath !== "plugin.yml" && strpos($innerPath, "src\\") !== 0 && strpos($innerPath, "resources\\") !== 0)
                     continue;
             }
 
-            $out = substr_replace($path, $buildPath, 0, strlen($filePath));
-            $outDir = dirname($out);
-            if(!file_exists($outDir)){
-                mkdir($outDir, 0777, true);
+            $newPath = substr_replace($path, $buildDir, 0, strlen($sourceDir));
+            $newDir = dirname($newPath);
+            if(!file_exists($newDir)){
+                mkdir($newDir, 0777, true);
             }
 
             if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
                 try{
-                    $contents = file_get_contents($fileInfo->getPathName());
-                    $originalStmts = $parser->parse($contents);
-                    $originalStmts = $this->traversers[Priority::BEFORE_SPLIT]->traverse($originalStmts);
+                    $originStmts = $parser->parse(file_get_contents($fileInfo->getPathName()));
+                    $originStmts = $this->traversers[Priority::BEFORE_SPLIT]->traverse($originStmts);
 
-                    $files = [$matchs[1] => $originalStmts];
-                    if($config->getNested("preprocessing.spliting", true)){
-                        $files = CodeSpliter::splitNodes($originalStmts, $matchs[1]);
+                    $files = [$matchs[1] => $originStmts];
+                    if($option->getNested("preprocessing.spliting", true)){
+                        $files = CodeSpliter::splitNodes($originStmts, $matchs[1]);
                     }
 
                     foreach($files as $filename => $stmts){
                         foreach(Priority::DEFAULTS as $priority){
                             $stmts = $this->traversers[$priority]->traverse($stmts);
                         }
-                        file_put_contents($outDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter($this->printerMode)->print($stmts));
+                        file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter($this->printerMode)->print($stmts));
                     }
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
                 }
             }else{
-                copy($path, $out);
+                copy($path, $newPath);
             }
         }
 
         //Build the plugin with .phar file
         $phar = new \Phar($pharPath);
         $phar->setSignatureAlgorithm(\Phar::SHA1);
-        if(!$config->getNested("build.skip-metadata", true)){
+        if(!$option->getNested("build.skip-metadata", true)){
             $phar->setMetadata($metadata);
         }
-        if(!$config->getNested("build.skip-stub", true)){
+        if(!$option->getNested("build.skip-stub", true)){
             $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$metadata["name"]}_v{$metadata["version"]}\nThis file has been generated using BluginBuilder at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
         }else{
             $phar->setStub("<?php __HALT_COMPILER();");
         }
         $phar->startBuffering();
-        $phar->buildFromDirectory($buildPath);
+        $phar->buildFromDirectory($buildDir);
         if(\Phar::canCompress(\Phar::GZ)){
             $phar->compressFiles(\Phar::GZ);
         }
         $phar->stopBuffering();
-        (new BuildCompleteEvent($this, $filePath, $config))->call();
+        (new BuildCompleteEvent($this, $sourceDir, $option))->call();
     }
 
     public function getTools() : BluginTools{
         return $this->tools;
     }
 
-    public function loadOption(string $path, int $type = Config::DETECT) : Config{
-        if(!is_file($file = "$path.advancedbuilder.yml")){
+    public function loadOption(string $dir, int $type = Config::DETECT) : Config{
+        if(!is_file($file = "$dir.advancedbuilder.yml")){
             $file = "{$this->getTools()->getDataFolder()}build/.advancedbuilder.yml";
         }
         $option = new Config($file, $type, $this->baseOption);
@@ -283,7 +282,7 @@ class AdvancedBuilder{
     }
 
     public function loadDir(string $dirname, bool $clean = false) : string{
-        $dir = Utils::cleanDirPath($this->getTools()->getDataFolder() . $dirname);
+        $dir = Utils::cleanDirName($this->getTools()->getDataFolder() . $dirname);
         if(!file_exists($dir)){
             mkdir($dir, 0777, true);
         }

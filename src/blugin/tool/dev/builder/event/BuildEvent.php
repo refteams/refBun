@@ -36,14 +36,14 @@ abstract class BuildEvent extends Event{
     private $builder;
 
     /** @var string */
-    private $projectDir;
+    private $sourceDir;
 
     /** @var Config */
     private $option;
 
-    public function __construct(AdvancedBuilder $builder, string $projectDir, Config $option){
+    public function __construct(AdvancedBuilder $builder, string $sourceDir, Config $option){
         $this->builder = $builder;
-        $this->projectDir = $projectDir;
+        $this->sourceDir = $sourceDir;
         $this->option = $option;
     }
 
@@ -51,8 +51,8 @@ abstract class BuildEvent extends Event{
         return $this->builder;
     }
 
-    public function getProjectDir() : string{
-        return $this->projectDir;
+    public function getSourceDir() : string{
+        return $this->sourceDir;
     }
 
     public function getOption() : Config{

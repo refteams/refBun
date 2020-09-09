@@ -92,21 +92,21 @@ class VirionLoader{
 
             foreach(Utils::readDirectory($dir) as $file){
                 if(is_dir($fullPath = $dir . $file)){
-                    $path = Utils::cleanDirPath($fullPath);
+                    $virionDir = Utils::cleanDirName($fullPath);
                 }elseif(is_file($fullPath) && substr($file, -5) === ".phar"){
-                    $path = "phar://" . Utils::cleanDirPath(realpath($fullPath));
+                    $virionDir = "phar://" . Utils::cleanDirName(realpath($fullPath));
                 }else
                     continue;
 
-                if(($message = $this->load($path)) !== null){
+                if(($message = $this->load($virionDir)) !== null){
                     $this->logger->error("Could not load virion " . $message);
                 }
             }
         }
     }
 
-    public function load(string $path) : ?string{
-        $virionYml = "{$path}virion.yml";
+    public function load(string $dir) : ?string{
+        $virionYml = "{$dir}virion.yml";
 
         if(!is_file("$virionYml"))
             return ": virion.yml missing";
@@ -125,7 +125,7 @@ class VirionLoader{
 
         Server::getInstance()->getLogger()->info("[VirionLoader] Loading {$data["name"]} v{$data["version"]} (antigen: {$data["antigen"]})");
 
-        $this->loader->addPath($data["antigen"], $path . "src/");
+        $this->loader->addPath($data["antigen"], $dir . "src/");
         return null;
     }
 }
