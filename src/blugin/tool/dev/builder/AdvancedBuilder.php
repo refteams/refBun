@@ -64,6 +64,9 @@ class AdvancedBuilder{
     /** @var mixed[] */
     private $baseOption = [];
 
+    public const DIR_PREPARE = "prepare";
+    public const DIR_BUILDED = "builded";
+
     public const RENAMER_SHORTEN = "shorten";
     public const RENAMER_SERIAL = "serial";
     public const RENAMER_SPACE = "space";
@@ -119,10 +122,7 @@ class AdvancedBuilder{
             }
         }
 
-        //Remove the existing build folder and remake
-        $buildPath = "{$this->getTools()->getDataFolder()}build/";
-        Utils::clearDirectory($buildPath);
-
+        $buildPath = $this->loadDir(self::DIR_BUILDED);
         //Pre-build processing execution
         $config = $this->loadOption($filePath);
         (new BuildPrepareEvent($this, $filePath, $config))->call();
@@ -280,5 +280,16 @@ class AdvancedBuilder{
 
     public function registerRenamer(string $mode, Renamer $renamer) : void{
         $this->renamers[$mode] = $renamer;
+    }
+
+    public function loadDir(string $dirname, bool $clean = false) : string{
+        $dir = Utils::cleanDirPath($this->getTools()->getDataFolder() . $dirname);
+        if(!file_exists($dir)){
+            mkdir($dir, 0777, true);
+        }
+        if($clean){
+            Utils::clearDirectory($dir);
+        }
+        return $dir;
     }
 }
