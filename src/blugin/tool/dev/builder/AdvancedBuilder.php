@@ -128,7 +128,7 @@ class AdvancedBuilder{
         (new BuildPrepareEvent($this, $sourceDir, $option))->call();
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourceDir, \FilesystemIterator::SKIP_DOTS)) as $path => $fileInfo){
+        foreach(Utils::readDirectory($sourceDir, true) as $path){
             if($option->getNested("build.include-minimal", true)){
                 $innerPath = substr($path, strlen($sourceDir));
                 if($innerPath !== "plugin.yml" && strpos($innerPath, "src\\") !== 0 && strpos($innerPath, "resources\\") !== 0)
@@ -143,7 +143,7 @@ class AdvancedBuilder{
 
             if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
                 try{
-                    $originStmts = $parser->parse(file_get_contents($fileInfo->getPathName()));
+                    $originStmts = $parser->parse(file_get_contents($path));
                     $originStmts = $this->traversers[Priority::BEFORE_SPLIT]->traverse($originStmts);
 
                     $files = [$matchs[1] => $originStmts];

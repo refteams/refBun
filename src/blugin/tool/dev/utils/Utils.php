@@ -44,11 +44,24 @@ class Utils{
         return (count(scandir($dir)) == 2);
     }
 
-    public static function readDirectory(string $dir) : array{
+    public static function readDirectory(string $dir, bool $recursive = false, array $result = []) : array{
+        $dir = self::cleanDirName($dir);
         if(!file_exists($dir))
             mkdir($dir, 0777, true);
 
-        return array_diff(scandir($dir), [".", ".."]);
+        $files = array_diff(scandir($dir), [".", ".."]);
+        if(!$recursive)
+            return $files;
+
+        foreach($files as $filename){
+            $path = $dir . $filename;
+            if(is_file($path)){
+                $result[] = $path;
+            }elseif(is_dir($path)){
+                $result = self::readDirectory($path, true, $result);
+            }
+        }
+        return $result;
     }
 
     public static function cleanDirName(string $path) : string{
