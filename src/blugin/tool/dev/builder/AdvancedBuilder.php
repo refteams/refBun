@@ -53,6 +53,7 @@ use blugin\tool\dev\builder\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivatePropertyRenamingVisitor;
 use blugin\tool\dev\utils\Utils;
+use blugin\tool\dev\virion\VirionInjector;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
@@ -136,8 +137,7 @@ class AdvancedBuilder{
                 if($innerPath !== "plugin.yml" && strpos($innerPath, "src/") !== 0 && strpos($innerPath, "resources/") !== 0)
                     continue;
             }
-            $newPath = substr_replace($path, $prepareDir, 0, strlen($sourceDir));
-            $prepareEvent->addFile($path, $newPath);
+            $prepareEvent->addFile($path, substr_replace($path, $prepareDir, 0, strlen($sourceDir)));
         }
         $prepareEvent->call();
         foreach($prepareEvent->getFiles() as $path => $newPath){
@@ -150,6 +150,20 @@ class AdvancedBuilder{
                 copy($path, $newPath);
             }
         }
+
+        //Infect virions by '.poggit.yml' or option
+        if(file_exists($poggitYmlFile = $sourceDir . ".poggit.yml")){
+            $poggitYml = yaml_parse(file_get_contents($poggitYmlFile));
+            if(is_array($poggitYml) && isset($poggitYml["projects"])){
+                foreach($poggitYml["projects"] as $projectOption){
+                    if(empty($projectOption["path"])){
+                        $option->setNested("virions", $projectOption["libs"] ?? []);
+                        break;
+                    }
+                }
+            }
+        }
+        VirionInjector::injectAll($prepareDir, $option);
 
         //Build with various options
         (new BuildStartEvent($this, $sourceDir, $option))->call();
