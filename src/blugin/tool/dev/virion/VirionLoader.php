@@ -42,6 +42,9 @@ class VirionLoader{
     /** @var \BaseClassLoader */
     private $loader;
 
+    /** @var Virion[] */
+    private $virions = [];
+
     public function __construct(BluginTools $tools){
         $this->tools = $tools;
         $this->logger = $tools->getLogger();
@@ -90,42 +93,23 @@ class VirionLoader{
             if(!is_dir($dir = Server::getInstance()->getDataPath() . $subdir))
                 continue;
 
-            foreach(Utils::readDirectory($dir) as $file){
-                if(is_dir($fullPath = $dir . $file)){
-                    $virionDir = Utils::cleanDirName($fullPath);
-                }elseif(is_file($fullPath) && substr($file, -5) === ".phar"){
-                    $virionDir = "phar://" . Utils::cleanDirName(realpath($fullPath));
-                }else
-                    continue;
-
-                if(($message = $this->load($virionDir)) !== null){
-                    $this->logger->error("Could not load virion " . $message);
+            foreach(Utils::readDirectory($dir) as $path){
+                $virion = Virion::from($dir . $path);
+                if($virion !== null){
+                    $this->register($virion);
                 }
             }
         }
     }
 
-    public function load(string $dir) : ?string{
-        $virionYml = "{$dir}virion.yml";
-
-        if(!is_file("$virionYml"))
-            return ": virion.yml missing";
-
-        $data = yaml_parse(file_get_contents("$virionYml"));
-        if(!is_array($data))
-            return ": Error parsing $virionYml";
-
-        $name = $data["name"] ?? "";
-        foreach(["name", "version", "antigen"] as $requiredAttribute){
-            if(!isset($data[$requiredAttribute]))
-                return "'$name': Attribute '$requiredAttribute' missing in $virionYml";
+    public function register(Virion $virion) : void{
+        if(isset($this->virions[$virion->getName()])){
+            Server::getInstance()->getLogger()->error("[virion] Could not load virion '" . $virion->getName() ."': virion exists");
+            return;
         }
-        if(!isset($data["api"]) && !isset($data["php"]))
-            return "'$name': Attribute 'api' or 'php' required in $virionYml";
+        $this->virions[$virion->getName()] = $virion;
+        $this->loader->addPath($virion->getAntigen(), $virion->getPath() . "src/");
 
-        Server::getInstance()->getLogger()->info("[VirionLoader] Loading {$data["name"]} v{$data["version"]} (antigen: {$data["antigen"]})");
-
-        $this->loader->addPath($data["antigen"], $dir . "src/");
-        return null;
+        Server::getInstance()->getLogger()->info("[virion] Loading {$virion->getName()} v{$virion->getVersion()} (antigen: {$virion->getAntigen()})");
     }
 }
