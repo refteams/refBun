@@ -48,7 +48,7 @@ class VirionLoader{
     public function __construct(BluginTools $tools){
         $this->tools = $tools;
         $this->logger = $tools->getLogger();
-        $this->loader = new class() extends \BaseClassLoader{
+        $this->loader = new class(Server::getInstance()->getLoader()) extends \BaseClassLoader{
             /** @var \Threaded|string[] */
             private $antigenMap;
 
