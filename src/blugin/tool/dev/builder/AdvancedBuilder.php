@@ -122,7 +122,7 @@ class AdvancedBuilder{
             }
         }
 
-        $buildDir = $this->loadDir(self::DIR_BUILDED);
+        $buildDir = $this->loadDir(self::DIR_BUILDED, true);
         //Pre-build processing execution
         $option = $this->loadOption($sourceDir);
         (new BuildPrepareEvent($this, $sourceDir, $option))->call();
