@@ -113,6 +113,7 @@ class AdvancedBuilder{
 
     /** @param mixed[] $metadata */
     public function buildPhar(string $sourceDir, string $pharPath, array $metadata) : void{
+        $sourceDir = Utils::cleanDirName($sourceDir);
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
@@ -122,7 +123,9 @@ class AdvancedBuilder{
             }
         }
 
+        $prepareDir = $this->loadDir(self::DIR_PREPARE, true);
         $buildDir = $this->loadDir(self::DIR_BUILDED, true);
+
         //Pre-build processing execution
         $option = $this->loadOption($sourceDir);
         (new BuildPrepareEvent($this, $sourceDir, $option))->call();
@@ -131,7 +134,7 @@ class AdvancedBuilder{
         foreach(Utils::readDirectory($sourceDir, true) as $path){
             if($option->getNested("build.include-minimal", true)){
                 $innerPath = substr($path, strlen($sourceDir));
-                if($innerPath !== "plugin.yml" && strpos($innerPath, "src\\") !== 0 && strpos($innerPath, "resources\\") !== 0)
+                if($innerPath !== "plugin.yml" && strpos($innerPath, "src/") !== 0 && strpos($innerPath, "resources/") !== 0)
                     continue;
             }
 
@@ -191,7 +194,7 @@ class AdvancedBuilder{
 
     public function loadOption(string $dir, int $type = Config::DETECT) : Config{
         if(!is_file($file = "$dir.advancedbuilder.yml")){
-            $file = "{$this->getTools()->getDataFolder()}build/.advancedbuilder.yml";
+            $file = $this->loadDir(self::DIR_BUILDED) . ".advancedbuilder.yml";
         }
         $option = new Config($file, $type, $this->baseOption);
 
