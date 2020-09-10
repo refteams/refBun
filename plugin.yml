@@ -5,7 +5,9 @@ version: 2.1.0
 api: [3.0.0]
 authors: ['Blugin-team', 'PresentKim']
 description: '[tool] Several tools to help with pmmp plugin development'
-depend: ['DevTools', 'libTranslator']
+load: STARTUP
+loadbefore: ['DevTools']
+depend: ['libTranslator']
 
 commands:
   bluginbuilder:

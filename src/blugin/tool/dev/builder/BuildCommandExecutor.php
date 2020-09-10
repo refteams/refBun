@@ -28,8 +28,9 @@ declare(strict_types=1);
 namespace blugin\tool\dev\builder;
 
 use blugin\tool\dev\BluginTools;
+use blugin\tool\dev\folderloader\FolderPluginLoader as BluginPluginLoader;
 use blugin\tool\dev\utils\Utils;
-use FolderPluginLoader\FolderPluginLoader;
+use FolderPluginLoader\FolderPluginLoader as DevToolsPluginLoader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
 use pocketmine\command\CommandSender;
@@ -58,7 +59,7 @@ class BuildCommandExecutor implements CommandExecutor{
         $pluginManager = Server::getInstance()->getPluginManager();
         if($args[0] === "*"){
             foreach($pluginManager->getPlugins() as $pluginName => $plugin){
-                if($plugin->getPluginLoader() instanceof FolderPluginLoader){
+                if($plugin->getPluginLoader() instanceof DevToolsPluginLoader || $plugin->getPluginLoader() instanceof BluginPluginLoader){
                     $plugins[$plugin->getName()] = $plugin;
                 }
             }
@@ -67,8 +68,6 @@ class BuildCommandExecutor implements CommandExecutor{
                 $plugin = Utils::getPlugin($pluginName);
                 if($plugin === null){
                     $sender->sendMessage("{$pluginName} is invalid plugin name");
-                }elseif(!($plugin->getPluginLoader() instanceof FolderPluginLoader)){
-                    $sender->sendMessage("{$plugin->getName()} is not in folder plugin");
                 }else{
                     $plugins[$plugin->getName()] = $plugin;
                 }
