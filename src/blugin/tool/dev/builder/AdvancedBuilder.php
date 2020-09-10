@@ -30,6 +30,7 @@ namespace blugin\tool\dev\builder;
 use blugin\tool\dev\BluginTools;
 use blugin\tool\dev\builder\event\BuildCompleteEvent;
 use blugin\tool\dev\builder\event\BuildPrepareEvent;
+use blugin\tool\dev\builder\event\BuildStartEvent;
 use blugin\tool\dev\builder\printer\IPrinter;
 use blugin\tool\dev\builder\printer\ShortenPrinter;
 use blugin\tool\dev\builder\printer\StandardPrinter;
@@ -126,19 +127,35 @@ class AdvancedBuilder{
         $prepareDir = $this->loadDir(self::DIR_PREPARE, true);
         $buildDir = $this->loadDir(self::DIR_BUILDED, true);
 
-        //Pre-build processing execution
+        //Prepare to copy files for build
         $option = $this->loadOption($sourceDir);
-        (new BuildPrepareEvent($this, $sourceDir, $option))->call();
-
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $prepareEvent = new BuildPrepareEvent($this, $sourceDir, $option);
         foreach(Utils::readDirectory($sourceDir, true) as $path){
             if($option->getNested("build.include-minimal", true)){
                 $innerPath = substr($path, strlen($sourceDir));
                 if($innerPath !== "plugin.yml" && strpos($innerPath, "src/") !== 0 && strpos($innerPath, "resources/") !== 0)
                     continue;
             }
+            $newPath = substr_replace($path, $prepareDir, 0, strlen($sourceDir));
+            $prepareEvent->addFile($path, $newPath);
+        }
+        $prepareEvent->call();
+        foreach($prepareEvent->getFiles() as $path => $newPath){
+            $newDir = dirname($newPath);
+            if(!file_exists($newDir)){
+                mkdir($newDir, 0777, true);
+            }
 
-            $newPath = substr_replace($path, $buildDir, 0, strlen($sourceDir));
+            if(is_file($path)){
+                copy($path, $newPath);
+            }
+        }
+
+        //Build with various options
+        (new BuildStartEvent($this, $sourceDir, $option))->call();
+        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        foreach(Utils::readDirectory($prepareDir, true) as $path){
+            $newPath = substr_replace($path, $buildDir, 0, strlen($prepareDir));
             $newDir = dirname($newPath);
             if(!file_exists($newDir)){
                 mkdir($newDir, 0777, true);
