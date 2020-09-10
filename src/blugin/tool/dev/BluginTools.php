@@ -29,7 +29,9 @@ namespace blugin\tool\dev;
 
 use blugin\lib\translator\traits\MultilingualConfigTrait;
 use blugin\tool\dev\builder\AdvancedBuilder;
+use blugin\tool\dev\folderloader\FolderPluginLoader;
 use pocketmine\plugin\PluginBase;
+use pocketmine\plugin\PluginLoadOrder;
 
 class BluginTools extends PluginBase{
     use MultilingualConfigTrait;
@@ -45,20 +47,28 @@ class BluginTools extends PluginBase{
     /** @var AdvancedBuilder */
     private $builder = null;
 
+    /** @var FolderPluginLoader */
+    private $pluginLoader = null;
+
     public function onLoad(){
         self::$instance = $this;
 
         $this->builder = new AdvancedBuilder($this);
+        $this->pluginLoader = new FolderPluginLoader($this->getServer()->getLoader());
+        $this->getServer()->getPluginManager()->registerInterface($this->pluginLoader);
     }
 
     public function onEnable(){
-        $this->saveResource("virion/virion.php");
-        $this->saveResource("virion/virion_stub.php");
-
+        $this->getServer()->getPluginManager()->loadPlugins($this->getServer()->getPluginPath(), [FolderPluginLoader::class]);
+        $this->getServer()->enablePlugins(PluginLoadOrder::STARTUP);
         $this->builder->init();
     }
 
     public function getBuilder() : AdvancedBuilder{
         return $this->builder;
+    }
+
+    public function getPluginLoader() : FolderPluginLoader{
+        return $this->pluginLoader;
     }
 }
