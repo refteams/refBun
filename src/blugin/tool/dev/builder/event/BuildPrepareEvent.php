@@ -41,7 +41,7 @@ class BuildPrepareEvent extends BuildEvent{
         $this->files = $files;
     }
 
-    public function addFile(string $path, string $newPath, bool $isVirion) : void{
+    public function addFile(string $path, string $newPath) : void{
         $this->files[$path] = $newPath;
     }
 
