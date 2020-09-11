@@ -48,7 +48,6 @@ use blugin\tool\blugintools\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivatePropertyRenamingVisitor;
-use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
 use pocketmine\utils\Config;
@@ -64,20 +63,13 @@ class AdvancedBuilder{
     /** @var mixed[] */
     private $baseOption = [];
 
-    /** @var AdvancedTraverser[] traverser priority => AdvancedeTraverser */
-    private $traversers;
-
     /** @var string */
     private $printerMode = Printer::PRINTER_STANDARD;
 
     public function prepare(){
         Renamer::registerDefaults();
         Printer::registerDefaults();
-
-        //Load pre-processing settings
-        foreach(Priority::ALL as $priority){
-            $this->traversers[$priority] = new AdvancedTraverser();
-        }
+        AdvancedTraverser::registerDefaults();
     }
 
     public function init(){
@@ -157,7 +149,7 @@ class AdvancedBuilder{
             if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
                 try{
                     $originStmts = $parser->parse(file_get_contents($path));
-                    $originStmts = $this->traversers[Priority::BEFORE_SPLIT]->traverse($originStmts);
+                    $originStmts = AdvancedTraverser::get(Priority::BEFORE_SPLIT)->traverse($originStmts);
 
                     $files = [$matchs[1] => $originStmts];
                     if($option->getNested("preprocessing.spliting", true)){
@@ -166,7 +158,7 @@ class AdvancedBuilder{
 
                     foreach($files as $filename => $stmts){
                         foreach(Priority::ALL as $priority){
-                            $stmts = $this->traversers[$priority]->traverse($stmts);
+                            $stmts = AdvancedTraverser::get($priority)->traverse($stmts);
                         }
                         file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", Printer::getClone($this->printerMode)->print($stmts));
                     }
@@ -205,13 +197,13 @@ class AdvancedBuilder{
         $option = new Config($file, $type, $this->baseOption);
 
         //Remove old visitors of traserver
-        foreach(Priority::ALL as $priority){
-            $this->traversers[$priority]->removeVisitors();
+        foreach(AdvancedTraverser::getAll() as $traverser){
+            $traverser->removeVisitors();
         }
 
         //Load pre-processing settings
         if($option->getNested("preprocessing.comment-optimizing", true)){
-            $this->registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
+            AdvancedTraverser::registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
         }
 
         //Load renaming mode settings
@@ -223,26 +215,26 @@ class AdvancedBuilder{
         ] as $key => $class){
             $renamer = Renamer::getClone($option->getNested("preprocessing.renaming.$key", "serial"));
             if($renamer !== null){
-                $this->registerVisitor(Priority::NORMAL, new $class($renamer));
+                AdvancedTraverser::registerVisitor(Priority::NORMAL, new $class($renamer));
             }
         }
 
         //Load import processing mode settings
         $mode = $option->getNested("preprocessing.importing.renaming", "serial");
         if($mode === "resolve"){
-            $this->registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
+            AdvancedTraverser::registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
         }else{
             if(($renamer = Renamer::getClone($mode)) !== null){
-                $this->registerVisitor(Priority::HIGH, new ImportRenamingVisitor($renamer));
+                AdvancedTraverser::registerVisitor(Priority::HIGH, new ImportRenamingVisitor($renamer));
             }
             if($option->getNested("preprocessing.importing.forcing", true)){
-                $this->registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
+                AdvancedTraverser::registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
             }
             if($option->getNested("preprocessing.importing.grouping", true)){
-                $this->registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
+                AdvancedTraverser::registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
             }
             if($option->getNested("preprocessing.importing.sorting", true)){
-                $this->registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
+                AdvancedTraverser::registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
             }
         }
 
@@ -250,23 +242,5 @@ class AdvancedBuilder{
         $this->printerMode = $option->getNested("build.print-format");
 
         return $option;
-    }
-
-    /** @return AdvancedTraverser[] */
-    public function getTraversers() : array{
-        return $this->traversers;
-    }
-
-    public function getTraverser(int $priority = Priority::NORMAL) : ?AdvancedTraverser{
-        return $this->traversers[$priority] ?? null;
-    }
-
-    public function registerVisitor(int $priority, NodeVisitorAbstract $visitor) : bool{
-        $traverser = $this->getTraverser($priority);
-        if($traverser === null)
-            return false;
-
-        $traverser->addVisitor($visitor);
-        return true;
     }
 }
