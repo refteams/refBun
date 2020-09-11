@@ -28,7 +28,6 @@ declare(strict_types=1);
 namespace blugin\tool\dev\virion;
 
 use blugin\tool\dev\BluginTools;
-use blugin\tool\dev\utils\Utils;
 use pocketmine\Server;
 use pocketmine\utils\Config;
 
@@ -77,7 +76,7 @@ class VirionInjector{
         $infections[$antibody] = $virion->getYml();
         file_put_contents($infectionsPath, json_encode($infections));
 
-        foreach(Utils::readDirectory($dir, true) as $path){
+        foreach(BluginTools::readDirectory($dir, true) as $path){
             if(!is_file($path) || substr($path, -4) !== ".php")
                 continue;
 
@@ -87,7 +86,7 @@ class VirionInjector{
             }
         }
 
-        foreach(Utils::readDirectory($virionPath = $virion->getPath(), true) as $path){
+        foreach(BluginTools::readDirectory($virionPath = $virion->getPath(), true) as $path){
             $innerPath = substr($path, strlen($virionPath));
 
             if(strpos($innerPath, "resources/") === 0){
@@ -98,8 +97,8 @@ class VirionInjector{
                 }
 
                 copy($path, $newPath);
-            }elseif(strpos($innerPath, $antigenPath = Utils::cleanDirName("src/$antigen")) === 0){
-                $newPath = substr_replace($path, $dir . Utils::cleanDirName("src/$antibody"), 0, strlen($virionPath . $antigenPath));
+            }elseif(strpos($innerPath, $antigenPath = BluginTools::cleanDirName("src/$antigen")) === 0){
+                $newPath = substr_replace($path, $dir . BluginTools::cleanDirName("src/$antibody"), 0, strlen($virionPath . $antigenPath));
                 $newDir = dirname($newPath);
                 if(!file_exists($newDir)){
                     mkdir($newDir, 0777, true);

@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\dev\virion;
 
-use blugin\tool\dev\utils\Utils;
+use blugin\tool\dev\BluginTools;
 use pocketmine\Server;
 
 class Virion{
@@ -78,9 +78,9 @@ class Virion{
 
     public static function from(string $path) : ?Virion{
         if(is_dir($path)){
-            $path = Utils::cleanDirName($path);
+            $path = BluginTools::cleanDirName($path);
         }elseif(is_file($path) && substr($path, -5) === ".phar"){
-            $path = "phar://" . Utils::cleanDirName($path);
+            $path = "phar://" . BluginTools::cleanDirName($path);
         }else{
             Server::getInstance()->getLogger()->error("Could not load virion: invalid path ($path)");
             return null;

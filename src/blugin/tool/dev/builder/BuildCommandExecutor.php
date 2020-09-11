@@ -29,7 +29,6 @@ namespace blugin\tool\dev\builder;
 
 use blugin\tool\dev\BluginTools;
 use blugin\tool\dev\folderloader\FolderPluginLoader as BluginPluginLoader;
-use blugin\tool\dev\utils\Utils;
 use FolderPluginLoader\FolderPluginLoader as DevToolsPluginLoader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
@@ -65,7 +64,7 @@ class BuildCommandExecutor implements CommandExecutor{
             }
         }else{
             foreach($args as $key => $pluginName){
-                $plugin = Utils::getPlugin($pluginName);
+                $plugin = BluginTools::getPlugin($pluginName);
                 if($plugin === null){
                     $sender->sendMessage("{$pluginName} is invalid plugin name");
                 }else{

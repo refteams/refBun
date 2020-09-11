@@ -31,8 +31,10 @@ use blugin\lib\translator\traits\MultilingualConfigTrait;
 use blugin\tool\dev\builder\AdvancedBuilder;
 use blugin\tool\dev\folderloader\FolderPluginLoader;
 use blugin\tool\dev\virion\VirionLoader;
+use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginLoadOrder;
+use pocketmine\Server;
 
 class BluginTools extends PluginBase{
     use MultilingualConfigTrait;
@@ -57,5 +59,65 @@ class BluginTools extends PluginBase{
         $this->getServer()->getPluginManager()->loadPlugins($this->getServer()->getPluginPath(), [FolderPluginLoader::class]);
         $this->getServer()->enablePlugins(PluginLoadOrder::STARTUP);
         AdvancedBuilder::getInstance()->init();
+    }
+
+    public static function clearDirectory(string $dir) : bool{
+        foreach(self::readDirectory($dir) as $file){
+            $path = "{$dir}/{$file}";
+            if(is_dir($path)){
+                self::clearDirectory($path);
+                rmdir($path);
+            }else{
+                unlink($path);
+            }
+        }
+        return (count(scandir($dir)) == 2);
+    }
+
+    public static function readDirectory(string $dir, bool $recursive = false, array $result = []) : array{
+        $dir = self::cleanDirName($dir);
+        if(!file_exists($dir))
+            mkdir($dir, 0777, true);
+
+        $files = array_diff(scandir($dir), [".", ".."]);
+        if(!$recursive)
+            return $files;
+
+        foreach($files as $filename){
+            $path = $dir . $filename;
+            if(is_file($path)){
+                $result[] = $path;
+            }elseif(is_dir($path)){
+                $result = self::readDirectory($path, true, $result);
+            }
+        }
+        return $result;
+    }
+
+    public static function cleanDirName(string $path) : string{
+        return rtrim(str_replace("\\", "/", $path), "/") . "/";
+    }
+
+    public static function getPlugin(string $name) : ?Plugin{
+        $plugins = Server::getInstance()->getPluginManager()->getPlugins();
+        if(isset($plugins[$name]))
+            return $plugins[$name];
+
+        $found = null;
+        $length = strlen($name);
+        $minDiff = PHP_INT_MAX;
+        foreach($plugins as $pluginName => $plugin){
+            if(stripos($pluginName, $name) === 0){
+                $diff = strlen($pluginName) - $length;
+                if($diff < $minDiff){
+                    $found = $plugin;
+                    if($diff === 0)
+                        break;
+
+                    $minDiff = $diff;
+                }
+            }
+        }
+        return $found;
     }
 }

@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\dev\virion;
 
-use blugin\tool\dev\utils\Utils;
+use blugin\tool\dev\BluginTools;
 use pocketmine\Server;
 
 class VirionLoader{
@@ -49,7 +49,7 @@ class VirionLoader{
             if(!is_dir($dir = Server::getInstance()->getDataPath() . $subdir))
                 continue;
 
-            foreach(Utils::readDirectory($dir) as $path){
+            foreach(BluginTools::readDirectory($dir) as $path){
                 $virion = Virion::from($dir . $path);
                 if($virion !== null){
                     $this->register($virion);

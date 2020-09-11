@@ -52,7 +52,6 @@ use blugin\tool\dev\builder\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivatePropertyRenamingVisitor;
-use blugin\tool\dev\utils\Utils;
 use blugin\tool\dev\virion\VirionInjector;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
@@ -120,7 +119,7 @@ class AdvancedBuilder{
 
     /** @param mixed[] $metadata */
     public function buildPhar(string $sourceDir, string $pharPath, array $metadata) : void{
-        $sourceDir = Utils::cleanDirName($sourceDir);
+        $sourceDir = BluginTools::cleanDirName($sourceDir);
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
@@ -136,7 +135,7 @@ class AdvancedBuilder{
         //Prepare to copy files for build
         $option = $this->loadOption($sourceDir);
         $prepareEvent = new BuildPrepareEvent($this, $sourceDir, $option);
-        foreach(Utils::readDirectory($sourceDir, true) as $path){
+        foreach(BluginTools::readDirectory($sourceDir, true) as $path){
             if($option->getNested("build.include-minimal", true)){
                 $innerPath = substr($path, strlen($sourceDir));
                 if($innerPath !== "plugin.yml" && strpos($innerPath, "src/") !== 0 && strpos($innerPath, "resources/") !== 0)
@@ -173,7 +172,7 @@ class AdvancedBuilder{
         //Build with various options
         (new BuildStartEvent($this, $sourceDir, $option))->call();
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        foreach(Utils::readDirectory($prepareDir, true) as $path){
+        foreach(BluginTools::readDirectory($prepareDir, true) as $path){
             $newPath = substr_replace($path, $buildDir, 0, strlen($prepareDir));
             $newDir = dirname($newPath);
             if(!file_exists($newDir)){
@@ -317,12 +316,12 @@ class AdvancedBuilder{
     }
 
     public function loadDir(string $dirname, bool $clean = false) : string{
-        $dir = Utils::cleanDirName(BluginTools::getInstance()->getDataFolder() . $dirname);
+        $dir = BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder() . $dirname);
         if(!file_exists($dir)){
             mkdir($dir, 0777, true);
         }
         if($clean){
-            Utils::clearDirectory($dir);
+            BluginTools::clearDirectory($dir);
         }
         return $dir;
     }
