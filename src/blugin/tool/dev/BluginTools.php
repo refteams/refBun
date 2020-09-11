@@ -45,39 +45,17 @@ class BluginTools extends PluginBase{
         return self::$instance;
     }
 
-    /** @var AdvancedBuilder */
-    private $builder = null;
-
-    /** @var VirionLoader */
-    private $virionLoader = null;
-
-    /** @var FolderPluginLoader */
-    private $pluginLoader = null;
-
     public function onLoad(){
         self::$instance = $this;
 
-        $this->builder = new AdvancedBuilder($this);
-        $this->virionLoader = new VirionLoader($this);
-        $this->pluginLoader = new FolderPluginLoader($this->getServer()->getLoader());
-        $this->getServer()->getPluginManager()->registerInterface($this->pluginLoader);
+        AdvancedBuilder::getInstance();
+        VirionLoader::getInstance();
+        $this->getServer()->getPluginManager()->registerInterface(new FolderPluginLoader($this->getServer()->getLoader()));
     }
 
     public function onEnable(){
         $this->getServer()->getPluginManager()->loadPlugins($this->getServer()->getPluginPath(), [FolderPluginLoader::class]);
         $this->getServer()->enablePlugins(PluginLoadOrder::STARTUP);
-        $this->builder->init();
-    }
-
-    public function getBuilder() : AdvancedBuilder{
-        return $this->builder;
-    }
-
-    public function getVirionLoader() : VirionLoader{
-        return $this->virionLoader;
-    }
-
-    public function getPluginLoader() : FolderPluginLoader{
-        return $this->pluginLoader;
+        AdvancedBuilder::getInstance()->init();
     }
 }

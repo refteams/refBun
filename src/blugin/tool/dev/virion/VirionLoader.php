@@ -27,29 +27,24 @@ declare(strict_types=1);
 
 namespace blugin\tool\dev\virion;
 
-use blugin\tool\dev\BluginTools;
 use blugin\tool\dev\utils\Utils;
-use pocketmine\plugin\PluginLogger;
 use pocketmine\Server;
 
 class VirionLoader{
-    /** @var BluginTools */
-    private $tools;
+    /** @var VirionLoader */
+    private static $instance = null;
 
-    /** @var PluginLogger */
-    private $logger;
-
-    /** @var \BaseClassLoader */
-    private $loader;
+    public static function getInstance() : VirionLoader{
+        if(self::$instance === null){
+            self::$instance = new VirionLoader();
+        }
+        return self::$instance;
+    }
 
     /** @var Virion[] */
     private $virions = [];
 
-    public function __construct(BluginTools $tools){
-        $this->tools = $tools;
-        $this->logger = $tools->getLogger();
-        $this->loader = Server::getInstance()->getLoader();
-
+    public function __construct(){
         foreach(["virions/", "plugins/_virions/", "plugins/virions/"] as $subdir){
             if(!is_dir($dir = Server::getInstance()->getDataPath() . $subdir))
                 continue;
@@ -64,14 +59,15 @@ class VirionLoader{
     }
 
     public function register(Virion $virion) : void{
+        $server = Server::getInstance();
         if(isset($this->virions[$virion->getName()])){
-            Server::getInstance()->getLogger()->error("Could not load virion '" . $virion->getName() . "': virion exists");
+            $server->getLogger()->error("Could not load virion '" . $virion->getName() . "': virion exists");
             return;
         }
         $this->virions[$virion->getName()] = $virion;
-        $this->loader->addPath($virion->getPath() . "src/");
+        $server->getLoader()->addPath($virion->getPath() . "src/");
 
-        Server::getInstance()->getLogger()->info("Loading virion '{$virion->getName()}' v{$virion->getVersion()} (antigen: {$virion->getAntigen()})");
+        $server->getLogger()->info("Loading virion '{$virion->getName()}' v{$virion->getVersion()} (antigen: {$virion->getAntigen()})");
     }
 
     public function getVirion(string $name) : ?Virion{

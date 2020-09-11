@@ -60,8 +60,15 @@ use pocketmine\command\PluginCommand;
 use pocketmine\utils\Config;
 
 class AdvancedBuilder{
-    /** @var BluginTools */
-    private $tools;
+    /** @var AdvancedBuilder */
+    private static $instance = null;
+
+    public static function getInstance() : AdvancedBuilder{
+        if(self::$instance === null){
+            self::$instance = new AdvancedBuilder();
+        }
+        return self::$instance;
+    }
 
     /** @var mixed[] */
     private $baseOption = [];
@@ -87,9 +94,7 @@ class AdvancedBuilder{
     /** @var string */
     private $printerMode = self::PRINTER_STANDARD;
 
-    public function __construct(BluginTools $tools){
-        $this->tools = $tools;
-
+    private function __construct(){
         $this->registerRenamer(self::RENAMER_SHORTEN, new ShortenRenamer());
         $this->registerRenamer(self::RENAMER_SERIAL, new SerialRenamer());
         $this->registerRenamer(self::RENAMER_SPACE, new SpaceRenamer());
@@ -105,9 +110,9 @@ class AdvancedBuilder{
     }
 
     public function init(){
-        $this->baseOption = $this->getTools()->getConfig()->getAll();
+        $this->baseOption = BluginTools::getInstance()->getConfig()->getAll();
 
-        $command = $this->getTools()->getCommand("bluginbuilder");
+        $command = BluginTools::getInstance()->getCommand("bluginbuilder");
         if($command instanceof PluginCommand){
             $command->setExecutor(new BuildCommandExecutor($this));
         }
@@ -219,10 +224,6 @@ class AdvancedBuilder{
         (new BuildCompleteEvent($this, $sourceDir, $option))->call();
     }
 
-    public function getTools() : BluginTools{
-        return $this->tools;
-    }
-
     public function loadOption(string $dir, int $type = Config::DETECT) : Config{
         if(!is_file($file = "$dir.advancedbuilder.yml")){
             $file = $this->loadDir(self::DIR_BUILDED) . ".advancedbuilder.yml";
@@ -316,7 +317,7 @@ class AdvancedBuilder{
     }
 
     public function loadDir(string $dirname, bool $clean = false) : string{
-        $dir = Utils::cleanDirName($this->getTools()->getDataFolder() . $dirname);
+        $dir = Utils::cleanDirName(BluginTools::getInstance()->getDataFolder() . $dirname);
         if(!file_exists($dir)){
             mkdir($dir, 0777, true);
         }

@@ -45,7 +45,7 @@ class VirionInjector{
             return;
         }
 
-        $virionLoader = BluginTools::getInstance()->getVirionLoader();
+        $virionLoader = VirionLoader::getInstance();
         $prefix = preg_replace("/[a-z_][a-z\d_]*$/i", "", $pluginYml["main"]);
         foreach($option->getNested("virions", []) as $virionOption){
             [$ownerName, $repoName, $virionName] = explode("/", $virionOption["src"]);
