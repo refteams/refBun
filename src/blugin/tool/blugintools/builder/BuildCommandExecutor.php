@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\builder;
 
 use blugin\tool\blugintools\BluginTools;
-use blugin\tool\blugintools\folderloader\FolderPluginLoader as BluginPluginLoader;
+use blugin\tool\blugintools\loader\FolderPluginLoader as BluginPluginLoader;
 use FolderPluginLoader\FolderPluginLoader as DevToolsPluginLoader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;

@@ -29,8 +29,8 @@ namespace blugin\tool\blugintools;
 
 use blugin\lib\translator\traits\MultilingualConfigTrait;
 use blugin\tool\blugintools\builder\AdvancedBuilder;
-use blugin\tool\blugintools\folderloader\FolderPluginLoader;
-use blugin\tool\blugintools\virion\VirionLoader;
+use blugin\tool\blugintools\loader\FolderPluginLoader;
+use blugin\tool\blugintools\loader\virion\VirionLoader;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginLoadOrder;
