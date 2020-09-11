@@ -84,8 +84,8 @@ class AdvancedBuilder{
     private $printerMode = Printer::PRINTER_STANDARD;
 
     private function __construct(){
-        Renamer::registerDefaults();
-        Printer::registerDefaults();
+        Renamer::registerDefaults($this);
+        Printer::registerDefaults($this);
 
         //Load pre-processing settings
         foreach(Priority::ALL as $priority){

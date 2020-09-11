@@ -172,8 +172,7 @@ abstract class Renamer{
         return $name;
     }
 
-    final public static function registerDefaults() : void{
-        $builder = AdvancedBuilder::getInstance();
+    final public static function registerDefaults(AdvancedBuilder $builder) : void{
         $builder->registerRenamer(self::RENAMER_SHORTEN, new ShortenRenamer());
         $builder->registerRenamer(self::RENAMER_SERIAL, new SerialRenamer());
         $builder->registerRenamer(self::RENAMER_SPACE, new SpaceRenamer());

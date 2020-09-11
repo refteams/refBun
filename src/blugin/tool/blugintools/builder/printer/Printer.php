@@ -37,8 +37,7 @@ abstract class Printer{
     /** @param Node[] $stmts */
     public abstract function print(array $stmts) : string;
 
-    final public static function registerDefaults() : void{
-        $builder = AdvancedBuilder::getInstance();
+    final public static function registerDefaults(AdvancedBuilder $builder) : void{
         $builder->registerPrinter(self::PRINTER_STANDARD, new StandardPrinter());
         $builder->registerPrinter(self::PRINTER_SHORTEN, new ShortenPrinter());
     }
