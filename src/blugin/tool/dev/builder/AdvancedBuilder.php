@@ -59,6 +59,19 @@ use pocketmine\command\PluginCommand;
 use pocketmine\utils\Config;
 
 class AdvancedBuilder{
+    public const OPTION_FILE = ".advancedbuilder.yml";
+
+    public const DIR_PREPARE = "prepare";
+    public const DIR_BUILDED = "builded";
+
+    public const RENAMER_SHORTEN = "shorten";
+    public const RENAMER_SERIAL = "serial";
+    public const RENAMER_SPACE = "space";
+    public const RENAMER_MD5 = "md5";
+
+    public const PRINTER_STANDARD = "standard";
+    public const PRINTER_SHORTEN = "shorten";
+
     /** @var AdvancedBuilder */
     private static $instance = null;
 
@@ -69,22 +82,12 @@ class AdvancedBuilder{
         return self::$instance;
     }
 
-    public const OPTION_FILE = ".advancedbuilder.yml";
     /** @var mixed[] */
     private $baseOption = [];
 
-    public const DIR_PREPARE = "prepare";
-    public const DIR_BUILDED = "builded";
-
-    public const RENAMER_SHORTEN = "shorten";
-    public const RENAMER_SERIAL = "serial";
-    public const RENAMER_SPACE = "space";
-    public const RENAMER_MD5 = "md5";
     /** @var Renamer[] renamer tag -> renamer instance */
     private $renamers = [];
 
-    public const PRINTER_STANDARD = "standard";
-    public const PRINTER_SHORTEN = "shorten";
     /** @var IPrinter[] printer tag -> printer instance */
     private $printers = [];
 
