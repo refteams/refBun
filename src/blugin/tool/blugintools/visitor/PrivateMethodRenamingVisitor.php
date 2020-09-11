@@ -42,6 +42,10 @@ class PrivateMethodRenamingVisitor extends PrivateRenamingVisitor{
         }
     }
 
+    protected function isValid(Node $node, string $property = "name") : bool{
+        return parent::isValid($node, $property) && strpos($this->getTarget($node)->$property, "__") !== 0;
+    }
+
     protected function isTarget(Node $node) : bool{
         return $node instanceof ClassMethod || $node instanceof MethodCall && $node->var instanceof Variable && $node->var->name === "this" || $node instanceof StaticCall && $node->class instanceof Name && $node->class->parts[0] === "self";
     }
