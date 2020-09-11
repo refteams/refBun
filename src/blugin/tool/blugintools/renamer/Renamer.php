@@ -27,10 +27,12 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\renamer;
 
-use blugin\tool\blugintools\builder\AdvancedBuilder;
+use blugin\tool\blugintools\traits\SelfFactoryTrait;
 use PhpParser\Node;
 
 abstract class Renamer{
+    use SelfFactoryTrait;
+
     public const RENAMER_SHORTEN = "shorten";
     public const RENAMER_SERIAL = "serial";
     public const RENAMER_SPACE = "space";
@@ -139,10 +141,10 @@ abstract class Renamer{
         return $name;
     }
 
-    final public static function registerDefaults(AdvancedBuilder $builder) : void{
-        $builder->registerRenamer(self::RENAMER_SHORTEN, new ShortenRenamer());
-        $builder->registerRenamer(self::RENAMER_SERIAL, new SerialRenamer());
-        $builder->registerRenamer(self::RENAMER_SPACE, new SpaceRenamer());
-        $builder->registerRenamer(self::RENAMER_MD5, new MD5Renamer());
+    final public static function registerDefaults() : void{
+        self::register(self::RENAMER_SHORTEN, new ShortenRenamer());
+        self::register(self::RENAMER_SERIAL, new SerialRenamer());
+        self::register(self::RENAMER_SPACE, new SpaceRenamer());
+        self::register(self::RENAMER_MD5, new MD5Renamer());
     }
 }

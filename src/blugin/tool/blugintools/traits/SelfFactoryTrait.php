@@ -25,23 +25,36 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\blugintools\printer;
+namespace blugin\tool\blugintools\traits;
 
-use blugin\tool\blugintools\traits\SelfFactoryTrait;
-use PhpParser\Node;
+trait SelfFactoryTrait{
+    /** @var self[] */
+    protected static $instances = [];
 
-abstract class Printer{
-    use SelfFactoryTrait;
+    /** @var mixed|null */
+    protected static $defaultKey = null;
 
-    public const PRINTER_STANDARD = "standard";
-    public const PRINTER_SHORTEN = "shorten";
+    /** @return self[] */
+    public static function getAll() : array{
+        return self::$instances;
+    }
 
-    /** @param Node[] $stmts */
-    public abstract function print(array $stmts) : string;
+    /** @param mixed $key */
+    public static function get($key = null) : ?self{
+        return self::$instances[$key] ?? self::$instances[self::$defaultKey] ?? null;
+    }
+
+    /** @param mixed $key */
+    public static function getClone($key = null) : ?self{
+        $instance = self::get($key);
+        return $instance === null ? null : clone $instance;
+    }
+
+    /** @param mixed $key */
+    public static function register($key, self $instance) : void{
+        self::$instances[$key] = $instance;
+    }
 
     final public static function registerDefaults() : void{
-        self::$defaultKey = self::PRINTER_STANDARD;
-        self::register(self::PRINTER_STANDARD, new StandardPrinter());
-        self::register(self::PRINTER_SHORTEN, new ShortenPrinter());
     }
 }

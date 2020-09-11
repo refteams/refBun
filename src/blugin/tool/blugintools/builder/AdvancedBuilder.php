@@ -64,12 +64,6 @@ class AdvancedBuilder{
     /** @var mixed[] */
     private $baseOption = [];
 
-    /** @var Renamer[] renamer tag -> renamer instance */
-    private $renamers = [];
-
-    /** @var Printer[] printer tag -> printer instance */
-    private $printers = [];
-
     /** @var AdvancedTraverser[] traverser priority => AdvancedeTraverser */
     private $traversers;
 
@@ -77,8 +71,8 @@ class AdvancedBuilder{
     private $printerMode = Printer::PRINTER_STANDARD;
 
     public function prepare(){
-        Renamer::registerDefaults($this);
-        Printer::registerDefaults($this);
+        Renamer::registerDefaults();
+        Printer::registerDefaults();
 
         //Load pre-processing settings
         foreach(Priority::ALL as $priority){
@@ -174,7 +168,7 @@ class AdvancedBuilder{
                         foreach(Priority::ALL as $priority){
                             $stmts = $this->traversers[$priority]->traverse($stmts);
                         }
-                        file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter($this->printerMode)->print($stmts));
+                        file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", Printer::getClone($this->printerMode)->print($stmts));
                     }
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
@@ -227,8 +221,9 @@ class AdvancedBuilder{
             "private-method" => PrivateMethodRenamingVisitor::class,
             "private-const" => PrivateConstRenamingVisitor::class
         ] as $key => $class){
-            if(isset($this->renamers[$mode = $option->getNested("preprocessing.renaming.$key", "serial")])){
-                $this->registerVisitor(Priority::NORMAL, new $class(clone $this->renamers[$mode]));
+            $renamer = Renamer::getClone($option->getNested("preprocessing.renaming.$key", "serial"));
+            if($renamer !== null){
+                $this->registerVisitor(Priority::NORMAL, new $class($renamer));
             }
         }
 
@@ -237,8 +232,8 @@ class AdvancedBuilder{
         if($mode === "resolve"){
             $this->registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
         }else{
-            if(isset($this->renamers[$mode])){
-                $this->registerVisitor(Priority::HIGH, new ImportRenamingVisitor(clone $this->renamers[$mode]));
+            if(($renamer = Renamer::getClone($mode)) !== null){
+                $this->registerVisitor(Priority::HIGH, new ImportRenamingVisitor($renamer));
             }
             if($option->getNested("preprocessing.importing.forcing", true)){
                 $this->registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
@@ -273,26 +268,5 @@ class AdvancedBuilder{
 
         $traverser->addVisitor($visitor);
         return true;
-    }
-
-    public function getPrinter(string $mode = Printer::PRINTER_STANDARD) : Printer{
-        return clone($this->printers[$mode] ?? $this->printers[Printer::PRINTER_STANDARD]);
-    }
-
-    public function registerPrinter(string $mode, Printer $printer) : void{
-        $this->printers[$mode] = $printer;
-    }
-
-    /** @return Renamer[] */
-    public function getRenamers() : array{
-        return $this->renamers;
-    }
-
-    public function getRenamer(string $mode) : ?Renamer{
-        return isset($this->renamers[$mode]) ? clone $this->renamers[$mode] : null;
-    }
-
-    public function registerRenamer(string $mode, Renamer $renamer) : void{
-        $this->renamers[$mode] = $renamer;
     }
 }
