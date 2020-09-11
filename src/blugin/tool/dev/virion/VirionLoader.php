@@ -65,13 +65,13 @@ class VirionLoader{
 
     public function register(Virion $virion) : void{
         if(isset($this->virions[$virion->getName()])){
-            Server::getInstance()->getLogger()->error("[virion] Could not load virion '" . $virion->getName() . "': virion exists");
+            Server::getInstance()->getLogger()->error("Could not load virion '" . $virion->getName() . "': virion exists");
             return;
         }
         $this->virions[$virion->getName()] = $virion;
         $this->loader->addPath($virion->getPath() . "src/");
 
-        Server::getInstance()->getLogger()->info("[virion] Loading {$virion->getName()} v{$virion->getVersion()} (antigen: {$virion->getAntigen()})");
+        Server::getInstance()->getLogger()->info("Loading virion '{$virion->getName()}' v{$virion->getVersion()} (antigen: {$virion->getAntigen()})");
     }
 
     public function getVirion(string $name) : ?Virion{
