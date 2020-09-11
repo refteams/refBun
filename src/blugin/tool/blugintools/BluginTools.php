@@ -34,7 +34,6 @@ use blugin\tool\blugintools\loader\virion\VirionLoader;
 use blugin\tool\blugintools\traits\SingletonTrait;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
-use pocketmine\plugin\PluginLoadOrder;
 use pocketmine\Server;
 
 class BluginTools extends PluginBase{
@@ -43,15 +42,13 @@ class BluginTools extends PluginBase{
     public function onLoad(){
         self::$instance = $this;
 
-        AdvancedBuilder::getInstance();
-        VirionLoader::getInstance();
-        $this->getServer()->getPluginManager()->registerInterface(new FolderPluginLoader($this->getServer()->getLoader()));
+        AdvancedBuilder::getInstance()->prepare();
+        VirionLoader::getInstance()->prepare();
     }
 
     public function onEnable(){
-        $this->getServer()->getPluginManager()->loadPlugins($this->getServer()->getPluginPath(), [FolderPluginLoader::class]);
-        $this->getServer()->enablePlugins(PluginLoadOrder::STARTUP);
         AdvancedBuilder::getInstance()->init();
+        FolderPluginLoader::getInstance()->init();
     }
 
     public static function clearDirectory(string $dir) : bool{

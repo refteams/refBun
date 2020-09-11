@@ -28,23 +28,16 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\loader\virion;
 
 use blugin\tool\blugintools\BluginTools;
+use blugin\tool\blugintools\traits\SingletonFactoryTrait;
 use pocketmine\Server;
 
 class VirionLoader{
-    /** @var VirionLoader */
-    private static $instance = null;
-
-    public static function getInstance() : VirionLoader{
-        if(self::$instance === null){
-            self::$instance = new VirionLoader();
-        }
-        return self::$instance;
-    }
+    use SingletonFactoryTrait;
 
     /** @var Virion[] */
     private $virions = [];
 
-    public function __construct(){
+    public function prepare(){
         foreach(["virions/", "plugins/_virions/", "plugins/virions/"] as $subdir){
             if(!is_dir($dir = Server::getInstance()->getDataPath() . $subdir))
                 continue;

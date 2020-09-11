@@ -31,11 +31,13 @@ use blugin\tool\blugintools\BluginTools;
 use blugin\tool\blugintools\builder\event\BuildCompleteEvent;
 use blugin\tool\blugintools\builder\event\BuildPrepareEvent;
 use blugin\tool\blugintools\builder\event\BuildStartEvent;
+use blugin\tool\blugintools\builder\TraverserPriority as Priority;
+use blugin\tool\blugintools\loader\virion\VirionInjector;
 use blugin\tool\blugintools\printer\Printer;
 use blugin\tool\blugintools\processor\CodeSpliter;
 use blugin\tool\blugintools\renamer\Renamer;
+use blugin\tool\blugintools\traits\SingletonFactoryTrait;
 use blugin\tool\blugintools\traverser\AdvancedTraverser;
-use blugin\tool\blugintools\builder\TraverserPriority as Priority;
 use blugin\tool\blugintools\visitor\CommentOptimizingVisitor;
 use blugin\tool\blugintools\visitor\ImportForcingVisitor;
 use blugin\tool\blugintools\visitor\ImportGroupingVisitor;
@@ -46,27 +48,18 @@ use blugin\tool\blugintools\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivatePropertyRenamingVisitor;
-use blugin\tool\blugintools\loader\virion\VirionInjector;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
 use pocketmine\utils\Config;
 
 class AdvancedBuilder{
+    use SingletonFactoryTrait;
+
     public const OPTION_FILE = ".advancedbuilder.yml";
 
     public const DIR_PREPARE = "prepare";
     public const DIR_BUILDED = "builded";
-
-    /** @var AdvancedBuilder */
-    private static $instance = null;
-
-    public static function getInstance() : AdvancedBuilder{
-        if(self::$instance === null){
-            self::$instance = new AdvancedBuilder();
-        }
-        return self::$instance;
-    }
 
     /** @var mixed[] */
     private $baseOption = [];
@@ -83,7 +76,7 @@ class AdvancedBuilder{
     /** @var string */
     private $printerMode = Printer::PRINTER_STANDARD;
 
-    private function __construct(){
+    public function prepare(){
         Renamer::registerDefaults($this);
         Printer::registerDefaults($this);
 
