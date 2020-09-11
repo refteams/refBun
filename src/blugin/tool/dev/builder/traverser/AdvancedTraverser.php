@@ -30,7 +30,7 @@ namespace blugin\tool\dev\builder\traverser;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 
-class AdvancedeTraverser extends NodeTraverser{
+class AdvancedTraverser extends NodeTraverser{
     /** @var NodeVisitor[] Visitors */
     public function getVisitors() : array{
         return $this->visitors;

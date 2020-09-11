@@ -40,7 +40,7 @@ use blugin\tool\dev\builder\renamer\Renamer;
 use blugin\tool\dev\builder\renamer\SerialRenamer;
 use blugin\tool\dev\builder\renamer\ShortenRenamer;
 use blugin\tool\dev\builder\renamer\SpaceRenamer;
-use blugin\tool\dev\builder\traverser\AdvancedeTraverser;
+use blugin\tool\dev\builder\traverser\AdvancedTraverser;
 use blugin\tool\dev\builder\TraverserPriority as Priority;
 use blugin\tool\dev\builder\visitor\CommentOptimizingVisitor;
 use blugin\tool\dev\builder\visitor\ImportForcingVisitor;
@@ -81,7 +81,7 @@ class AdvancedBuilder{
     /** @var IPrinter[] printer tag -> printer instance */
     private $printers = [];
 
-    /** @var AdvancedeTraverser[] traverser priority => AdvancedeTraverser */
+    /** @var AdvancedTraverser[] traverser priority => AdvancedeTraverser */
     private $traversers;
 
     /** @var string */
@@ -100,7 +100,7 @@ class AdvancedBuilder{
 
         //Load pre-processing settings
         foreach(Priority::ALL as $priority){
-            $this->traversers[$priority] = new AdvancedeTraverser();
+            $this->traversers[$priority] = new AdvancedTraverser();
         }
     }
 
@@ -276,12 +276,12 @@ class AdvancedBuilder{
         return $option;
     }
 
-    /** @return AdvancedeTraverser[] */
+    /** @return AdvancedTraverser[] */
     public function getTraversers() : array{
         return $this->traversers;
     }
 
-    public function getTraverser(int $priority = Priority::NORMAL) : ?AdvancedeTraverser{
+    public function getTraverser(int $priority = Priority::NORMAL) : ?AdvancedTraverser{
         return $this->traversers[$priority] ?? null;
     }
 
