@@ -1,6 +1,6 @@
 ---
 name: BluginTools
-main: blugin\tool\dev\BluginTools
+main: blugin\tool\blugintools\BluginTools
 version: 2.1.0
 api: [3.0.0]
 authors: ['Blugin-team', 'PresentKim']

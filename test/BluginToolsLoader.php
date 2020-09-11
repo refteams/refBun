@@ -22,11 +22,11 @@
  * @name BluginToolsLoader
  * @api 3.0.0
  * @version 1.0.0
- * @main blugin\tool\dev\blugintoolsloader\BluginToolsLoader
+ * @main blugin\tool\blugintools\blugintoolsloader\BluginToolsLoader
  * @load STARTUP
  */
 
-namespace blugin\tool\dev\blugintoolsloader;
+namespace blugin\tool\blugintools\blugintoolsloader;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginDescription;
