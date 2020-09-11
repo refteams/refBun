@@ -34,38 +34,16 @@ use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\UseUse;
 
 trait GetFullyQualifiedTrait{
-    /**
-     * @param UseUse    $use
-     * @param Node|null $node
-     *
-     * @return FullyQualified
-     */
-    protected function getFullyQualified(UseUse $use, Node $node = null) : FullyQualified{
+    protected function getFullyQualified(UseUse $use, ?Node $node = null) : FullyQualified{
         return new FullyQualified($node instanceof GroupUse && $node->prefix ? Name::concat($node->prefix, $use->name) : $use->name, $use->getAttributes());
     }
 
-    /**
-     * @param UseUse    $use
-     * @param Node|null $node
-     *
-     * @param bool      $ltrim
-     *
-     * @return string
-     */
-    protected function getFullyQualifiedString(UseUse $use, Node $node = null, bool $ltrim = true) : string{
+    protected function getFullyQualifiedString(UseUse $use, ?Node $node = null, bool $ltrim = true) : string{
         $str = $this->getFullyQualified($use, $node)->toCodeString();
         return $ltrim ? ltrim($str, "\\") : $str;
     }
 
-    /**
-     * @param UseUse    $use
-     * @param Node|null $node
-     *
-     * @param bool      $ltrim
-     *
-     * @return Name
-     */
-    protected function getFullyQualifiedName(UseUse $use, Node $node = null, bool $ltrim = true) : Name{
+    protected function getFullyQualifiedName(UseUse $use, ?Node $node = null, bool $ltrim = true) : Name{
         return new Name($this->getFullyQualifiedString($use, $node, $ltrim));
     }
 }

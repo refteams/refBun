@@ -43,42 +43,31 @@ use PhpParser\NodeVisitor\NameResolver;
 class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
     use RenamerHolderTrait, GetFullyQualifiedTrait;
 
-    /**
-     * @param Renamer           $renamer
-     * @param ErrorHandler|null $errorHandler Error handler
-     * @param array             $options Options
-     */
+    /** @param mixed[] $options Options */
     public function __construct(Renamer $renamer, ErrorHandler $errorHandler = null, array $options = []){
         parent::__construct($errorHandler, $options);
         $this->setRenamer($renamer);
     }
 
-    /** @param Renamer $renamer */
     public function setRenamer(Renamer $renamer) : void{
         $this->renamer = $renamer;
         $renamer->setIgnorecase();
     }
 
     /**
-     * Register namespaces
-     *
      * @param Node[] $nodes
      *
-     * @return array
+     * @return Node[]|null
      **/
-    public function beforeTraverse(array $nodes){
+    public function beforeTraverse(array $nodes) : ?array{
         $this->nameContext->startNamespace();
         $this->getRenamer()->init();
         $this->registerUses($nodes);
         return $nodes;
     }
 
-    /**
-     * @param Node $node
-     *
-     * @return int|Node|null
-     */
-    public function enterNode(Node $node){
+    /** @return int|Node|null */
+    public function enterNode(Node $node) : ?Node{
         if($node instanceof FunctionLike){
             foreach($node->getParams() as $key => $param){
                 if($param->default instanceof ConstFetch && $param->default->name->parts[0] === "null"){
@@ -92,11 +81,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         return parent::enterNode($node);
     }
 
-    /**
-     * @param Node $node
-     *
-     * @return int|Node|Node[]|GroupUse|Use_|null
-     */
+    /** @return int|Node|Node[]|null */
     public function leaveNode(Node $node){
         if($node instanceof Use_ || $node instanceof GroupUse){
             foreach($node->uses as $k => $use){
@@ -110,12 +95,6 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         return null;
     }
 
-    /**
-     * @param Name $name
-     * @param int  $type
-     *
-     * @return Name
-     */
     protected function resolveName(Name $name, int $type) : Name{
         $result = parent::resolveName($name, $type);
         if(!$this->replaceNodes)
@@ -127,13 +106,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         return $result;
     }
 
-    /**
-     * Register namespaces nodes with recursion
-     *
-     * @param Node[] $nodes
-     *
-     * @return void
-     **/
+    /** @param Node[] $nodes **/
     private function registerUses(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){

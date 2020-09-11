@@ -53,11 +53,6 @@ class LocalVariableRenamingVisitor extends NodeVisitorAbstract implements IRenam
         "_FILES"
     ];
 
-    /**
-     * @param Node $node
-     *
-     * @return Node
-     */
     protected function getTarget(Node $node) : Node{
         if($node instanceof Param || $node instanceof StaticVar || $node instanceof Catch_ || $node instanceof ClosureUse){
             return $node->var;
@@ -65,12 +60,6 @@ class LocalVariableRenamingVisitor extends NodeVisitorAbstract implements IRenam
         return $node;
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
-     * @return bool
-     */
     protected function isValid(Node $node, string $property = "name") : bool{
         $target = $this->getTarget($node);
         //Ignore to rename if it not string or global variable or $this(ex: $$varname, $_GET, $this)

@@ -72,63 +72,30 @@ trait RenamerHolderVisitorTrait{
         return null;
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property = "name"
-     */
     public function generate(Node $node, string $property = "name") : void{
         if($this->isValidToGenerate($node, $property))
             $this->renamer->generate($this->getTarget($node), $property);
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property = "name"
-     *
-     * @return Node|null
-     */
     public function rename(Node $node, string $property = "name") : ?Node{
         if($this->isValidToRename($node, $property))
             return $this->renamer->rename($this->getTarget($node));
         return null;
     }
 
-    /**
-     * @param Node $node
-     *
-     * @return Node
-     */
     protected function getTarget(Node $node) : Node{
         return $node;
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
-     * @return bool
-     */
     protected function isValid(Node $node, string $property = "name") : bool{
         $target = $this->getTarget($node);
         return isset($target->$property) && is_string($target->$property);
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
-     * @return bool
-     */
     protected function isValidToGenerate(Node $node, string $property = "name") : bool{
         return $this->isValid($node, $property);
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
-     * @return bool
-     */
     protected function isValidToRename(Node $node, string $property = "name") : bool{
         return $this->isValid($node, $property);
     }

@@ -35,11 +35,6 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
 
 class PrivateMethodRenamingVisitor extends PrivateRenamingVisitor{
-    /**
-     * Register private node
-     *
-     * @param Node $node
-     **/
     protected function registerNode(Node $node) : void{
         if($node instanceof ClassMethod && $node->isPrivate()){
             $this->privateNodes[] = $node;
@@ -47,13 +42,6 @@ class PrivateMethodRenamingVisitor extends PrivateRenamingVisitor{
         }
     }
 
-    /**
-     * Filter is target node
-     *
-     * @param Node $node
-     *
-     * @return bool
-     */
     protected function isTarget(Node $node) : bool{
         return $node instanceof ClassMethod || $node instanceof MethodCall && $node->var instanceof Variable && $node->var->name === "this" || $node instanceof StaticCall && $node->class instanceof Name && $node->class->parts[0] === "self";
     }

@@ -30,10 +30,6 @@ namespace blugin\tool\blugintools\renamer;
 use PhpParser\Node;
 
 class MD5Renamer extends Renamer{
-    /**
-     * @param Node   $node
-     * @param string $property = "name"
-     */
     public function generate(Node $node, string $property = "name") : void{
         $nameTable = $this->getNameTable();
         if(isset($nameTable[$node->$property]))

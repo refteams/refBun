@@ -47,10 +47,6 @@ class SpaceRenamer extends Renamer{
         "\u{3000}"
     ];
 
-    /**
-     * @param Node   $node
-     * @param string $property = "name"
-     */
     public function generate(Node $node, string $property = "name") : void{
         if($this->getName($node->$property) !== null)
             return;

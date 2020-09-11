@@ -34,6 +34,7 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 
 class ImportRemovingVisitor extends NameResolver{
+    /** @return int|Node|Node[]|null */
     public function leaveNode(Node $node){
         if($node instanceof Use_ || $node instanceof GroupUse){
             return NodeTraverser::REMOVE_NODE;

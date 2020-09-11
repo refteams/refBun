@@ -42,26 +42,18 @@ abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRe
     protected $privateNodes = [];
 
     /**
-     * Register private nodes on before traverse
-     *
      * @param Node[] $nodes
      *
-     * @return array
+     * @return Node[]|null
      **/
-    public function beforeTraverse(array $nodes){
+    public function beforeTraverse(array $nodes) : ?array{
         $this->getRenamer()->init();
         $this->privateNodes = [];
         $this->registerPrivateNodes($nodes);
         return $nodes;
     }
 
-    /**
-     * Register private nodes with recursion
-     *
-     * @param Node[] $nodes
-     *
-     * @return void
-     **/
+    /** @param Node[] $nodes **/
     private function registerPrivateNodes(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof ClassLike && !$node instanceof Class_)
@@ -76,27 +68,12 @@ abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRe
         }
     }
 
-    /**
-     * Register private node
-     *
-     * @param Node $node
-     **/
+    /** Register private node **/
     abstract protected function registerNode(Node $node) : void;
 
-    /**
-     * Filter is target node
-     *
-     * @param Node $node
-     *
-     * @return bool
-     */
+    /** Filter is target node */
     abstract protected function isTarget(Node $node) : bool;
 
-    /**
-     * @param Node $node
-     *
-     * @return Node
-     */
     protected function getTarget(Node $node) : Node{
         if($this->isTarget($node)){
             return $node->name;
@@ -104,22 +81,10 @@ abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRe
         return $node;
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
-     * @return bool
-     */
     protected function isValidToGenerate(Node $node, string $property = "name") : bool{
         return $this->isValid($node, $property) && in_array($node, $this->privateNodes);
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property
-     *
-     * @return bool
-     */
     protected function isValidToRename(Node $node, string $property = "name") : bool{
         return $this->isValid($node, $property) && $this->isTarget($node);
     }

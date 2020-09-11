@@ -35,14 +35,7 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
     /** string[] regex format[] */
     private static $allowList = null;
 
-    /**
-     * Remove meaningless comment
-     *
-     * @param Node $node
-     *
-     * @return Node|null
-     */
-    public function enterNode(Node $node){
+    public function enterNode(Node $node) : ?Node{
         $doc = $node->getDocComment();
 
         //Remove all comments
@@ -75,7 +68,7 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
         return $node;
     }
 
-    /** @return array */
+    /** @return string[] regex format[] */
     public static function getAllowList() : array{
         if(self::$allowList === null){
             self::initMeaningfullList();;

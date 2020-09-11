@@ -37,10 +37,6 @@ class SerialRenamer extends Renamer{
         $this->generateChars();
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property = "name"
-     */
     public function generate(Node $node, string $property = "name") : void{
         if($this->getName($node->$property) !== null)
             return;
@@ -56,7 +52,6 @@ class SerialRenamer extends Renamer{
         $this->setName($node->$property, $newName);
     }
 
-    /** @param bool $value */
     public function setIgnorecase(bool $value = true) : void{
         parent::setIgnorecase($value);
         $this->generateChars();

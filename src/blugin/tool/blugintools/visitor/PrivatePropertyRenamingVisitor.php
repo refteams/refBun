@@ -36,11 +36,6 @@ use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
 
 class PrivatePropertyRenamingVisitor extends PrivateRenamingVisitor{
-    /**
-     * Register private node
-     *
-     * @param Node $node
-     **/
     protected function registerNode(Node $node) : void{
         if($node instanceof Property && $node->isPrivate()){
             foreach($node->props as $prop){
@@ -50,13 +45,6 @@ class PrivatePropertyRenamingVisitor extends PrivateRenamingVisitor{
         }
     }
 
-    /**
-     * Filter is target node
-     *
-     * @param Node $node
-     *
-     * @return bool
-     */
     protected function isTarget(Node $node) : bool{
         return $node instanceof PropertyProperty || $node instanceof PropertyFetch && $node->var instanceof Variable && $node->var->name === "this" || $node instanceof StaticPropertyFetch && $node->class instanceof Name && $node->class->parts[0] === "self";
     }

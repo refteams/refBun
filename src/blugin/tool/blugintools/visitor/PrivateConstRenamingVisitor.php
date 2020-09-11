@@ -35,17 +35,11 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassConst;
 
 class PrivateConstRenamingVisitor extends PrivateRenamingVisitor{
-    /** @param Renamer $renamer */
     public function setRenamer(Renamer $renamer) : void{
         $this->renamer = $renamer;
         $renamer->setIgnorecase();
     }
 
-    /**
-     * Register private node
-     *
-     * @param Node $node
-     **/
     protected function registerNode(Node $node) : void{
         if($node instanceof ClassConst && $node->isPrivate()){
             foreach($node->consts as $const){
@@ -55,13 +49,6 @@ class PrivateConstRenamingVisitor extends PrivateRenamingVisitor{
         }
     }
 
-    /**
-     * Filter is target node
-     *
-     * @param Node $node
-     *
-     * @return bool
-     */
     protected function isTarget(Node $node) : bool{
         return $node instanceof Const_ || $node instanceof ClassConstFetch && $node->class instanceof Name && $node->class->parts[0] === "self";
     }

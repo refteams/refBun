@@ -41,9 +41,9 @@ class ImportGroupingVisitor extends NodeVisitorAbstract{
     /**
      * @param Node[] $nodes
      *
-     * @return array
+     * @return Node[]|null
      **/
-    public function afterTraverse(array $nodes){
+    public function afterTraverse(array $nodes) : ?array{
         /** @var UseUse[][] type => UseUSe[] */
         $usesList = [
             Use_::TYPE_UNKNOWN => [],
@@ -57,10 +57,8 @@ class ImportGroupingVisitor extends NodeVisitorAbstract{
     }
 
     /**
-     * @param Node[] &$nodes
-     * @param array  &$usesList
-     *
-     * @return void
+     * @param Node[]      &$nodes
+     * @param UseUse[][]  &$usesList
      */
     private function readUses(array &$nodes, array &$usesList) : void{
         for($i = 0, $keys = array_keys($nodes), $count = count($keys); $i < $count; ++$i){
@@ -84,8 +82,8 @@ class ImportGroupingVisitor extends NodeVisitorAbstract{
     }
 
     /**
-     * @param Node[] $nodes
-     * @param array  $usesList
+     * @param Node[]     $nodes
+     * @param UseUse[][] $usesList
      *
      * @return void
      **/

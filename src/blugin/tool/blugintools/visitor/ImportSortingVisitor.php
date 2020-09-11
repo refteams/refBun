@@ -40,18 +40,13 @@ class ImportSortingVisitor extends NodeVisitorAbstract{
      *
      * @return array
      **/
-    public function afterTraverse(array $nodes){
+    public function afterTraverse(array $nodes) : ?array{
         $this->readUses($nodes);
         return $nodes;
     }
 
-    /**
-     * @param Node[] &$nodes
-     * @param array  &$usesList
-     *
-     * @return void
-     */
-    private function readUses(array &$nodes) : void{
+    /** @param Node[] $nodes */
+    private function readUses(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Namespace_){
                 usort($node->stmts, function(Node $a, Node $b){
@@ -78,20 +73,10 @@ class ImportSortingVisitor extends NodeVisitorAbstract{
         }
     }
 
-    /**
-     * @param Node $node
-     *
-     * @return bool
-     */
     private function isUse(Node $node) : bool{
         return $node instanceof Use_ || $node instanceof GroupUse;
     }
 
-    /**
-     * @param Node $node
-     *
-     * @return string
-     */
     private function getName(Node $node) : string{
         if($node instanceof Use_){
             return $node->uses[0]->name->toCodeString();

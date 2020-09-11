@@ -28,9 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\renamer;
 
 interface IRenamerHolder{
-    /** @return Renamer */
     public function getRenamer() : Renamer;
 
-    /** @param Renamer $renamer */
     public function setRenamer(Renamer $renamer) : void;
 }

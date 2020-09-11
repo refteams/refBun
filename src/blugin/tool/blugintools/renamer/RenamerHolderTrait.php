@@ -36,17 +36,14 @@ trait RenamerHolderTrait{
     /** @var Renamer */
     protected $renamer;
 
-    /** @param Renamer $renamer */
     public function __construct(Renamer $renamer){
         $this->setRenamer($renamer);
     }
 
-    /** @return Renamer */
     public function getRenamer() : Renamer{
         return $this->renamer;
     }
 
-    /** @param Renamer $renamer */
     public function setRenamer(Renamer $renamer) : void{
         $this->renamer = $renamer;
     }

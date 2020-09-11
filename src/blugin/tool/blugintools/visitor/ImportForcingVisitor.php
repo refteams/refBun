@@ -46,9 +46,9 @@ class ImportForcingVisitor extends NameResolver{
     /**
      * @param Node[] $nodes
      *
-     * @return array
+     * @return Node[]|null
      **/
-    public function beforeTraverse(array $nodes){
+    public function beforeTraverse(array $nodes) : ?array{
         $this->nameContext->startNamespace();
         $this->uses = [];
         $this->newUses = [];
@@ -59,19 +59,13 @@ class ImportForcingVisitor extends NameResolver{
     /**
      * @param Node[] $nodes
      *
-     * @return array
+     * @return Node[]|null
      **/
-    public function afterTraverse(array $nodes){
+    public function afterTraverse(array $nodes) : ?array{
         $this->appendUsesToNamespace($nodes);
         return $nodes;
     }
 
-    /**
-     * @param Name $name
-     * @param int  $type
-     *
-     * @return Name
-     */
     protected function resolveName(Name $name, int $type) : Name{
         $originalName = str_replace("\\", "", $name->toCodeString());
         $result = parent::resolveName($name, $type);
@@ -92,11 +86,7 @@ class ImportForcingVisitor extends NameResolver{
         return $name; //Return original name instead of resolved name
     }
 
-    /**
-     * @param Node[] $nodes
-     *
-     * @return void
-     **/
+    /** @param Node[] $nodes * */
     private function registerUses(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){
@@ -112,11 +102,7 @@ class ImportForcingVisitor extends NameResolver{
         }
     }
 
-    /**
-     * @param Node[] $nodes
-     *
-     * @return void
-     **/
+    /** @param Node[] $nodes * */
     private function appendUsesToNamespace(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Namespace_){
@@ -138,11 +124,6 @@ class ImportForcingVisitor extends NameResolver{
         }
     }
 
-    /**
-     * @param Name $name
-     *
-     * @return Name
-     */
     private function resolveGlobal(Name $name) : Name{
         $code = ltrim($name->toCodeString(), "\\");
         if($code === "self" || $code === "parent" || $code === "static")

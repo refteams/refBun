@@ -48,18 +48,8 @@ abstract class Renamer{
         $this->nameTable = [];
     }
 
-    /**
-     * @param Node   $node
-     * @param string $property = "name"
-     */
     public abstract function generate(Node $node, string $property = "name") : void;
 
-    /**
-     * @param Node   $node
-     * @param string $property = "name"
-     *
-     * @return Node|null
-     */
     public function rename(Node $node, string $property = "name") : ?Node{
         $newName = $this->nameTable[$node->$property] ?? null;
         if(!$newName)
@@ -74,34 +64,22 @@ abstract class Renamer{
         return $this->nameTable;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return string|null
-     */
     public function getName(string $name) : ?string{
         return $this->nameTable[$name] ?? null;
     }
 
-    /**
-     * @param string $name
-     * @param string $newName
-     */
     public function setName(string $name, string $newName) : void{
         $this->nameTable[$name] = $newName;
     }
 
-    /** @return int */
     public function getFlags() : int{
         return $this->flags;
     }
 
-    /** @return bool */
     public function isIgnorecase() : bool{
         return ($this->flags & self::FLAG_IGNORECASE) !== 0;
     }
 
-    /** @param bool $value */
     public function setIgnorecase(bool $value = true) : void{
         if($value){
             $this->flags |= self::FLAG_IGNORECASE;
@@ -110,12 +88,10 @@ abstract class Renamer{
         }
     }
 
-    /** @return bool */
     public function isAllowSlash() : bool{
         return ($this->flags & self::FLAG_ALLOW_SLASH) !== 0;
     }
 
-    /** @param bool $value */
     public function setAllowSlash(bool $value = true) : void{
         if($value){
             $this->flags |= self::FLAG_ALLOW_SLASH;
@@ -124,12 +100,10 @@ abstract class Renamer{
         }
     }
 
-    /** @return bool */
     public function requireInitialValid() : bool{
         return ($this->flags & self::FLAG_INITIAL_VALID) !== 0;
     }
 
-    /** @param bool $value */
     public function setRequireInitialValid(bool $value = true) : void{
         if($value){
             $this->flags |= self::FLAG_INITIAL_VALID;
@@ -158,13 +132,6 @@ abstract class Renamer{
         }
     }
 
-    /**
-     * cleanup string with allow slash flag
-     *
-     * @param string $name
-     *
-     * @return string
-     */
     protected function clean(string $name) : string{
         if(!$this->isAllowSlash()){
             $name = str_replace(["/", "\\"], "", $name);
