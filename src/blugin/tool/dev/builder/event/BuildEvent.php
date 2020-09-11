@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\dev\builder\event;
 
+use blugin\tool\dev\BluginTools;
 use blugin\tool\dev\builder\AdvancedBuilder;
 use pocketmine\event\Event;
 use pocketmine\utils\Config;
@@ -52,8 +53,8 @@ abstract class BuildEvent extends Event{
         $this->sourceDir = $sourceDir;
         $this->option = $option;
 
-        $this->prepareDir = $builder->loadDir(AdvancedBuilder::DIR_PREPARE);
-        $this->buildedDir = $builder->loadDir(AdvancedBuilder::DIR_BUILDED);
+        $this->prepareDir = BluginTools::loadDir(AdvancedBuilder::DIR_PREPARE);
+        $this->buildedDir = BluginTools::loadDir(AdvancedBuilder::DIR_BUILDED);
     }
 
     public function getBuilder() : AdvancedBuilder{

@@ -133,8 +133,8 @@ class AdvancedBuilder{
             }
         }
 
-        $prepareDir = $this->loadDir(self::DIR_PREPARE, true);
-        $buildDir = $this->loadDir(self::DIR_BUILDED, true);
+        $prepareDir = BluginTools::loadDir(self::DIR_PREPARE, true);
+        $buildDir = BluginTools::loadDir(self::DIR_BUILDED, true);
 
         //Prepare to copy files for build
         $option = $this->loadOption($sourceDir);
@@ -232,7 +232,7 @@ class AdvancedBuilder{
 
     public function loadOption(string $dir, int $type = Config::DETECT) : Config{
         if(!is_file($file = $dir . self::OPTION_FILE)){
-            $file = $this->loadDir(self::DIR_PREPARE) . self::OPTION_FILE;
+            $file = BluginTools::loadDir(self::DIR_PREPARE) . self::OPTION_FILE;
         }
         $option = new Config($file, $type, $this->baseOption);
 
@@ -320,16 +320,5 @@ class AdvancedBuilder{
 
     public function registerRenamer(string $mode, Renamer $renamer) : void{
         $this->renamers[$mode] = $renamer;
-    }
-
-    public function loadDir(string $dirname, bool $clean = false) : string{
-        $dir = BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder() . $dirname);
-        if(!file_exists($dir)){
-            mkdir($dir, 0777, true);
-        }
-        if($clean){
-            BluginTools::clearDirectory($dir);
-        }
-        return $dir;
     }
 }

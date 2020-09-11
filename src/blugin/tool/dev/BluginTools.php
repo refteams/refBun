@@ -120,4 +120,15 @@ class BluginTools extends PluginBase{
         }
         return $found;
     }
+
+    public static function loadDir(string $dirname, bool $clean = false) : string{
+        $dir = BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder() . $dirname);
+        if(!file_exists($dir)){
+            mkdir($dir, 0777, true);
+        }
+        if($clean){
+            BluginTools::clearDirectory($dir);
+        }
+        return $dir;
+    }
 }
