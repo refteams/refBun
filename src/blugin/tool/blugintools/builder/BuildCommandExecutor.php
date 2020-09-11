@@ -67,6 +67,8 @@ class BuildCommandExecutor implements CommandExecutor{
                 $plugin = BluginTools::getPlugin($pluginName);
                 if($plugin === null){
                     $sender->sendMessage("{$pluginName} is invalid plugin name");
+                }elseif(!($plugin->getPluginLoader() instanceof BluginPluginLoader || $plugin->getPluginLoader() instanceof DevToolsPluginLoader)){
+                    $sender->sendMessage("{$plugin->getName()} is not in folder plugin");
                 }else{
                     $plugins[$plugin->getName()] = $plugin;
                 }
