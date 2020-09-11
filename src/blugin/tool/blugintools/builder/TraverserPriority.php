@@ -40,7 +40,6 @@ final class TraverserPriority{
     }
 
     public const ALL = [
-        self::VIRION_INFECT,
         self::BEFORE_SPLIT,
         Priority::LOWEST,
         Priority::LOW,
@@ -49,13 +48,6 @@ final class TraverserPriority{
         Priority::HIGHEST,
         Priority::MONITOR
     ];
-
-    public const DEFAULTS = Priority::ALL;
-
-    /**
-     * Traserver call for Virion infection
-     */
-    public const VIRION_INFECT = 7;
 
     /**
      * Traserver call before split files

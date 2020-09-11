@@ -178,7 +178,7 @@ class AdvancedBuilder{
                     }
 
                     foreach($files as $filename => $stmts){
-                        foreach(Priority::DEFAULTS as $priority){
+                        foreach(Priority::ALL as $priority){
                             $stmts = $this->traversers[$priority]->traverse($stmts);
                         }
                         file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter($this->printerMode)->print($stmts));
