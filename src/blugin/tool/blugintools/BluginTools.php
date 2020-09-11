@@ -31,21 +31,14 @@ use blugin\lib\translator\traits\MultilingualConfigTrait;
 use blugin\tool\blugintools\builder\AdvancedBuilder;
 use blugin\tool\blugintools\loader\FolderPluginLoader;
 use blugin\tool\blugintools\loader\virion\VirionLoader;
+use blugin\tool\blugintools\traits\SingletonTrait;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginLoadOrder;
 use pocketmine\Server;
 
 class BluginTools extends PluginBase{
-    use MultilingualConfigTrait;
-
-    /** @var BluginTools */
-    private static $instance;
-
-    /** @return BluginTools */
-    public static function getInstance() : BluginTools{
-        return self::$instance;
-    }
+    use SingletonTrait, MultilingualConfigTrait;
 
     public function onLoad(){
         self::$instance = $this;
