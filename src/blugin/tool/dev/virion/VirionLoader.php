@@ -48,46 +48,7 @@ class VirionLoader{
     public function __construct(BluginTools $tools){
         $this->tools = $tools;
         $this->logger = $tools->getLogger();
-        $this->loader = new class(Server::getInstance()->getLoader()) extends \BaseClassLoader{
-            /** @var \Threaded|string[] */
-            private $antigenMap;
-
-            public function __construct(\ClassLoader $parent = null){
-                parent::__construct($parent);
-                $this->antigenMap = new \Threaded;
-            }
-
-            public function addAntigen(string $antigen, string $path) : void{
-                $this->antigenMap[$path] = $antigen;
-            }
-
-            public function findClass($class) : ?string{
-                $baseName = str_replace("\\", "/", $class);
-                foreach($this->antigenMap as $path => $antigen){
-                    if(stripos($class, $antigen) === 0){
-                        $basePath = "$path/$baseName";
-                        if(PHP_INT_SIZE === 8 && file_exists("{$basePath}__64bit.php"))
-                            return "{$basePath}__64bit.php";
-
-                        if(PHP_INT_SIZE === 4 && file_exists("{$basePath}__32bit.php"))
-                            return "{$basePath}__32bit.php";
-
-                        if(file_exists("{$basePath}.php"))
-                            return "{$basePath}.php";
-                    }
-                }
-
-                return null;
-            }
-
-            public function loadClass($name) : ?bool{
-                try{
-                    return parent::loadClass($name);
-                }catch(\ClassNotFoundException $e){
-                    return null;
-                }
-            }
-        };
+        $this->loader = Server::getInstance()->getLoader();
 
         foreach(["virions/", "plugins/_virions/", "plugins/virions/"] as $subdir){
             if(!is_dir($dir = Server::getInstance()->getDataPath() . $subdir))
@@ -108,7 +69,7 @@ class VirionLoader{
             return;
         }
         $this->virions[$virion->getName()] = $virion;
-        $this->loader->addPath($virion->getAntigen(), $virion->getPath() . "src/");
+        $this->loader->addPath($virion->getPath() . "src/");
 
         Server::getInstance()->getLogger()->info("[virion] Loading {$virion->getName()} v{$virion->getVersion()} (antigen: {$virion->getAntigen()})");
     }
