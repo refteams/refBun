@@ -69,6 +69,7 @@ class AdvancedBuilder{
         return self::$instance;
     }
 
+    public const OPTION_FILE = ".advancedbuilder.yml";
     /** @var mixed[] */
     private $baseOption = [];
 
@@ -173,6 +174,9 @@ class AdvancedBuilder{
         (new BuildStartEvent($this, $sourceDir, $option))->call();
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         foreach(BluginTools::readDirectory($prepareDir, true) as $path){
+            if(substr($path, strlen($prepareDir)) === self::OPTION_FILE) //skip option file
+                continue;
+
             $newPath = substr_replace($path, $buildDir, 0, strlen($prepareDir));
             $newDir = dirname($newPath);
             if(!file_exists($newDir)){
@@ -224,8 +228,8 @@ class AdvancedBuilder{
     }
 
     public function loadOption(string $dir, int $type = Config::DETECT) : Config{
-        if(!is_file($file = "$dir.advancedbuilder.yml")){
-            $file = $this->loadDir(self::DIR_BUILDED) . ".advancedbuilder.yml";
+        if(!is_file($file = $dir . self::OPTION_FILE)){
+            $file = $this->loadDir(self::DIR_PREPARE) . self::OPTION_FILE;
         }
         $option = new Config($file, $type, $this->baseOption);
 
