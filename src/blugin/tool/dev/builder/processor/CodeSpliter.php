@@ -29,6 +29,7 @@ namespace blugin\tool\dev\builder\processor;
 
 use blugin\tool\dev\BluginTools;
 use blugin\tool\dev\builder\AdvancedBuilder;
+use blugin\tool\dev\builder\printer\Printer;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Namespace_;
@@ -68,7 +69,7 @@ final class CodeSpliter{
         }
         if($classLikes !== null){
             $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-            $printer = AdvancedBuilder::getInstance()->getPrinter(AdvancedBuilder::PRINTER_STANDARD);
+            $printer = AdvancedBuilder::getInstance()->getPrinter(Printer::PRINTER_STANDARD);
             foreach($classLikes as $classLike){
                 //TODO: Deep copy implement instead of re-parse trick
                 //TODO: Remove unused imports

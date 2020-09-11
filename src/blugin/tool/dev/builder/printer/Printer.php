@@ -27,13 +27,19 @@ declare(strict_types=1);
 
 namespace blugin\tool\dev\builder\printer;
 
+use blugin\tool\dev\builder\AdvancedBuilder;
 use PhpParser\Node;
 
-interface IPrinter{
-    /**
-     * @param Node[] $stmts
-     *
-     * @return string
-     */
-    public function print(array $stmts) : string;
+abstract class Printer{
+    public const PRINTER_STANDARD = "standard";
+    public const PRINTER_SHORTEN = "shorten";
+
+    /** @param Node[] $stmts */
+    public abstract function print(array $stmts) : string;
+
+    final public static function registerDefaults() : void{
+        $builder = AdvancedBuilder::getInstance();
+        $builder->registerPrinter(self::PRINTER_STANDARD, new StandardPrinter());
+        $builder->registerPrinter(self::PRINTER_SHORTEN, new ShortenPrinter());
+    }
 }

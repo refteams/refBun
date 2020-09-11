@@ -27,9 +27,15 @@ declare(strict_types=1);
 
 namespace blugin\tool\dev\builder\renamer;
 
+use blugin\tool\dev\builder\AdvancedBuilder;
 use PhpParser\Node;
 
 abstract class Renamer{
+    public const RENAMER_SHORTEN = "shorten";
+    public const RENAMER_SERIAL = "serial";
+    public const RENAMER_SPACE = "space";
+    public const RENAMER_MD5 = "md5";
+
     public const FLAG_IGNORECASE = 0b00000001;    //It means that the visitor ignores case in name
     public const FLAG_ALLOW_SLASH = 0b00000010;   //It means that the visitor allow slash in name
     public const FLAG_INITIAL_VALID = 0b00000100; //It means that the visitor require valid of initial letter
@@ -164,5 +170,13 @@ abstract class Renamer{
             $name = str_replace(["/", "\\"], "", $name);
         }
         return $name;
+    }
+
+    final public static function registerDefaults() : void{
+        $builder = AdvancedBuilder::getInstance();
+        $builder->registerRenamer(self::RENAMER_SHORTEN, new ShortenRenamer());
+        $builder->registerRenamer(self::RENAMER_SERIAL, new SerialRenamer());
+        $builder->registerRenamer(self::RENAMER_SPACE, new SpaceRenamer());
+        $builder->registerRenamer(self::RENAMER_MD5, new MD5Renamer());
     }
 }

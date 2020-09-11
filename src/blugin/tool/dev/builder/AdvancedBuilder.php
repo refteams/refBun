@@ -31,15 +31,9 @@ use blugin\tool\dev\BluginTools;
 use blugin\tool\dev\builder\event\BuildCompleteEvent;
 use blugin\tool\dev\builder\event\BuildPrepareEvent;
 use blugin\tool\dev\builder\event\BuildStartEvent;
-use blugin\tool\dev\builder\printer\IPrinter;
-use blugin\tool\dev\builder\printer\ShortenPrinter;
-use blugin\tool\dev\builder\printer\StandardPrinter;
+use blugin\tool\dev\builder\printer\Printer;
 use blugin\tool\dev\builder\processor\CodeSpliter;
-use blugin\tool\dev\builder\renamer\MD5Renamer;
 use blugin\tool\dev\builder\renamer\Renamer;
-use blugin\tool\dev\builder\renamer\SerialRenamer;
-use blugin\tool\dev\builder\renamer\ShortenRenamer;
-use blugin\tool\dev\builder\renamer\SpaceRenamer;
 use blugin\tool\dev\builder\traverser\AdvancedTraverser;
 use blugin\tool\dev\builder\TraverserPriority as Priority;
 use blugin\tool\dev\builder\visitor\CommentOptimizingVisitor;
@@ -64,14 +58,6 @@ class AdvancedBuilder{
     public const DIR_PREPARE = "prepare";
     public const DIR_BUILDED = "builded";
 
-    public const RENAMER_SHORTEN = "shorten";
-    public const RENAMER_SERIAL = "serial";
-    public const RENAMER_SPACE = "space";
-    public const RENAMER_MD5 = "md5";
-
-    public const PRINTER_STANDARD = "standard";
-    public const PRINTER_SHORTEN = "shorten";
-
     /** @var AdvancedBuilder */
     private static $instance = null;
 
@@ -88,23 +74,18 @@ class AdvancedBuilder{
     /** @var Renamer[] renamer tag -> renamer instance */
     private $renamers = [];
 
-    /** @var IPrinter[] printer tag -> printer instance */
+    /** @var Printer[] printer tag -> printer instance */
     private $printers = [];
 
     /** @var AdvancedTraverser[] traverser priority => AdvancedeTraverser */
     private $traversers;
 
     /** @var string */
-    private $printerMode = self::PRINTER_STANDARD;
+    private $printerMode = Printer::PRINTER_STANDARD;
 
     private function __construct(){
-        $this->registerRenamer(self::RENAMER_SHORTEN, new ShortenRenamer());
-        $this->registerRenamer(self::RENAMER_SERIAL, new SerialRenamer());
-        $this->registerRenamer(self::RENAMER_SPACE, new SpaceRenamer());
-        $this->registerRenamer(self::RENAMER_MD5, new MD5Renamer());
-
-        $this->registerPrinter(self::PRINTER_STANDARD, new StandardPrinter());
-        $this->registerPrinter(self::PRINTER_SHORTEN, new ShortenPrinter());
+        Renamer::registerDefaults();
+        Printer::registerDefaults();
 
         //Load pre-processing settings
         foreach(Priority::ALL as $priority){
@@ -301,11 +282,11 @@ class AdvancedBuilder{
         return true;
     }
 
-    public function getPrinter(string $mode = self::PRINTER_STANDARD) : IPrinter{
-        return clone($this->printers[$mode] ?? $this->printers[self::PRINTER_STANDARD]);
+    public function getPrinter(string $mode = Printer::PRINTER_STANDARD) : Printer{
+        return clone($this->printers[$mode] ?? $this->printers[Printer::PRINTER_STANDARD]);
     }
 
-    public function registerPrinter(string $mode, IPrinter $printer) : void{
+    public function registerPrinter(string $mode, Printer $printer) : void{
         $this->printers[$mode] = $printer;
     }
 

@@ -30,13 +30,25 @@ namespace blugin\tool\dev\builder\printer;
 use PhpParser\Node;
 use PhpParser\PrettyPrinter\Standard;
 
-class StandardPrinter extends Standard implements IPrinter{
+class StandardPrinter extends Printer{
+    /** @var Standard */
+    protected $standard;
+
+    public function __construct(){
+        $this->standard = new Standard();
+    }
+
+    /** @return Standard */
+    public function getStandard() : Standard{
+        return $this->standard;
+    }
+
     /**
      * @param Node[] $stmts
      *
      * @return string
      */
     public function print(array $stmts) : string{
-        return $this->prettyPrintFile($stmts);
+        return $this->standard->prettyPrintFile($stmts);
     }
 }
