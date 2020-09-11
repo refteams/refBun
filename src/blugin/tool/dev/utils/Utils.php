@@ -31,13 +31,9 @@ use pocketmine\plugin\Plugin;
 use pocketmine\Server;
 
 class Utils{
-    public static function clearDirectory(string $directory) : bool{
-        if(!file_exists($directory))
-            return mkdir($directory, 0777, true);
-
-        $files = array_diff(scandir($directory), [".", ".."]);
-        foreach($files as $file){
-            $path = "{$directory}/{$file}";
+    public static function clearDirectory(string $dir) : bool{
+        foreach(self::readDirectory($dir) as $file){
+            $path = "{$dir}/{$file}";
             if(is_dir($path)){
                 self::clearDirectory($path);
                 rmdir($path);
@@ -45,7 +41,31 @@ class Utils{
                 unlink($path);
             }
         }
-        return (count(scandir($directory)) == 2);
+        return (count(scandir($dir)) == 2);
+    }
+
+    public static function readDirectory(string $dir, bool $recursive = false, array $result = []) : array{
+        $dir = self::cleanDirName($dir);
+        if(!file_exists($dir))
+            mkdir($dir, 0777, true);
+
+        $files = array_diff(scandir($dir), [".", ".."]);
+        if(!$recursive)
+            return $files;
+
+        foreach($files as $filename){
+            $path = $dir . $filename;
+            if(is_file($path)){
+                $result[] = $path;
+            }elseif(is_dir($path)){
+                $result = self::readDirectory($path, true, $result);
+            }
+        }
+        return $result;
+    }
+
+    public static function cleanDirName(string $path) : string{
+        return rtrim(str_replace("\\", "/", $path), "/") . "/";
     }
 
     public static function getPlugin(string $name) : ?Plugin{

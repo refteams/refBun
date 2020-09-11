@@ -36,23 +36,40 @@ abstract class BuildEvent extends Event{
     private $builder;
 
     /** @var string */
-    private $projectDir;
+    private $sourceDir;
+
+    /** @var string */
+    private $prepareDir;
+
+    /** @var string */
+    private $buildedDir;
 
     /** @var Config */
     private $option;
 
-    public function __construct(AdvancedBuilder $builder, string $projectDir, Config $option){
+    public function __construct(AdvancedBuilder $builder, string $sourceDir, Config $option){
         $this->builder = $builder;
-        $this->projectDir = $projectDir;
+        $this->sourceDir = $sourceDir;
         $this->option = $option;
+
+        $this->prepareDir = $builder->loadDir(AdvancedBuilder::DIR_PREPARE);
+        $this->buildedDir = $builder->loadDir(AdvancedBuilder::DIR_BUILDED);
     }
 
     public function getBuilder() : AdvancedBuilder{
         return $this->builder;
     }
 
-    public function getProjectDir() : string{
-        return $this->projectDir;
+    public function getSourceDir() : string{
+        return $this->sourceDir;
+    }
+
+    public function getBuildedDir() : string{
+        return $this->buildedDir;
+    }
+
+    public function getPrepareDir() : string{
+        return $this->prepareDir;
     }
 
     public function getOption() : Config{

@@ -30,6 +30,7 @@ namespace blugin\tool\dev\builder;
 use blugin\tool\dev\BluginTools;
 use blugin\tool\dev\builder\event\BuildCompleteEvent;
 use blugin\tool\dev\builder\event\BuildPrepareEvent;
+use blugin\tool\dev\builder\event\BuildStartEvent;
 use blugin\tool\dev\builder\printer\IPrinter;
 use blugin\tool\dev\builder\printer\ShortenPrinter;
 use blugin\tool\dev\builder\printer\StandardPrinter;
@@ -52,6 +53,7 @@ use blugin\tool\dev\builder\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\dev\builder\visitor\PrivatePropertyRenamingVisitor;
 use blugin\tool\dev\utils\Utils;
+use blugin\tool\dev\virion\VirionInjector;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
@@ -63,6 +65,9 @@ class AdvancedBuilder{
 
     /** @var mixed[] */
     private $baseOption = [];
+
+    public const DIR_PREPARE = "prepare";
+    public const DIR_BUILDED = "builded";
 
     public const RENAMER_SHORTEN = "shorten";
     public const RENAMER_SERIAL = "serial";
@@ -109,7 +114,8 @@ class AdvancedBuilder{
     }
 
     /** @param mixed[] $metadata */
-    public function buildPhar(string $filePath, string $pharPath, array $metadata) : void{
+    public function buildPhar(string $sourceDir, string $pharPath, array $metadata) : void{
+        $sourceDir = Utils::cleanDirName($sourceDir);
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
@@ -119,80 +125,107 @@ class AdvancedBuilder{
             }
         }
 
-        //Remove the existing build folder and remake
-        $buildPath = "{$this->getTools()->getDataFolder()}build/";
-        Utils::clearDirectory($buildPath);
+        $prepareDir = $this->loadDir(self::DIR_PREPARE, true);
+        $buildDir = $this->loadDir(self::DIR_BUILDED, true);
 
-        //Pre-build processing execution
-        $config = $this->loadOption($filePath);
-        (new BuildPrepareEvent($this, $filePath, $config))->call();
-
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath, \FilesystemIterator::SKIP_DOTS)) as $path => $fileInfo){
-            if($config->getNested("build.include-minimal", true)){
-                $inPath = substr($path, strlen($filePath));
-                if($inPath !== "plugin.yml" && strpos($inPath, "src\\") !== 0 && strpos($inPath, "resources\\") !== 0)
+        //Prepare to copy files for build
+        $option = $this->loadOption($sourceDir);
+        $prepareEvent = new BuildPrepareEvent($this, $sourceDir, $option);
+        foreach(Utils::readDirectory($sourceDir, true) as $path){
+            if($option->getNested("build.include-minimal", true)){
+                $innerPath = substr($path, strlen($sourceDir));
+                if($innerPath !== "plugin.yml" && strpos($innerPath, "src/") !== 0 && strpos($innerPath, "resources/") !== 0)
                     continue;
             }
+            $prepareEvent->addFile($path, substr_replace($path, $prepareDir, 0, strlen($sourceDir)));
+        }
+        $prepareEvent->call();
+        foreach($prepareEvent->getFiles() as $path => $newPath){
+            $newDir = dirname($newPath);
+            if(!file_exists($newDir)){
+                mkdir($newDir, 0777, true);
+            }
 
-            $out = substr_replace($path, $buildPath, 0, strlen($filePath));
-            $outDir = dirname($out);
-            if(!file_exists($outDir)){
-                mkdir($outDir, 0777, true);
+            if(is_file($path)){
+                copy($path, $newPath);
+            }
+        }
+
+        //Infect virions by '.poggit.yml' or option
+        if(file_exists($poggitYmlFile = $sourceDir . ".poggit.yml")){
+            $poggitYml = yaml_parse(file_get_contents($poggitYmlFile));
+            if(is_array($poggitYml) && isset($poggitYml["projects"])){
+                foreach($poggitYml["projects"] as $projectOption){
+                    if(empty($projectOption["path"])){
+                        $option->setNested("virions", $projectOption["libs"] ?? []);
+                        break;
+                    }
+                }
+            }
+        }
+        VirionInjector::injectAll($prepareDir, $option);
+
+        //Build with various options
+        (new BuildStartEvent($this, $sourceDir, $option))->call();
+        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        foreach(Utils::readDirectory($prepareDir, true) as $path){
+            $newPath = substr_replace($path, $buildDir, 0, strlen($prepareDir));
+            $newDir = dirname($newPath);
+            if(!file_exists($newDir)){
+                mkdir($newDir, 0777, true);
             }
 
             if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
                 try{
-                    $contents = file_get_contents($fileInfo->getPathName());
-                    $originalStmts = $parser->parse($contents);
-                    $originalStmts = $this->traversers[Priority::BEFORE_SPLIT]->traverse($originalStmts);
+                    $originStmts = $parser->parse(file_get_contents($path));
+                    $originStmts = $this->traversers[Priority::BEFORE_SPLIT]->traverse($originStmts);
 
-                    $files = [$matchs[1] => $originalStmts];
-                    if($config->getNested("preprocessing.spliting", true)){
-                        $files = CodeSpliter::splitNodes($originalStmts, $matchs[1]);
+                    $files = [$matchs[1] => $originStmts];
+                    if($option->getNested("preprocessing.spliting", true)){
+                        $files = CodeSpliter::splitNodes($originStmts, $matchs[1]);
                     }
 
                     foreach($files as $filename => $stmts){
                         foreach(Priority::DEFAULTS as $priority){
                             $stmts = $this->traversers[$priority]->traverse($stmts);
                         }
-                        file_put_contents($outDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter($this->printerMode)->print($stmts));
+                        file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", $this->getPrinter($this->printerMode)->print($stmts));
                     }
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
                 }
             }else{
-                copy($path, $out);
+                copy($path, $newPath);
             }
         }
 
         //Build the plugin with .phar file
         $phar = new \Phar($pharPath);
         $phar->setSignatureAlgorithm(\Phar::SHA1);
-        if(!$config->getNested("build.skip-metadata", true)){
+        if(!$option->getNested("build.skip-metadata", true)){
             $phar->setMetadata($metadata);
         }
-        if(!$config->getNested("build.skip-stub", true)){
+        if(!$option->getNested("build.skip-stub", true)){
             $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$metadata["name"]}_v{$metadata["version"]}\nThis file has been generated using BluginBuilder at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
         }else{
             $phar->setStub("<?php __HALT_COMPILER();");
         }
         $phar->startBuffering();
-        $phar->buildFromDirectory($buildPath);
+        $phar->buildFromDirectory($buildDir);
         if(\Phar::canCompress(\Phar::GZ)){
             $phar->compressFiles(\Phar::GZ);
         }
         $phar->stopBuffering();
-        (new BuildCompleteEvent($this, $filePath, $config))->call();
+        (new BuildCompleteEvent($this, $sourceDir, $option))->call();
     }
 
     public function getTools() : BluginTools{
         return $this->tools;
     }
 
-    public function loadOption(string $path, int $type = Config::DETECT) : Config{
-        if(!is_file($file = "$path.advancedbuilder.yml")){
-            $file = "{$this->getTools()->getDataFolder()}build/.advancedbuilder.yml";
+    public function loadOption(string $dir, int $type = Config::DETECT) : Config{
+        if(!is_file($file = "$dir.advancedbuilder.yml")){
+            $file = $this->loadDir(self::DIR_BUILDED) . ".advancedbuilder.yml";
         }
         $option = new Config($file, $type, $this->baseOption);
 
@@ -280,5 +313,16 @@ class AdvancedBuilder{
 
     public function registerRenamer(string $mode, Renamer $renamer) : void{
         $this->renamers[$mode] = $renamer;
+    }
+
+    public function loadDir(string $dirname, bool $clean = false) : string{
+        $dir = Utils::cleanDirName($this->getTools()->getDataFolder() . $dirname);
+        if(!file_exists($dir)){
+            mkdir($dir, 0777, true);
+        }
+        if($clean){
+            Utils::clearDirectory($dir);
+        }
+        return $dir;
     }
 }

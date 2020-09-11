@@ -41,7 +41,7 @@ class ImportForcingVisitor extends NameResolver{
     use GetFullyQualifiedTrait;
 
     /** @var UseUse[] */
-    private $uses = [], $unregisterUses = [];
+    private $uses = [], $newUses = [];
 
     /**
      * @param Node[] $nodes
@@ -51,7 +51,7 @@ class ImportForcingVisitor extends NameResolver{
     public function beforeTraverse(array $nodes){
         $this->nameContext->startNamespace();
         $this->uses = [];
-        $this->unregisterUses = [];
+        $this->newUses = [];
         $this->registerUses($nodes);
         return $nodes;
     }
@@ -83,7 +83,7 @@ class ImportForcingVisitor extends NameResolver{
                     return $this->resolveGlobal($result) ?? $name;
                 }
                 $lastPart = array_pop($parts);
-                $this->unregisterUses[$code] = new UseUse(new Name(ltrim($code, "\\")), $lastPart === $originalName ? null : new Node\Identifier($originalName), Use_::TYPE_NORMAL);
+                $this->newUses[$code] = new UseUse(new Name(ltrim($code, "\\")), $lastPart === $originalName ? null : new Node\Identifier($originalName), Use_::TYPE_NORMAL);
                 return new Name($originalName, $name->getAttributes());
             }
         }else{
@@ -122,10 +122,10 @@ class ImportForcingVisitor extends NameResolver{
             if($node instanceof Namespace_){
                 foreach($node->stmts as $child){
                     if($child instanceof ClassLike){
-                        unset($this->unregisterUses["\\" . $child->namespacedName->toCodeString()]);
+                        unset($this->newUses["\\" . $child->namespacedName->toCodeString()]);
                     }
                 }
-                foreach($this->unregisterUses as $use){
+                foreach($this->newUses as $use){
                     array_unshift($node->stmts, new Use_([$use]));
                 }
                 return;
@@ -155,7 +155,7 @@ class ImportForcingVisitor extends NameResolver{
         }elseif(defined($fullCode)){
             $use->type = Use_::TYPE_CONSTANT;
         }
-        $this->unregisterUses[$fullCode] = $use;
+        $this->newUses[$fullCode] = $use;
         return new Name($code, $name->getAttributes());
     }
 }

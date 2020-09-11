@@ -27,25 +27,5 @@ declare(strict_types=1);
 
 namespace blugin\tool\dev\builder\event;
 
-class BuildPrepareEvent extends BuildEvent{
-    /** @var string[] path => new path */
-    protected $files = [];
-
-    /** @return string[] */
-    public function getFiles() : array{
-        return $this->files;
-    }
-
-    /** @param string[] $files */
-    public function setFiles(array $files) : void{
-        $this->files = $files;
-    }
-
-    public function addFile(string $path, string $newPath) : void{
-        $this->files[$path] = $newPath;
-    }
-
-    public function removeFile(string $path) : void{
-        unset($this->files[$path]);
-    }
+class BuildStartEvent extends BuildEvent{
 }

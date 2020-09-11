@@ -30,6 +30,7 @@ namespace blugin\tool\dev;
 use blugin\lib\translator\traits\MultilingualConfigTrait;
 use blugin\tool\dev\builder\AdvancedBuilder;
 use blugin\tool\dev\folderloader\FolderPluginLoader;
+use blugin\tool\dev\virion\VirionLoader;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginLoadOrder;
 
@@ -47,6 +48,9 @@ class BluginTools extends PluginBase{
     /** @var AdvancedBuilder */
     private $builder = null;
 
+    /** @var VirionLoader */
+    private $virionLoader = null;
+
     /** @var FolderPluginLoader */
     private $pluginLoader = null;
 
@@ -54,6 +58,7 @@ class BluginTools extends PluginBase{
         self::$instance = $this;
 
         $this->builder = new AdvancedBuilder($this);
+        $this->virionLoader = new VirionLoader($this);
         $this->pluginLoader = new FolderPluginLoader($this->getServer()->getLoader());
         $this->getServer()->getPluginManager()->registerInterface($this->pluginLoader);
     }
@@ -66,6 +71,10 @@ class BluginTools extends PluginBase{
 
     public function getBuilder() : AdvancedBuilder{
         return $this->builder;
+    }
+
+    public function getVirionLoader() : VirionLoader{
+        return $this->virionLoader;
     }
 
     public function getPluginLoader() : FolderPluginLoader{
