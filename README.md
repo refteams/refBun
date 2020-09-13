@@ -1,26 +1,26 @@
-<p align="center"> <img src="https://ghcdn.rawgit.org/Blugin/BluginBuilder-PMMP/master/icon.png" width="360"> </p>
-<br> <h1 align="center"> BluginBuilder :: Build the plugin with more option! </h1>
+<p align="center"> <img src="https://ghcdn.rawgit.org/Blugin/BluginTools/master/icon.png" width="360"> </p>
+<br> <h1 align="center"> BluginTools :: Several tools to help with pmmp plugin development </h1>
 <p align="right">  
-  <a href="https://github.com/Blugin/BluginBuilder-PMMP/blob/master/README_KOR.md">  
+  <a href="https://github.com/Blugin/BluginTools/blob/master/README_KOR.md">  
     <img src="https://img.shields.io/static/v1?label=%ED%95%9C%EA%B5%AD%EC%96%B4&message=%EB%A1%9C+%EC%9D%BD%EA%B8%B0&labelColor=success">  
   </a>  
 </p>  
 <p align="center">  
-  <a href="https://poggit.pmmp.io/ci/Blugin/BluginBuilder-PMMP/BluginBuilder">  
-    <img src="https://poggit.pmmp.io/ci.shield/Blugin/BluginBuilder-PMMP/BluginBuilder?style=flat-square">  
+  <a href="https://poggit.pmmp.io/ci/Blugin/BluginTools/BluginTools">  
+    <img src="https://poggit.pmmp.io/ci.shield/Blugin/BluginTools/BluginTools?style=flat-square">  
   </a>  
-  <a href="https://github.com/Blugin/BluginBuilder-PMMP/releases">  
-    <img src="https://img.shields.io/github/release/Blugin/BluginBuilder-PMMP.svg?style=flat-square">  
+  <a href="https://github.com/Blugin/BluginTools/releases">  
+    <img src="https://img.shields.io/github/release/Blugin/BluginTools.svg?style=flat-square">  
   </a>  
-  <a href="https://github.com/Blugin/BluginBuilder-PMMP/releases">  
-    <img src="https://img.shields.io/github/downloads/Blugin/BluginBuilder-PMMP/total.svg?style=flat-square">  
+  <a href="https://github.com/Blugin/BluginTools/releases">  
+    <img src="https://img.shields.io/github/downloads/Blugin/BluginTools/total.svg?style=flat-square">  
   </a>  
   </a>  
-  <a href="https://github.com/Blugin/BluginBuilder-PMMP/blob/master/LICENSE">  
-    <img src="https://img.shields.io/github/license/Blugin/BluginBuilder-PMMP.svg?style=flat-square">  
+  <a href="https://github.com/Blugin/BluginTools/blob/master/LICENSE">  
+    <img src="https://img.shields.io/github/license/Blugin/BluginTools.svg?style=flat-square">  
   </a>  
-  <a href="http://hits.dwyl.com/Blugin/BluginBuilder-PMMP">  
-    <img src="http://hits.dwyl.com/Blugin/BluginBuilder-PMMP.svg">  
+  <a href="http://hits.dwyl.com/Blugin/BluginTools">  
+    <img src="http://hits.dwyl.com/Blugin/BluginTools.svg">  
   </a>  
   <strong>
   <br> ✔️ Rename <code>local</code>/<code>private</code> elements with various format!
@@ -57,13 +57,13 @@
   
 | Version | Phar Download | Updates Note |  
 | :-----: | :-----------: | :----------: |    
-| 2.0.0 | [GitHub](https://github.com/Blugin/BluginBuilder-PMMP/releases/download/2.0.0/BluginBuilder_v2.0.0.phar)  | **Init plugin (Implements plugin features)** |  
+| 2.0.0 | [GitHub](https://github.com/Blugin/BluginTools/releases/download/2.0.0/BluginTools_v2.0.0.phar)  | **Init plugin (Implements plugin features)** |  
   
-> **All released versions [here](https://github.com/Blugin/BluginBuilder-PMMP/releases)**  
+> **All released versions [here](https://github.com/Blugin/BluginTools/releases)**  
   
 <br>   
   
 ## :memo: License  
-> You can check out the full license [here](https://github.com/Blugin/BluginBuilder-PMMP/blob/master/LICENSE)  
+> You can check out the full license [here](https://github.com/Blugin/BluginTools/blob/master/LICENSE)  
   
 This project licensed under the terms of the **LGPL 3.0**  
