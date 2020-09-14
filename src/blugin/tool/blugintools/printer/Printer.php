@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\printer;
 
-use blugin\tool\blugintools\traits\SelfFactoryTrait;
+use blugin\lib\traits\selffactory\SelfFactoryTrait;
 use PhpParser\Node;
 
 abstract class Printer{

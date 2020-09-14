@@ -27,10 +27,10 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools;
 
+use blugin\lib\traits\singleton\SingletonTrait;
 use blugin\tool\blugintools\builder\AdvancedBuilder;
 use blugin\tool\blugintools\loader\FolderPluginLoader;
 use blugin\tool\blugintools\loader\virion\VirionLoader;
-use blugin\tool\blugintools\traits\SingletonTrait;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
@@ -41,8 +41,8 @@ class BluginTools extends PluginBase{
     public function onLoad(){
         self::$instance = $this;
 
-        AdvancedBuilder::getInstance()->prepare();
         VirionLoader::getInstance()->prepare();
+        AdvancedBuilder::getInstance()->prepare();
     }
 
     public function onEnable(){
