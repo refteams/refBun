@@ -27,7 +27,6 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools;
 
-use blugin\lib\translator\traits\MultilingualConfigTrait;
 use blugin\tool\blugintools\builder\AdvancedBuilder;
 use blugin\tool\blugintools\loader\FolderPluginLoader;
 use blugin\tool\blugintools\loader\virion\VirionLoader;
@@ -37,7 +36,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
 class BluginTools extends PluginBase{
-    use SingletonTrait, MultilingualConfigTrait;
+    use SingletonTrait;
 
     public function onLoad(){
         self::$instance = $this;

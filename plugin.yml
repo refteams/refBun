@@ -7,7 +7,6 @@ authors: ['Blugin-team', 'PresentKim']
 description: '[tool] Several tools to help with pmmp plugin development'
 load: STARTUP
 loadbefore: ['DevTools']
-depend: ['libTranslator']
 
 commands:
   bluginbuilder:
