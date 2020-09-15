@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\traits;
 
-use blugin\lib\traits\singleton\SingletonTrait;
+use blugin\traits\singleton\SingletonTrait;
 
 trait SingletonFactoryTrait{
     use SingletonTrait;

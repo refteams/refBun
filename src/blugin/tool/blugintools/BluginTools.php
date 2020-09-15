@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools;
 
-use blugin\lib\traits\singleton\SingletonTrait;
+use blugin\traits\singleton\SingletonTrait;
 use blugin\tool\blugintools\builder\AdvancedBuilder;
 use blugin\tool\blugintools\loader\FolderPluginLoader;
 use blugin\tool\blugintools\loader\virion\VirionLoader;
