@@ -55,13 +55,13 @@ class BuildCommandExecutor implements CommandExecutor{
             ->map(function(string $pluginName){ return BluginTools::getPlugin($pluginName) ?? $pluginName; })
             ->filter(function($plugin) use ($sender, $failures) : bool{
                 if(!$plugin instanceof PluginBase){
-                    $sender->sendMessage(C::DARK_GRAY . " - $plugin is invalid plugin name");
+                    $sender->sendMessage(C::DARK_GRAY . " - " . ($pluginName = $plugin) . " is invalid plugin name");
                 }elseif($plugin->getPluginLoader() instanceof ScriptPluginLoader){
-                    $sender->sendMessage(C::DARK_GRAY . " - {$plugin->getName()} is script plugin");
+                    $sender->sendMessage(C::DARK_GRAY . " - " . ($pluginName = $plugin->getName()) . " is script plugin");
                 }else{
                     return true;
                 }
-                $failures[] = $plugin->getName();
+                $failures[] = $pluginName;
                 return false;
             })->map(function(PluginBase $plugin) use ($sender) : string{
                 $this->buildPlugin($plugin);
