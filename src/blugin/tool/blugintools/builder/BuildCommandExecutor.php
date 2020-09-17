@@ -28,12 +28,11 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\builder;
 
 use blugin\tool\blugintools\BluginTools;
-use blugin\tool\blugintools\loader\FolderPluginLoader as BluginPluginLoader;
-use FolderPluginLoader\FolderPluginLoader as DevToolsPluginLoader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
 use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
+use pocketmine\plugin\ScriptPluginLoader;
 use pocketmine\Server;
 
 class BuildCommandExecutor implements CommandExecutor{
@@ -58,7 +57,7 @@ class BuildCommandExecutor implements CommandExecutor{
         $pluginManager = Server::getInstance()->getPluginManager();
         if($args[0] === "*"){
             foreach($pluginManager->getPlugins() as $pluginName => $plugin){
-                if($plugin->getPluginLoader() instanceof DevToolsPluginLoader || $plugin->getPluginLoader() instanceof BluginPluginLoader){
+                if(!$plugin->getPluginLoader() instanceof ScriptPluginLoader){
                     $plugins[$plugin->getName()] = $plugin;
                 }
             }
@@ -67,8 +66,8 @@ class BuildCommandExecutor implements CommandExecutor{
                 $plugin = BluginTools::getPlugin($pluginName);
                 if($plugin === null){
                     $sender->sendMessage("{$pluginName} is invalid plugin name");
-                }elseif(!($plugin->getPluginLoader() instanceof BluginPluginLoader || $plugin->getPluginLoader() instanceof DevToolsPluginLoader)){
-                    $sender->sendMessage("{$plugin->getName()} is not in folder plugin");
+                }elseif($plugin->getPluginLoader() instanceof ScriptPluginLoader){
+                    $sender->sendMessage("{$plugin->getName()} is script plugin!");
                 }else{
                     $plugins[$plugin->getName()] = $plugin;
                 }
@@ -94,7 +93,7 @@ class BuildCommandExecutor implements CommandExecutor{
         $reflection = new \ReflectionClass(PluginBase::class);
         $fileProperty = $reflection->getProperty("file");
         $fileProperty->setAccessible(true);
-        $sourcePath = rtrim(realpath($fileProperty->getValue($plugin)), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $sourcePath = BluginTools::cleanDirName($fileProperty->getValue($plugin));
 
         $pharPath = BluginTools::getInstance()->getDataFolder() . "{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar";
 
