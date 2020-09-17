@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\visitor;
 
+use blugin\utils\arrays\ArrayUtil as Arr;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
@@ -46,32 +47,25 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
             return null;
 
         //Store meaningfull comments
-        $docComments = [];
         $docText = $doc->getText();
-        foreach(self::getAllowList() as $_ => $regex){
-            if(preg_match($regex, $docText, $matches) > 0){
-                $docComments[] = implode(" ", array_slice($matches, 1));
-            }
-        }
+        $docComments = Arr::from(self::getAllowList())
+            ->map(function(string $regex) use ($docText): array{ return preg_match($regex, $docText, $matches) ? $matches : []; })
+            ->filter(function(array $matches) : bool{ return !empty($matches); })
+            ->map(function(array $matches) : string{ return implode(" ", array_slice($matches, 1)); });
 
         //If the comment has no meaningfull comments, skip.
-        if(empty($docComments))
+        if($docComments->count() === 0)
             return null;
 
         //Add doc comment
-        $text = "/**" . PHP_EOL;
-        foreach($docComments as $value){
-            $text .= "* @$value" . PHP_EOL;
-        }
-        $text .= "*/";
-        $node->setAttribute("comments", [new Doc($text)]);
+        $node->setAttribute("comments", [new Doc($docComments->join(PHP_EOL . "* @", "/**", PHP_EOL . "*/"))]);
         return $node;
     }
 
     /** @return string[] regex format[] */
     public static function getAllowList() : array{
         if(self::$allowList === null){
-            self::initMeaningfullList();;
+            self::initMeaningfullList();
         }
         return self::$allowList;
     }
@@ -79,7 +73,7 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
     /** @param string $regex */
     public static function register(string $regex) : void{
         if(self::$allowList === null){
-            self::initMeaningfullList();;
+            self::initMeaningfullList();
         }
         self::$allowList[] = $regex;
     }

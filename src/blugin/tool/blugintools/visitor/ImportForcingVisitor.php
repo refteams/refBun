@@ -86,7 +86,7 @@ class ImportForcingVisitor extends NameResolver{
         return $name; //Return original name instead of resolved name
     }
 
-    /** @param Node[] $nodes * */
+    /** @param Node[] $nodes */
     private function registerUses(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){
@@ -102,7 +102,7 @@ class ImportForcingVisitor extends NameResolver{
         }
     }
 
-    /** @param Node[] $nodes * */
+    /** @param Node[] $nodes */
     private function appendUsesToNamespace(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Namespace_){

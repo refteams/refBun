@@ -4,4 +4,6 @@ virions:
     version: ^1.0.0
   - src: Blugin/virions/SelfFactoryTrait
     version: ^1.0.0
+  - src: Blugin/virions/arrayutils
+    version: ^1.2.0
 ...
