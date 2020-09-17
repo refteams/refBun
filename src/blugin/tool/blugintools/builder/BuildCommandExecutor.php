@@ -76,11 +76,9 @@ class BuildCommandExecutor implements CommandExecutor{
         $pluginCount = count($plugins);
         $sender->sendMessage("Start build the {$pluginCount} plugins");
 
-        if(!file_exists($dataFolder = BluginTools::getInstance()->getDataFolder())){
-            mkdir($dataFolder, 0777, true);
-        }
         foreach($plugins as $pluginName => $plugin){
             $pharName = "{$pluginName}_v{$plugin->getDescription()->getVersion()}.phar";
+        $dataFolder = BluginTools::getInstance()->getDataFolder();
             $this->buildPlugin($plugin);
             $sender->sendMessage("$pharName has been created on $dataFolder");
         }
