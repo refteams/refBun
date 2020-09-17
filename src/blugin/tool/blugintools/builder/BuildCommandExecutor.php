@@ -56,21 +56,19 @@ class BuildCommandExecutor implements CommandExecutor{
         $plugins = [];
         $pluginManager = Server::getInstance()->getPluginManager();
         if($args[0] === "*"){
+            $args = [];
             foreach($pluginManager->getPlugins() as $pluginName => $plugin){
-                if(!$plugin->getPluginLoader() instanceof ScriptPluginLoader){
-                    $plugins[$plugin->getName()] = $plugin;
-                }
+                $args[] = $plugin->getName();
             }
-        }else{
-            foreach($args as $key => $pluginName){
-                $plugin = BluginTools::getPlugin($pluginName);
-                if($plugin === null){
-                    $sender->sendMessage("{$pluginName} is invalid plugin name");
-                }elseif($plugin->getPluginLoader() instanceof ScriptPluginLoader){
-                    $sender->sendMessage("{$plugin->getName()} is script plugin!");
-                }else{
-                    $plugins[$plugin->getName()] = $plugin;
-                }
+        }
+        foreach($args as $key => $pluginName){
+            $plugin = BluginTools::getPlugin($pluginName);
+            if($plugin === null){
+                $sender->sendMessage("{$pluginName} is invalid plugin name");
+            }elseif($plugin->getPluginLoader() instanceof ScriptPluginLoader){
+                $sender->sendMessage("{$plugin->getName()} is script plugin!");
+            }else{
+                $plugins[$plugin->getName()] = $plugin;
             }
         }
         $pluginCount = count($plugins);
@@ -78,7 +76,7 @@ class BuildCommandExecutor implements CommandExecutor{
 
         foreach($plugins as $pluginName => $plugin){
             $pharName = "{$pluginName}_v{$plugin->getDescription()->getVersion()}.phar";
-        $dataFolder = BluginTools::getInstance()->getDataFolder();
+            $dataFolder = BluginTools::getInstance()->getDataFolder();
             $this->buildPlugin($plugin);
             $sender->sendMessage("$pharName has been created on $dataFolder");
         }
