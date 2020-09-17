@@ -37,13 +37,6 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat as C;
 
 class BuildCommandExecutor implements CommandExecutor{
-    /** @var AdvancedBuilder */
-    private $builder;
-
-    public function __construct(AdvancedBuilder $plugin){
-        $this->builder = $plugin;
-    }
-
     /**
      * @param string[] $args
      *
@@ -105,6 +98,6 @@ class BuildCommandExecutor implements CommandExecutor{
             "website" => $description->getWebsite(),
             "creationDate" => time()
         ];
-        $this->builder->buildPhar($sourcePath, $pharPath, $metadata);
+        AdvancedBuilder::getInstance()->buildPhar($sourcePath, $pharPath, $metadata);
     }
 }

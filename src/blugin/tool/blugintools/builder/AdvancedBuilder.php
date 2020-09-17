@@ -77,7 +77,7 @@ class AdvancedBuilder{
 
         $command = BluginTools::getInstance()->getCommand("bluginbuilder");
         if($command instanceof PluginCommand){
-            $command->setExecutor(new BuildCommandExecutor($this));
+            $command->setExecutor(new BuildCommandExecutor());
         }
     }
 
