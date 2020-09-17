@@ -71,7 +71,9 @@ class BuildCommandExecutor implements CommandExecutor{
                 $plugins[$plugin->getName()] = $plugin;
             }
         }
-        $pluginCount = count($plugins);
+        if(($pluginCount = count($plugins)) === 0)
+            return true;
+
         $sender->sendMessage("Start build the {$pluginCount} plugins");
 
         foreach($plugins as $pluginName => $plugin){
