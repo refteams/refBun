@@ -74,13 +74,12 @@ class BuildCommandExecutor implements CommandExecutor{
         if(($pluginCount = count($plugins)) === 0)
             return true;
 
-        $sender->sendMessage("Start build the {$pluginCount} plugins");
+        $sender->sendMessage("Start build the {$pluginCount} plugins. (create in " . BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder()) . ")");
 
         foreach($plugins as $pluginName => $plugin){
             $pharName = "{$pluginName}_v{$plugin->getDescription()->getVersion()}.phar";
-            $dataFolder = BluginTools::getInstance()->getDataFolder();
             $this->buildPlugin($plugin);
-            $sender->sendMessage("$pharName has been created on $dataFolder");
+            $sender->sendMessage("- $pluginName has been builded to $pharName");
         }
         $sender->sendMessage("Complete built the {$pluginCount} plugins");
         return true;
