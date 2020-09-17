@@ -34,6 +34,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\ScriptPluginLoader;
 use pocketmine\Server;
+use pocketmine\utils\TextFormat as C;
 
 class BuildCommandExecutor implements CommandExecutor{
     /** @var AdvancedBuilder */
@@ -52,8 +53,6 @@ class BuildCommandExecutor implements CommandExecutor{
         if(empty($args))
             return false;
 
-        /** @var PluginBase[] $plugins */
-        $plugins = [];
         $pluginManager = Server::getInstance()->getPluginManager();
         if($args[0] === "*"){
             $args = [];
@@ -61,27 +60,27 @@ class BuildCommandExecutor implements CommandExecutor{
                 $args[] = $plugin->getName();
             }
         }
+        $sender->sendMessage(C::AQUA . "[PluginBuild] Start build the " . count($args) . " plugins. (create in " . C::DARK_AQUA . BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder()) . C::AQUA . ")");
+
+        $successes = [];
+        $failures = [];
         foreach($args as $key => $pluginName){
+            /** @var PluginBase|null $plugin */
             $plugin = BluginTools::getPlugin($pluginName);
             if($plugin === null){
-                $sender->sendMessage("{$pluginName} is invalid plugin name");
+                $failures[] = $pluginName;
+                $sender->sendMessage(C::DARK_GRAY . " - $pluginName is invalid plugin name");
             }elseif($plugin->getPluginLoader() instanceof ScriptPluginLoader){
-                $sender->sendMessage("{$plugin->getName()} is script plugin!");
+                $failures[] = $pluginName;
+                $sender->sendMessage(C::DARK_GRAY . " - {$plugin->getName()} is script plugin");
             }else{
-                $plugins[$plugin->getName()] = $plugin;
+                $successes[] = $pluginName;
+                $this->buildPlugin($plugin);
+                $sender->sendMessage(C::DARK_GRAY . " + {$plugin->getName()} has been builded to {$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar");
             }
         }
-        if(($pluginCount = count($plugins)) === 0)
-            return true;
-
-        $sender->sendMessage("Start build the {$pluginCount} plugins. (create in " . BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder()) . ")");
-
-        foreach($plugins as $pluginName => $plugin){
-            $pharName = "{$pluginName}_v{$plugin->getDescription()->getVersion()}.phar";
-            $this->buildPlugin($plugin);
-            $sender->sendMessage("- $pluginName has been builded to $pharName");
-        }
-        $sender->sendMessage("Complete built the {$pluginCount} plugins");
+        $sender->sendMessage(C::AQUA . "[PluginBuild] All plugin builds are complete. " . C::GREEN . count($successes) . " successes  " . C::RED . count($failures) . " failures");
+        $sender->sendMessage(C::AQUA . " - Results (" . count($args) . "): " . C::GREEN . implode(", ", $successes) . C::RESET . ", " . C::RED . implode(", ", $failures));
         return true;
     }
 
