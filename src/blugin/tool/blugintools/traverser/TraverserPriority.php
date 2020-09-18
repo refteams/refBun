@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\blugintools\builder;
+namespace blugin\tool\blugintools\traverser;
 
 use pocketmine\event\EventPriority as Priority;
 

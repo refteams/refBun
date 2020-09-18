@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\traverser;
 
 use blugin\traits\selffactory\SelfFactoryTrait;
-use blugin\tool\blugintools\builder\TraverserPriority as Priority;
+use blugin\tool\blugintools\traverser\TraverserPriority as Priority;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitorAbstract;
