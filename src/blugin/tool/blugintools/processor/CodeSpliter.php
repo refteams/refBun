@@ -66,7 +66,10 @@ final class CodeSpliter{
             }
         }
         if($classLikes !== null){
-            $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+            static $parser = null;
+            if($parser === null){
+                $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+            }
             $printer = Printer::getClone(Printer::PRINTER_STANDARD);
             foreach($classLikes as $classLike){
                 //TODO: Deep copy implement instead of re-parse trick

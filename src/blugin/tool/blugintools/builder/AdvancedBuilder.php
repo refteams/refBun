@@ -135,7 +135,10 @@ class AdvancedBuilder{
 
         //Build with various options
         (new BuildStartEvent($this, $sourceDir, $option))->call();
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        static $parser = null;
+        if($parser === null){
+            $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        }
         foreach(BluginTools::readDirectory($prepareDir, true) as $path){
             if(substr($path, strlen($prepareDir)) === self::OPTION_FILE) //skip option file
                 continue;
