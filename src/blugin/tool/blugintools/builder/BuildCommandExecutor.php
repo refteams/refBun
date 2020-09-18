@@ -76,10 +76,12 @@ class BuildCommandExecutor implements CommandExecutor{
 
     /** @throws \ReflectionException */
     public function buildPlugin(PluginBase $plugin) : void{
-        $reflection = new \ReflectionClass(PluginBase::class);
-        $fileProperty = $reflection->getProperty("file");
-        $fileProperty->setAccessible(true);
-        $sourcePath = BluginTools::cleanDirName($fileProperty->getValue($plugin));
+        static $fileProperty;
+        if(!isset($fileProperty)){
+            $reflection = new \ReflectionClass(PluginBase::class);
+            $fileProperty = $reflection->getProperty("file");
+            $fileProperty->setAccessible(true);
+        }
 
         AdvancedBuilder::getInstance()->buildPhar(
             $fileProperty->getValue($plugin),
