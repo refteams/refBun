@@ -28,13 +28,15 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\loader\virion;
 
 use blugin\tool\blugintools\BluginTools;
+use blugin\utils\arrays\ArrayUtil as Arr;
 use pocketmine\Server;
 
 class VirionInjector{
-    public static function injectAll(string $dir, string $namespace) : void{
+    public static function injectAll(string $dir, string $namespace, ?array $virionOptions = null) : void{
         $namespace = BluginTools::cleaNamespace($namespace);
+        $virionOptions = $virionOptions ?? Virion::getVirionOptions($dir);
         $virionLoader = VirionLoader::getInstance();
-        foreach(Virion::getVirionOptions($dir) as $virionOption){
+        foreach(self::filteredVirionOptions($dir, $virionOptions) as $virionOption){
             [$ownerName, $repoName, $virionName] = explode("/", $virionOption["src"]);
             $virion = $virionLoader->getVirion($virionName);
             if($virion === null){
@@ -46,21 +48,21 @@ class VirionInjector{
                 }
                 $virionLoader->register($virion);
             }
-            self::inject($dir, $namespace, $virion);
+            if(self::inject($dir, $antibody = $namespace . "libs\\" . $virion->getAntigen(), $virion)){
+                self::injectAll($dir, $antibody, $virion->getOptions());
+            }
         }
     }
 
-    public static function inject(string $dir, string $namespace, Virion $virion) : void{
+    public static function inject(string $dir, string $antibody, Virion $virion) : bool{
+        Server::getInstance()->getLogger()->info($dir);
         $antigen = $virion->getAntigen();
-        $infections = file_exists($infectionsPath = $dir . "virus-infections.json") ? json_decode(file_get_contents($infectionsPath), true) : [];
-        foreach($infections as $log){
-            if($antigen === $log["antigen"]){
-                Server::getInstance()->getLogger()->error("Could not infect virion '" . $virion->getName() . "': Already infected");
-                return;
-            }
+        $infections = file_exists($infectionsPath = $dir . Virion::INFECTION_FILE) ? json_decode(file_get_contents($infectionsPath), true) : [];
+        if(!Arr::validate($infections, function($_, array $log) use ($antigen): bool{ return $antigen !== $log["antigen"]; })){
+            Server::getInstance()->getLogger()->error("Could not infect virion '" . $virion->getName() . "': Already infected");
+            return false;
         }
 
-        $antibody = $namespace . "libs\\" . $antigen;
         $infections[$antibody] = $virion->getYml();
         file_put_contents($infectionsPath, json_encode($infections));
 
@@ -98,6 +100,7 @@ class VirionInjector{
                 }
             }
         }
+        return true;
     }
 
     public static function infect(string $chromosome, string $antigen, string $antibody) : string{
@@ -138,5 +141,14 @@ class VirionInjector{
         }
 
         return $ret;
+    }
+
+    public static function filteredVirionOptions(string $path, array $virionOptions) : array{
+        $virionLoader = VirionLoader::getInstance();
+        $infections = file_exists($infectionsPath = $path . Virion::INFECTION_FILE) ? json_decode(file_get_contents($infectionsPath), true) : [];
+        return Arr::filterAs($virionOptions, function(array $virionOption) use ($virionLoader, $infections): bool{
+            $virion = $virionLoader->getVirion(explode("/", $virionOption["src"])[2]);
+            return $virion === null || Arr::validate($infections, function($_, array $log) use ($virion): bool{ return $virion->getAntigen() !== $log["antigen"]; });
+        });
     }
 }

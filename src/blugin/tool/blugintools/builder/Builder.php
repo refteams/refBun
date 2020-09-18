@@ -31,6 +31,7 @@ use blugin\tool\blugintools\BluginTools;
 use blugin\tool\blugintools\builder\event\BuildCompleteEvent;
 use blugin\tool\blugintools\builder\event\BuildPrepareEvent;
 use blugin\tool\blugintools\builder\event\BuildStartEvent;
+use blugin\tool\blugintools\loader\virion\Virion;
 use blugin\tool\blugintools\loader\virion\VirionInjector;
 use blugin\tool\blugintools\printer\Printer;
 use blugin\tool\blugintools\processor\CodeSpliter;
@@ -121,7 +122,7 @@ class Builder{
         }
 
         //Infect virions by '.poggit.yml' or option
-        VirionInjector::injectAll($prepareDir, $namespace);
+        VirionInjector::injectAll($prepareDir, $namespace, Virion::getVirionOptions($sourceDir));
 
         //Build with various options
         (new BuildStartEvent($this, $sourceDir, $option))->call();

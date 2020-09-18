@@ -28,9 +28,12 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\loader\virion;
 
 use blugin\tool\blugintools\BluginTools;
+use blugin\tool\blugintools\builder\Builder;
 use pocketmine\Server;
 
 class Virion{
+    public const INFECTION_FILE = "virus-infections.json";
+
     /** @var string */
     private $name;
 
@@ -46,9 +49,13 @@ class Virion{
     /** @var mixed[] */
     private $yml;
 
-    public function __construct(string $path, array $yml){
+    /** @var mixed[] */
+    private $options;
+
+    public function __construct(string $path, array $yml, array $virionOption = []){
         $this->path = $path;
         $this->yml = $yml;
+        $this->options = $virionOption;
 
         $this->name = $yml["name"];
         $this->version = $yml["version"];
@@ -74,6 +81,11 @@ class Virion{
     /** @return mixed[] */
     public function getYml() : array{
         return $this->yml;
+    }
+
+    /** @return mixed[] */
+    public function getOptions() : array{
+        return $this->options;
     }
 
     public static function from(string $path) : ?Virion{
@@ -106,7 +118,8 @@ class Virion{
             }
         }
 
-        return new Virion($path, $data);
+        return new Virion($path, $data, self::getVirionOptions($path));
+    }
 
     public static function getVirionOptions(string $path, string $projectPath = "") : array{
         if(is_file($file = $path . ".poggit.yml") && is_array($manifest = yaml_parse(file_get_contents($file)))){
