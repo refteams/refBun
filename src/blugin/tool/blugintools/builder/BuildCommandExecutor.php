@@ -66,7 +66,7 @@ class BuildCommandExecutor implements CommandExecutor{
             })->map(function(PluginBase $plugin) use ($sender) : string{
                 $this->buildPlugin($plugin);
 
-                $sender->sendMessage(C::DARK_GRAY . " + {$plugin->getName()} has been builded to {$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar");
+                $sender->sendMessage(C::DARK_GRAY . " + {$plugin->getName()} has been builded to " . self::getPharName($plugin));
                 return $plugin->getName();
             });
         $sender->sendMessage(C::AQUA . "[PluginBuild] All plugin builds are complete. " . C::GREEN . "{$successes->count()} successes  " . C::RED . "{$failures->count()} failures");
@@ -81,20 +81,25 @@ class BuildCommandExecutor implements CommandExecutor{
         $fileProperty->setAccessible(true);
         $sourcePath = BluginTools::cleanDirName($fileProperty->getValue($plugin));
 
-        $pharPath = BluginTools::getInstance()->getDataFolder() . "{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar";
+        AdvancedBuilder::getInstance()->buildPhar(
+            $fileProperty->getValue($plugin),
+            BluginTools::loadDir() . self::getPharName($plugin),
+            preg_replace("/[a-z_][a-z\d_]*$/i", "", ($main = ($description = $plugin->getDescription())->getMain())),
+            [
+                "name" => $description->getName(),
+                "version" => $description->getVersion(),
+                "main" => $main,
+                "api" => $description->getCompatibleApis(),
+                "depend" => $description->getDepend(),
+                "description" => $description->getDescription(),
+                "authors" => $description->getAuthors(),
+                "website" => $description->getWebsite(),
+                "creationDate" => time()
+            ]
+        );
+    }
 
-        $description = $plugin->getDescription();
-        $metadata = [
-            "name" => $description->getName(),
-            "version" => $description->getVersion(),
-            "main" => $description->getMain(),
-            "api" => $description->getCompatibleApis(),
-            "depend" => $description->getDepend(),
-            "description" => $description->getDescription(),
-            "authors" => $description->getAuthors(),
-            "website" => $description->getWebsite(),
-            "creationDate" => time()
-        ];
-        AdvancedBuilder::getInstance()->buildPhar($sourcePath, $pharPath, preg_replace("/[a-z_][a-z\d_]*$/i", "", $description->getMain()), $metadata);
+    public static function getPharName(Plugin $plugin) : string{
+        return "{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar";
     }
 }

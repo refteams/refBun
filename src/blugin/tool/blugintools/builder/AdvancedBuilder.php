@@ -84,6 +84,7 @@ class AdvancedBuilder{
     /** @param mixed[] $metadata */
     public function buildPhar(string $sourceDir, string $pharPath, string $namespace, array $metadata = []) : void{
         $sourceDir = BluginTools::cleanDirName($sourceDir);
+        $pharPath = BluginTools::cleanPath($pharPath);
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
