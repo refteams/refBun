@@ -29,10 +29,8 @@ namespace blugin\tool\blugintools\loader\virion;
 
 use blugin\tool\blugintools\BluginTools;
 use pocketmine\Server;
-use pocketmine\utils\Config;
 
 class VirionInjector{
-    public static function injectAll(string $dir, Config $option) : void{
         if(!file_exists($ymlFile = $dir . "plugin.yml")){
             Server::getInstance()->getLogger()->error("Could not infect virion : plugin.yml missing");
             return;
@@ -44,16 +42,17 @@ class VirionInjector{
             return;
         }
 
+    public static function injectAll(string $dir, array $virionOptions) : void{
         $virionLoader = VirionLoader::getInstance();
         $prefix = preg_replace("/[a-z_][a-z\d_]*$/i", "", $pluginYml["main"]);
-        foreach($option->getNested("virions", []) as $virionOption){
+        foreach($virionOptions as $virionOption){
             [$ownerName, $repoName, $virionName] = explode("/", $virionOption["src"]);
             $virion = $virionLoader->getVirion($virionName);
             if($virion === null){
                 Server::getInstance()->getLogger()->info("Download virion '$virionName' from poggit.pmmp.io");
                 $virion = VirionDownloader::download($ownerName, $repoName, $virionName, $virionOption["version"]);
                 if($virion === null){
-                    Server::getInstance()->getLogger()->error("Could not infect virion '$virionName': Undefined virion");
+                    Server::getInstance()->getLogger()->error("Could not infect virion '{$virionOption["src"]}': Undefined virion");
                     continue;
                 }
                 $virionLoader->register($virion);

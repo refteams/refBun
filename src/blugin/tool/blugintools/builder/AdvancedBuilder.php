@@ -131,7 +131,7 @@ class AdvancedBuilder{
                 }
             }
         }
-        VirionInjector::injectAll($prepareDir, $option);
+        VirionInjector::injectAll($prepareDir, $main, $option->getNested("virions", []));
 
         //Build with various options
         (new BuildStartEvent($this, $sourceDir, $option))->call();
