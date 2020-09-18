@@ -91,6 +91,10 @@ class BluginTools extends PluginBase{
         return self::cleanPath($path) . "/";
     }
 
+    public static function cleaNamespace(string $path) : string{
+        return rtrim(str_replace("/", "\\", $path), "\\") . "\\";
+    }
+
     public static function getPlugin(string $name) : ?Plugin{
         $plugins = Server::getInstance()->getPluginManager()->getPlugins();
         if(isset($plugins[$name]))

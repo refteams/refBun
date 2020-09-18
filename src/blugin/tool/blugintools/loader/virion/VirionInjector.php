@@ -32,6 +32,8 @@ use pocketmine\Server;
 
 class VirionInjector{
     public static function injectAll(string $dir, string $namespace, array $virionOptions) : void{
+        $namespace = BluginTools::cleaNamespace($namespace);
+
         $virionLoader = VirionLoader::getInstance();
         foreach($virionOptions as $virionOption){
             [$ownerName, $repoName, $virionName] = explode("/", $virionOption["src"]);
