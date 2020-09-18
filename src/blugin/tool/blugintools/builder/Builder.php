@@ -56,7 +56,7 @@ use pocketmine\utils\Config;
 class Builder{
     use SingletonFactoryTrait;
 
-    public const OPTION_FILE = ".advancedbuilder.yml";
+    public const OPTION_FILE = ".buildoption.yml";
 
     public const DIR_PREPARE = "prepare";
     public const DIR_BUILDED = "builded";
