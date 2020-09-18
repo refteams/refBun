@@ -107,5 +107,22 @@ class Virion{
         }
 
         return new Virion($path, $data);
+
+    public static function getVirionOptions(string $path, string $projectPath = "") : array{
+        if(is_file($file = $path . ".poggit.yml") && is_array($manifest = yaml_parse(file_get_contents($file)))){
+            foreach(($manifest["projects"] ?? []) as $projectOption){
+                if(BluginTools::cleanDirName(($projectOption["path"] ?? "")) === BluginTools::cleanDirName($projectPath)){
+                    return $projectOption["libs"] ?? [];
+                }
+            }
+        }elseif(empty($projectPath)){
+            if(is_file($file = $path . Builder::OPTION_FILE) && is_array($manifest = yaml_parse(file_get_contents($file)))){
+                $manifest = yaml_parse(file_get_contents($file));
+                return $manifest["virion"] ?? [];
+            }else{
+                return self::getVirionOptions($parentDir = BluginTools::cleanDirName(dirname($path)), substr($path, strlen($parentDir)));
+            }
+        }
+        return [];
     }
 }

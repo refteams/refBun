@@ -121,18 +121,7 @@ class Builder{
         }
 
         //Infect virions by '.poggit.yml' or option
-        if(file_exists($poggitYmlFile = $sourceDir . ".poggit.yml")){
-            $poggitYml = yaml_parse(file_get_contents($poggitYmlFile));
-            if(is_array($poggitYml) && isset($poggitYml["projects"])){
-                foreach($poggitYml["projects"] as $projectOption){
-                    if(empty($projectOption["path"])){
-                        $option->setNested("virions", $projectOption["libs"] ?? []);
-                        break;
-                    }
-                }
-            }
-        }
-        VirionInjector::injectAll($prepareDir, $namespace, $option->getNested("virions", []));
+        VirionInjector::injectAll($prepareDir, $namespace);
 
         //Build with various options
         (new BuildStartEvent($this, $sourceDir, $option))->call();

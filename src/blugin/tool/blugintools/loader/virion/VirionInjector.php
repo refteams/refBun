@@ -31,11 +31,10 @@ use blugin\tool\blugintools\BluginTools;
 use pocketmine\Server;
 
 class VirionInjector{
-    public static function injectAll(string $dir, string $namespace, array $virionOptions) : void{
+    public static function injectAll(string $dir, string $namespace) : void{
         $namespace = BluginTools::cleaNamespace($namespace);
-
         $virionLoader = VirionLoader::getInstance();
-        foreach($virionOptions as $virionOption){
+        foreach(Virion::getVirionOptions($dir) as $virionOption){
             [$ownerName, $repoName, $virionName] = explode("/", $virionOption["src"]);
             $virion = $virionLoader->getVirion($virionName);
             if($virion === null){
