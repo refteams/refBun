@@ -33,7 +33,7 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitorAbstract;
 
-class AdvancedTraverser extends NodeTraverser{
+class Traverser extends NodeTraverser{
     use SelfFactoryTrait;
 
     /** @var NodeVisitor[] Visitors */
@@ -47,7 +47,7 @@ class AdvancedTraverser extends NodeTraverser{
 
     final public static function registerDefaults() : void{
         foreach(Priority::ALL as $priority){
-            self::register($priority, new AdvancedTraverser());
+            self::register($priority, new Traverser());
         }
     }
 

@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools;
 
-use blugin\tool\blugintools\builder\AdvancedBuilder;
+use blugin\tool\blugintools\builder\Builder;
 use blugin\tool\blugintools\loader\FolderPluginLoader;
 use blugin\tool\blugintools\loader\virion\VirionLoader;
 use blugin\traits\singleton\SingletonTrait;
@@ -42,11 +42,11 @@ class BluginTools extends PluginBase{
         self::$instance = $this;
 
         VirionLoader::getInstance()->prepare();
-        AdvancedBuilder::getInstance()->prepare();
+        Builder::getInstance()->prepare();
     }
 
     public function onEnable(){
-        AdvancedBuilder::getInstance()->init();
+        Builder::getInstance()->init();
         FolderPluginLoader::getInstance()->init();
     }
 

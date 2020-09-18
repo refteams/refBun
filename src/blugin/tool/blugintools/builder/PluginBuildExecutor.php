@@ -38,7 +38,7 @@ use pocketmine\plugin\ScriptPluginLoader;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as C;
 
-class BuildCommandExecutor implements CommandExecutor{
+class PluginBuildExecutor implements CommandExecutor{
     /** @param string[] $args */
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
         if(empty($args))
@@ -83,7 +83,7 @@ class BuildCommandExecutor implements CommandExecutor{
             $fileProperty->setAccessible(true);
         }
 
-        AdvancedBuilder::getInstance()->buildPhar(
+        Builder::getInstance()->buildPhar(
             $fileProperty->getValue($plugin),
             BluginTools::loadDir() . self::getPharName($plugin),
             preg_replace("/[a-z_][a-z\d_]*$/i", "", ($main = ($description = $plugin->getDescription())->getMain())),

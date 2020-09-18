@@ -37,7 +37,7 @@ use blugin\tool\blugintools\printer\Printer;
 use blugin\tool\blugintools\processor\CodeSpliter;
 use blugin\tool\blugintools\renamer\Renamer;
 use blugin\tool\blugintools\traits\SingletonFactoryTrait;
-use blugin\tool\blugintools\traverser\AdvancedTraverser;
+use blugin\tool\blugintools\traverser\Traverser;
 use blugin\tool\blugintools\visitor\CommentOptimizingVisitor;
 use blugin\tool\blugintools\visitor\ImportForcingVisitor;
 use blugin\tool\blugintools\visitor\ImportGroupingVisitor;
@@ -52,7 +52,7 @@ use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
 use pocketmine\utils\Config;
 
-class AdvancedBuilder{
+class Builder{
     use SingletonFactoryTrait;
 
     public const OPTION_FILE = ".advancedbuilder.yml";
@@ -69,7 +69,7 @@ class AdvancedBuilder{
     public function prepare(){
         Renamer::registerDefaults();
         Printer::registerDefaults();
-        AdvancedTraverser::registerDefaults();
+        Traverser::registerDefaults();
     }
 
     public function init(){
@@ -77,7 +77,7 @@ class AdvancedBuilder{
 
         $command = BluginTools::getInstance()->getCommand("bluginbuilder");
         if($command instanceof PluginCommand){
-            $command->setExecutor(new BuildCommandExecutor());
+            $command->setExecutor(new PluginBuildExecutor());
         }
     }
 
@@ -153,7 +153,7 @@ class AdvancedBuilder{
             if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
                 try{
                     $originStmts = $parser->parse(file_get_contents($path));
-                    $originStmts = AdvancedTraverser::get(Priority::BEFORE_SPLIT)->traverse($originStmts);
+                    $originStmts = Traverser::get(Priority::BEFORE_SPLIT)->traverse($originStmts);
 
                     $files = [$matchs[1] => $originStmts];
                     if($option->getNested("preprocessing.spliting", true)){
@@ -162,7 +162,7 @@ class AdvancedBuilder{
 
                     foreach($files as $filename => $stmts){
                         foreach(Priority::ALL as $priority){
-                            $stmts = AdvancedTraverser::get($priority)->traverse($stmts);
+                            $stmts = Traverser::get($priority)->traverse($stmts);
                         }
                         file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", Printer::getClone($this->printerMode)->print($stmts));
                     }
@@ -201,13 +201,13 @@ class AdvancedBuilder{
         $option = new Config($file, Config::DETECT, $this->baseOption);
 
         //Remove old visitors of traserver
-        foreach(AdvancedTraverser::getAll() as $traverser){
+        foreach(Traverser::getAll() as $traverser){
             $traverser->removeVisitors();
         }
 
         //Load pre-processing settings
         if($option->getNested("preprocessing.comment-optimizing", true)){
-            AdvancedTraverser::registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
+            Traverser::registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
         }
 
         //Load renaming mode settings
@@ -219,26 +219,26 @@ class AdvancedBuilder{
         ] as $key => $class){
             $renamer = Renamer::getClone($option->getNested("preprocessing.renaming.$key", "serial"));
             if($renamer !== null){
-                AdvancedTraverser::registerVisitor(Priority::NORMAL, new $class($renamer));
+                Traverser::registerVisitor(Priority::NORMAL, new $class($renamer));
             }
         }
 
         //Load import processing mode settings
         $mode = $option->getNested("preprocessing.importing.renaming", "serial");
         if($mode === "resolve"){
-            AdvancedTraverser::registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
+            Traverser::registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
         }else{
             if(($renamer = Renamer::getClone($mode)) !== null){
-                AdvancedTraverser::registerVisitor(Priority::HIGH, new ImportRenamingVisitor($renamer));
+                Traverser::registerVisitor(Priority::HIGH, new ImportRenamingVisitor($renamer));
             }
             if($option->getNested("preprocessing.importing.forcing", true)){
-                AdvancedTraverser::registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
+                Traverser::registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
             }
             if($option->getNested("preprocessing.importing.grouping", true)){
-                AdvancedTraverser::registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
+                Traverser::registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
             }
             if($option->getNested("preprocessing.importing.sorting", true)){
-                AdvancedTraverser::registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
+                Traverser::registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
             }
         }
 
