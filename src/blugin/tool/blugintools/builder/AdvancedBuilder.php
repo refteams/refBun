@@ -193,11 +193,11 @@ class AdvancedBuilder{
         (new BuildCompleteEvent($this, $sourceDir, $option))->call();
     }
 
-    public function loadOption(string $dir, int $type = Config::DETECT) : Config{
+    public function loadOption(string $dir) : Config{
         if(!is_file($file = $dir . self::OPTION_FILE)){
             $file = BluginTools::loadDir(self::DIR_PREPARE) . self::OPTION_FILE;
         }
-        $option = new Config($file, $type, $this->baseOption);
+        $option = new Config($file, Config::DETECT, $this->baseOption);
 
         //Remove old visitors of traserver
         foreach(AdvancedTraverser::getAll() as $traverser){
