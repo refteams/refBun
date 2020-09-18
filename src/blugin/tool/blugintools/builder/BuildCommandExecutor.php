@@ -95,6 +95,6 @@ class BuildCommandExecutor implements CommandExecutor{
             "website" => $description->getWebsite(),
             "creationDate" => time()
         ];
-        AdvancedBuilder::getInstance()->buildPhar($sourcePath, $pharPath, $metadata);
+        AdvancedBuilder::getInstance()->buildPhar($sourcePath, $pharPath, preg_replace("/[a-z_][a-z\d_]*$/i", "", $description->getMain()), $metadata);
     }
 }

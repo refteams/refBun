@@ -82,7 +82,7 @@ class AdvancedBuilder{
     }
 
     /** @param mixed[] $metadata */
-    public function buildPhar(string $sourceDir, string $pharPath, array $metadata) : void{
+    public function buildPhar(string $sourceDir, string $pharPath, string $namespace, array $metadata = []) : void{
         $sourceDir = BluginTools::cleanDirName($sourceDir);
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
@@ -131,7 +131,7 @@ class AdvancedBuilder{
                 }
             }
         }
-        VirionInjector::injectAll($prepareDir, $main, $option->getNested("virions", []));
+        VirionInjector::injectAll($prepareDir, $namespace, $option->getNested("virions", []));
 
         //Build with various options
         (new BuildStartEvent($this, $sourceDir, $option))->call();

@@ -31,20 +31,8 @@ use blugin\tool\blugintools\BluginTools;
 use pocketmine\Server;
 
 class VirionInjector{
-        if(!file_exists($ymlFile = $dir . "plugin.yml")){
-            Server::getInstance()->getLogger()->error("Could not infect virion : plugin.yml missing");
-            return;
-        }
-
-        $pluginYml = yaml_parse(file_get_contents($ymlFile));
-        if(!is_array($pluginYml) || !isset($pluginYml["main"])){
-            Server::getInstance()->getLogger()->error("Could not infect virion : Error parsing $ymlFile");
-            return;
-        }
-
-    public static function injectAll(string $dir, array $virionOptions) : void{
+    public static function injectAll(string $dir, string $namespace, array $virionOptions) : void{
         $virionLoader = VirionLoader::getInstance();
-        $prefix = preg_replace("/[a-z_][a-z\d_]*$/i", "", $pluginYml["main"]);
         foreach($virionOptions as $virionOption){
             [$ownerName, $repoName, $virionName] = explode("/", $virionOption["src"]);
             $virion = $virionLoader->getVirion($virionName);
@@ -57,11 +45,11 @@ class VirionInjector{
                 }
                 $virionLoader->register($virion);
             }
-            self::inject($dir, $prefix, $virion);
+            self::inject($dir, $namespace, $virion);
         }
     }
 
-    public static function inject(string $dir, string $prefix, Virion $virion) : void{
+    public static function inject(string $dir, string $namespace, Virion $virion) : void{
         $antigen = $virion->getAntigen();
         $infections = file_exists($infectionsPath = $dir . "virus-infections.json") ? json_decode(file_get_contents($infectionsPath), true) : [];
         foreach($infections as $log){
@@ -71,7 +59,7 @@ class VirionInjector{
             }
         }
 
-        $antibody = $prefix . "libs\\" . $antigen;
+        $antibody = $namespace . "libs\\" . $antigen;
         $infections[$antibody] = $virion->getYml();
         file_put_contents($infectionsPath, json_encode($infections));
 
