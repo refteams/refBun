@@ -49,6 +49,7 @@ use blugin\tool\blugintools\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivatePropertyRenamingVisitor;
+use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
 use pocketmine\utils\Config;
@@ -61,6 +62,9 @@ class Builder{
     public const DIR_PREPARE = "prepare";
     public const DIR_BUILDED = "builded";
 
+    /** @var Parser */
+    protected static $parser = null;
+
     /** @var mixed[] */
     private $baseOption = [];
 
@@ -71,6 +75,7 @@ class Builder{
         Renamer::registerDefaults();
         Printer::registerDefaults();
         Traverser::registerDefaults();
+        self::$parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     }
 
     public function init(){
@@ -126,10 +131,6 @@ class Builder{
 
         //Build with various options
         (new BuildStartEvent($this, $sourceDir, $option))->call();
-        static $parser = null;
-        if($parser === null){
-            $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        }
         foreach(BluginTools::readDirectory($prepareDir, true) as $path){
             if(substr($path, strlen($prepareDir)) === self::OPTION_FILE) //skip option file
                 continue;
@@ -142,7 +143,7 @@ class Builder{
 
             if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
                 try{
-                    $originStmts = $parser->parse(file_get_contents($path));
+                    $originStmts = self::$parser->parse(file_get_contents($path));
                     $originStmts = Traverser::get(Priority::BEFORE_SPLIT)->traverse($originStmts);
 
                     $files = [$matchs[1] => $originStmts];
