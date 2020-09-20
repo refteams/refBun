@@ -27,15 +27,34 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\traits;
 
-trait SingletonFactoryTrait{
-    use SingletonTrait;
+trait SelfFactoryTrait{
+    /** @var self[] */
+    protected static $instances = [];
 
-    private function __construct(){
+    /** @var mixed|null */
+    protected static $defaultKey = null;
+
+    /** @return self[] */
+    public static function getAll() : array{
+        return self::$instances;
     }
 
-    public function prepare(){
+    /** @param mixed $key */
+    public static function get($key = null) : ?self{
+        return self::$instances[$key] ?? self::$instances[self::$defaultKey] ?? null;
     }
 
-    public function init(){
+    /** @param mixed $key */
+    public static function getClone($key = null) : ?self{
+        $instance = self::get($key);
+        return $instance === null ? null : clone $instance;
+    }
+
+    /** @param mixed $key */
+    public static function register($key, self $instance) : void{
+        self::$instances[$key] = $instance;
+    }
+
+    final public static function registerDefaults() : void{
     }
 }

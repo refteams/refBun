@@ -28,7 +28,6 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\loader\virion;
 
 use blugin\tool\blugintools\BluginTools;
-use blugin\utils\arrays\ArrayUtil as Arr;
 use pocketmine\Server;
 
 class VirionInjector{
@@ -58,9 +57,11 @@ class VirionInjector{
         Server::getInstance()->getLogger()->info($dir);
         $antigen = $virion->getAntigen();
         $infections = file_exists($infectionsPath = $dir . Virion::INFECTION_FILE) ? json_decode(file_get_contents($infectionsPath), true) : [];
-        if(!Arr::validate($infections, function($_, array $log) use ($antigen): bool{ return $antigen !== $log["antigen"]; })){
-            Server::getInstance()->getLogger()->error("Could not infect virion '" . $virion->getName() . "': Already infected");
-            return false;
+        foreach($infections as $log){
+            if($antigen === $log["antigen"]){
+                Server::getInstance()->getLogger()->error("Could not infect virion '" . $virion->getName() . "': Already infected");
+                return false;
+            }
         }
 
         $infections[$antibody] = $virion->getYml();
@@ -146,9 +147,17 @@ class VirionInjector{
     public static function filteredVirionOptions(string $path, array $virionOptions) : array{
         $virionLoader = VirionLoader::getInstance();
         $infections = file_exists($infectionsPath = $path . Virion::INFECTION_FILE) ? json_decode(file_get_contents($infectionsPath), true) : [];
-        return Arr::filterAs($virionOptions, function(array $virionOption) use ($virionLoader, $infections): bool{
+        foreach($virionOptions as $key => $virionOption){
             $virion = $virionLoader->getVirion(explode("/", $virionOption["src"])[2]);
-            return $virion === null || Arr::validate($infections, function($_, array $log) use ($virion): bool{ return $virion->getAntigen() !== $log["antigen"]; });
-        });
+            if($virion === null)
+                continue;
+
+            foreach($infections as $log){
+                if($virion->getAntigen() === $log["antigen"]){
+                    unset($virionOptions[$key]);
+                }
+            }
+        }
+        return array_values($virionOptions);
     }
 }

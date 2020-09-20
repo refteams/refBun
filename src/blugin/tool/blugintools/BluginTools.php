@@ -30,7 +30,7 @@ namespace blugin\tool\blugintools;
 use blugin\tool\blugintools\builder\Builder;
 use blugin\tool\blugintools\loader\FolderPluginLoader;
 use blugin\tool\blugintools\loader\virion\VirionLoader;
-use blugin\traits\singleton\SingletonTrait;
+use blugin\tool\blugintools\traits\SingletonTrait;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;

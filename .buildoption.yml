@@ -1,9 +1,0 @@
----
-virions:
-  - src: Blugin/virions/SingletonTrait
-    version: ^1.0.0
-  - src: Blugin/virions/SelfFactoryTrait
-    version: ^1.0.0
-  - src: Blugin/virions/arrayutils
-    version: ^1.3.0
-...

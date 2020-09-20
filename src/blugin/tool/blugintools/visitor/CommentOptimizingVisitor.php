@@ -27,7 +27,6 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\visitor;
 
-use blugin\utils\arrays\ArrayUtil as Arr;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
@@ -48,17 +47,19 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
 
         //Store meaningfull comments
         $docText = $doc->getText();
-        $docComments = Arr::from(self::getAllowList())
-            ->map(function(string $regex) use ($docText): array{ return preg_match($regex, $docText, $matches) ? $matches : []; })
-            ->filter(function(array $matches) : bool{ return !empty($matches); })
-            ->map(function(array $matches) : string{ return implode(" ", array_slice($matches, 1)); });
+        $docComments = [];
+        foreach(self::getAllowList() as $regex){
+            if(preg_match($regex, $docText, $matches)){
+                $docComments[] = implode(" ", array_slice($matches, 1));
+            }
+        }
 
         //If the comment has no meaningfull comments, skip.
-        if($docComments->count() === 0)
+        if(count($docComments) === 0)
             return null;
 
         //Add doc comment
-        $node->setAttribute("comments", [new Doc($docComments->join(PHP_EOL . "* @", "/**", PHP_EOL . "*/"))]);
+        $node->setAttribute("comments", [new Doc("/**" . implode(PHP_EOL . "* @", $docComments) . PHP_EOL . "*/")]);
         return $node;
     }
 

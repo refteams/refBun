@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\renamer;
 
-use blugin\traits\selffactory\SelfFactoryTrait;
+use blugin\tool\blugintools\traits\SelfFactoryTrait;
 use PhpParser\Node;
 
 abstract class Renamer{

@@ -27,15 +27,14 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\traits;
 
-trait SingletonFactoryTrait{
-    use SingletonTrait;
+trait SingletonTrait{
+    /** @var self */
+    private static $instance = null;
 
-    private function __construct(){
-    }
-
-    public function prepare(){
-    }
-
-    public function init(){
+    public static function getInstance() : self{
+        if(self::$instance === null){
+            self::$instance = new self();
+        }
+        return self::$instance;
     }
 }

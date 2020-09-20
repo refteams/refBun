@@ -28,7 +28,6 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\builder;
 
 use blugin\tool\blugintools\BluginTools;
-use blugin\utils\arrays\ArrayUtil as Arr;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
 use pocketmine\command\CommandSender;
@@ -45,32 +44,35 @@ class PluginBuildExecutor implements CommandExecutor{
             return false;
 
         if($args[0] === "*"){
-            $args = Arr::map(Server::getInstance()->getPluginManager()->getPlugins(), function(Plugin $plugin) : string{ return $plugin->getName(); });
+            $args = [];
+            foreach(Server::getInstance()->getPluginManager()->getPlugins() as $plugin){
+                $args[] = $plugin->getName();
+            }
         }
         $count = count($args);
         $sender->sendMessage(C::AQUA . "[PluginBuild] Start build the $count plugins. (create in " . C::DARK_AQUA . BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder()) . C::AQUA . ")");
 
-        $failures = Arr::from([]);
-        $successes = Arr::from($args)
-            ->map(function(string $pluginName){ return BluginTools::getPlugin($pluginName) ?? $pluginName; })
-            ->filter(function($plugin) use ($sender, $failures) : bool{
-                if(!$plugin instanceof PluginBase){
-                    $sender->sendMessage(C::DARK_GRAY . " - " . ($pluginName = $plugin) . " is invalid plugin name");
-                }elseif($plugin->getPluginLoader() instanceof ScriptPluginLoader){
-                    $sender->sendMessage(C::DARK_GRAY . " - " . ($pluginName = $plugin->getName()) . " is script plugin");
-                }else{
-                    return true;
-                }
+        $failures = [];
+        $successes = [];
+        foreach($args as $pluginName){
+            $plugin = BluginTools::getPlugin($pluginName);
+            if(!$plugin instanceof PluginBase){
                 $failures[] = $pluginName;
-                return false;
-            })->map(function(PluginBase $plugin) use ($sender) : string{
+                $sender->sendMessage(C::DARK_GRAY . " - " . $pluginName . " is invalid plugin name");
+            }elseif($plugin->getPluginLoader() instanceof ScriptPluginLoader){
+                $failures[] = $pluginName;
+                $sender->sendMessage(C::DARK_GRAY . " - " . ($pluginName = $plugin->getName()) . " is script plugin");
+            }else{
+                $successes[] = $plugin->getName();
                 $this->buildPlugin($plugin);
-
                 $sender->sendMessage(C::DARK_GRAY . " + {$plugin->getName()} has been builded to " . self::getPharName($plugin));
-                return $plugin->getName();
-            });
-        $sender->sendMessage(C::AQUA . "[PluginBuild] All plugin builds are complete. " . C::GREEN . "{$successes->count()} successes  " . C::RED . "{$failures->count()} failures");
-        $sender->sendMessage(C::AQUA . " - Results ($count): " . $successes->join(", ", C::GREEN, C::RESET . ", ") . $failures->join(", ", C::RED));
+            }
+        }
+
+        $sender->sendMessage(C::AQUA . "[PluginBuild] All plugin builds are complete. " . C::GREEN . count($successes) . " successes  " . C::RED . count($failures) . " failures");
+        $sender->sendMessage(C::AQUA . " - Results ($count): " .
+            C::GREEN . implode($successes, ", ",) . C::RESET . ", " .
+            C::RED . implode(", ", $failures));
         return true;
     }
 
