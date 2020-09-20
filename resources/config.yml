@@ -8,7 +8,7 @@ preprocessing:
   spliting: true
 
   #Renaming mode settings
-  #Modes Supported : shorten, serial(Sequential variable), space, md5(5 character hash text),  false(disable)
+  #Modes Supported : shorten, serial(Sequential variable), md5(5 character hash text),  false(disable)
   renaming:
     local-variable: serial
     private-property: serial
