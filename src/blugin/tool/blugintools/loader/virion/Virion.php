@@ -94,15 +94,12 @@ class Virion{
         }elseif(is_file($path) && substr($path, -5) === ".phar"){
             $path = "phar://" . BluginTools::cleanDirName($path);
         }else{
-            Server::getInstance()->getLogger()->error("Could not load virion: invalid path ($path)");
             return null;
         }
 
         $virionYml = "{$path}virion.yml";
-        if(!is_file($virionYml)){
-            Server::getInstance()->getLogger()->error("Could not load virion: virion.yml missing");
+        if(!is_file($virionYml))
             return null;
-        }
 
         $data = yaml_parse(file_get_contents($virionYml));
         if(!is_array($data)){
