@@ -185,10 +185,13 @@ class Builder{
     }
 
     public function loadOption(string $dir) : Config{
-        if(!is_file($file = $dir . self::OPTION_FILE)){
-            $file = BluginTools::loadDir(self::DIR_PREPARE) . self::OPTION_FILE;
+        if(is_file($tempFile = BluginTools::loadDir() . self::OPTION_FILE)){
+            unlink($tempFile);
         }
-        $option = new Config($file, Config::DETECT, $this->baseOption);
+        if(is_file($optionFile = $dir . self::OPTION_FILE)){
+            copy($optionFile, $tempFile);
+        }
+        $option = new Config($tempFile, Config::DETECT, $this->baseOption);
 
         //Remove old visitors of traserver
         foreach(Traverser::getAll() as $traverser){
