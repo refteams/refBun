@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\visitor;
 
 use blugin\tool\blugintools\renamer\IRenamerHolder;
-use blugin\tool\blugintools\renamer\RenamerHolderVisitorTrait;
+use blugin\tool\blugintools\traits\renamer\RenamerHolderVisitorTrait;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClosureUse;
 use PhpParser\Node\Expr\Variable;
