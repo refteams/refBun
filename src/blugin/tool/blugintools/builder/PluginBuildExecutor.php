@@ -108,7 +108,7 @@ class PluginBuildExecutor implements CommandExecutor{
     /** @throws \ReflectionException */
     public function buildPharPlugin(PluginBase $plugin) : void{
         CommentOptimizingVisitor::initAllowTags();
-        Builder::getInstance()->buildPhar(self::getSourcePath($plugin), self::getPharPath($plugin), self::getPluginNamespace($plugin), self::getPluginMetadata($plugin));
+        Builder::getInstance()->buildPhar(self::getSourcePath($plugin), self::getPharPath($plugin), self::getNamespace($plugin), self::getMetadata($plugin));
     }
 
     /** @throws \ReflectionException */
@@ -117,7 +117,7 @@ class PluginBuildExecutor implements CommandExecutor{
         foreach(self::SCRIPTPLUGIN_ALLOW_TAGS as $name){
             CommentOptimizingVisitor::register($name, "/([^\n\r]*)/");
         }
-        Builder::getInstance()->buildScript(self::getSourcePath($plugin), self::getPhpPath($plugin), self::getPluginMetadata($plugin));
+        Builder::getInstance()->buildScript(self::getSourcePath($plugin), self::getPhpPath($plugin), self::getMetadata($plugin));
     }
 
     public static function getPharName(Plugin $plugin) : string{
@@ -147,7 +147,7 @@ class PluginBuildExecutor implements CommandExecutor{
         return $fileProperty->getValue($plugin);
     }
 
-    public static function getPluginNamespace(Plugin $plugin) : string{
+    public static function getNamespace(Plugin $plugin) : string{
         return preg_replace("/[a-z_][a-z\d_]*$/i", "", $plugin->getDescription()->getMain());
     }
 
@@ -155,7 +155,7 @@ class PluginBuildExecutor implements CommandExecutor{
         return "{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}";
     }
 
-    public static function getPluginMetadata(Plugin $plugin) : array{
+    public static function getMetadata(Plugin $plugin) : array{
         $description = $plugin->getDescription();
         return [
             "name" => $description->getName(),
