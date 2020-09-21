@@ -34,7 +34,7 @@ use pocketmine\utils\Utils;
 
 class CommentOptimizingVisitor extends NodeVisitorAbstract{
     /** string[] name => $contentRegex */
-    private static $allowList = null;
+    private static $allowTags = null;
 
     public function enterNode(Node $node) : ?Node{
         $doc = $node->getDocComment();
@@ -46,7 +46,7 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
         if($doc === null)
             return null;
 
-        $allowTags = self::getAllowList();
+        $allowTags = self::getAllowTags();
         $tags = [];
         foreach(Utils::parseDocComment($doc->getText()) as $name => $content){
             if(!isset($allowTags[$name]))
@@ -73,23 +73,23 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
     }
 
     /** @return string[] regex format[] */
-    public static function getAllowList() : array{
-        if(self::$allowList === null){
-            self::initMeaningfullList();
+    public static function getAllowTags() : array{
+        if(self::$allowTags === null){
+            self::initAllowTags();
         }
-        return self::$allowList;
+        return self::$allowTags;
     }
 
     /** @param string $regex */
     public static function register(string $name, string $regex = "//") : void{
-        if(self::$allowList === null){
-            self::initMeaningfullList();
+        if(self::$allowTags === null){
+            self::initAllowTags();
         }
-        self::$allowList[$name] = $regex;
+        self::$allowTags[$name] = $regex;
     }
 
-    public static function initMeaningfullList() : void{
-        self::$allowList = [];
+    public static function initAllowTags() : void{
+        self::$allowTags = [];
         self::register("notHandler");
         self::register("ignoreCancelled");
         self::register("handleCancelled");

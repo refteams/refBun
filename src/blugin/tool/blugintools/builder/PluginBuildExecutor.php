@@ -78,7 +78,7 @@ class PluginBuildExecutor implements CommandExecutor{
 
     /** @throws \ReflectionException */
     public function buildPharPlugin(PluginBase $plugin) : void{
-        CommentOptimizingVisitor::initMeaningfullList();
+        CommentOptimizingVisitor::initAllowTags();
         Builder::getInstance()->buildPhar(self::getSourcePath($plugin), self::getPharPath($plugin), self::getPluginNamespace($plugin), self::getPluginMetadata($plugin));
     }
 
