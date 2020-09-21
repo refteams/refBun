@@ -59,7 +59,7 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
             return null;
 
         //Add doc comment
-        $node->setAttribute("comments", [new Doc("/**" . implode(PHP_EOL . "* @", $docComments) . PHP_EOL . "*/")]);
+        $node->setAttribute("comments", [new Doc("/**" . implode(PHP_EOL . "* ", $docComments) . PHP_EOL . "*/")]);
         return $node;
     }
 
@@ -81,10 +81,10 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
 
     public static function initMeaningfullList() : void{
         self::$allowList = [];
-        self::register("/^[\t ]*\* @(notHandler)/m");
-        self::register("/^[\t ]*\* @(ignoreCancelled)/m");
-        self::register("/^[\t ]*\* @(handleCancelled)/m");
-        self::register("/^[\t ]*\* @(softDepend)[\t ]+([a-zA-Z]+)/m");
-        self::register("/^[\t ]*\* @(priority)[\t ]+([a-zA-Z]+)/m");
+        self::register("/^[\s]*\*[\s]*(@notHandler)/m");
+        self::register("/^[\s]*\*[\s]*(@ignoreCancelled)/m");
+        self::register("/^[\s]*\*[\s]*(@handleCancelled)/m");
+        self::register("/^[\s]*\*[\s]*(@softDepend)[\s]+([a-zA-Z]+)/m");
+        self::register("/^[\s]*\*[\s]*(@priority)[\s]+([a-zA-Z]+)/m");
     }
 }
