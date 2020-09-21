@@ -64,7 +64,7 @@ class PluginBuildExecutor implements CommandExecutor{
                 $sender->sendMessage(C::DARK_GRAY . " - " . ($pluginName = $plugin->getName()) . " is script plugin");
             }else{
                 $successes[] = $plugin->getName();
-                $this->buildPlugin($plugin);
+                $this->buildPharPlugin($plugin);
                 $sender->sendMessage(C::DARK_GRAY . " + {$plugin->getName()} has been builded to " . self::getPharName($plugin));
             }
         }
@@ -77,33 +77,50 @@ class PluginBuildExecutor implements CommandExecutor{
     }
 
     /** @throws \ReflectionException */
-    public function buildPlugin(PluginBase $plugin) : void{
+    public function buildPharPlugin(PluginBase $plugin) : void{
+        CommentOptimizingVisitor::initMeaningfullList();
+        Builder::getInstance()->buildPhar(self::getSourcePath($plugin), self::getPharPath($plugin), self::getPluginNamespace($plugin), self::getPluginMetadata($plugin));
+    }
+
+    public static function getPharName(Plugin $plugin) : string{
+        return self::getPluginFullName($plugin) . ".phar";
+    }
+
+    public static function getPharPath(Plugin $plugin) : string{
+        return BluginTools::loadDir() . self::getPharName($plugin);
+    }
+
+    /** @throws \ReflectionException */
+    public static function getSourcePath(Plugin $plugin) : string{
         static $fileProperty;
         if(!isset($fileProperty)){
             $reflection = new \ReflectionClass(PluginBase::class);
             $fileProperty = $reflection->getProperty("file");
             $fileProperty->setAccessible(true);
         }
-
-        Builder::getInstance()->buildPhar(
-            $fileProperty->getValue($plugin),
-            BluginTools::loadDir() . self::getPharName($plugin),
-            preg_replace("/[a-z_][a-z\d_]*$/i", "", ($main = ($description = $plugin->getDescription())->getMain())),
-            [
-                "name" => $description->getName(),
-                "version" => $description->getVersion(),
-                "main" => $main,
-                "api" => $description->getCompatibleApis(),
-                "depend" => $description->getDepend(),
-                "description" => $description->getDescription(),
-                "authors" => $description->getAuthors(),
-                "website" => $description->getWebsite(),
-                "creationDate" => time()
-            ]
-        );
+        return $fileProperty->getValue($plugin);
     }
 
-    public static function getPharName(Plugin $plugin) : string{
-        return "{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}.phar";
+    public static function getPluginNamespace(Plugin $plugin) : string{
+        return preg_replace("/[a-z_][a-z\d_]*$/i", "", $plugin->getDescription()->getMain());
+    }
+
+    public static function getPluginFullName(Plugin $plugin) : string{
+        return "{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}";
+    }
+
+    public static function getPluginMetadata(Plugin $plugin) : array{
+        $description = $plugin->getDescription();
+        return [
+            "name" => $description->getName(),
+            "version" => $description->getVersion(),
+            "main" => $description->getMain(),
+            "api" => $description->getCompatibleApis(),
+            "depend" => $description->getDepend(),
+            "description" => $description->getDescription(),
+            "authors" => $description->getAuthors(),
+            "website" => $description->getWebsite(),
+            "creationDate" => time()
+        ];
     }
 }
