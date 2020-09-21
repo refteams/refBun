@@ -54,7 +54,6 @@ class VirionInjector{
     }
 
     public static function inject(string $dir, string $antibody, Virion $virion) : bool{
-        Server::getInstance()->getLogger()->info($dir);
         $antigen = $virion->getAntigen();
         $infections = file_exists($infectionsPath = $dir . Virion::INFECTION_FILE) ? json_decode(file_get_contents($infectionsPath), true) : [];
         foreach($infections as $log){
