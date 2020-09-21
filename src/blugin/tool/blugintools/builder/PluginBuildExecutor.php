@@ -71,7 +71,9 @@ class PluginBuildExecutor implements CommandExecutor{
             }
         }
         $count = count($args);
-        $sender->sendMessage(C::AQUA . "[PluginBuild] Start build the $count plugins. (create in " . C::DARK_AQUA . BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder()) . C::AQUA . ")");
+        $sender->sendMessage(C::AQUA . "[PluginBuild] Start build the $count plugins. " .
+            "(create in " . C::DARK_AQUA . BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder()) . C::AQUA . ")"
+        );
 
         $failures = [];
         $successes = [];
@@ -92,10 +94,14 @@ class PluginBuildExecutor implements CommandExecutor{
             }
         }
 
-        $sender->sendMessage(C::AQUA . "[PluginBuild] All plugin builds are complete. " . C::GREEN . count($successes) . " successes  " . C::RED . count($failures) . " failures");
+        $sender->sendMessage(C::AQUA . "[PluginBuild] All plugin builds are complete. " .
+            C::GREEN . count($successes) . " successes  " .
+            C::RED . count($failures) . " failures"
+        );
         $sender->sendMessage(C::AQUA . " - Results ($count): " .
             C::GREEN . implode($successes, ", ",) . C::RESET . ", " .
-            C::RED . implode(", ", $failures));
+            C::RED . implode(", ", $failures)
+        );
         return true;
     }
 
