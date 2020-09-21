@@ -185,6 +185,30 @@ class Builder{
         (new BuildCompleteEvent($this, $sourceDir, $option))->call();
     }
 
+    /** @param mixed[] $metadata */
+    public function buildScript(string $sourcePath, string $phpPath, array $metadata = []) : void{
+        $sourcePath = BluginTools::cleanPath($sourcePath);
+        $phpPath = BluginTools::cleanPath($phpPath);
+        //Remove the existing PHP file
+        if(is_file($phpPath)){
+            unlink($phpPath);
+        }
+
+        //Prepare to copy files for build
+        $option = $this->loadOption($sourceDir = BluginTools::cleanDirName(dirname($sourcePath)));
+
+        (new BuildStartEvent($this, $sourceDir, $option))->call();
+        try{
+            $stmts = self::$parser->parse(file_get_contents($sourcePath));
+            foreach(Priority::ALL as $priority){
+                $stmts = Traverser::get($priority)->traverse($stmts);
+            }
+            file_put_contents($phpPath, Printer::getClone($this->printerMode)->print($stmts));
+        }catch(\Error $e){
+            echo 'Parse Error: ', $e->getMessage();
+        }
+    }
+
     public function loadOption(string $dir) : Config{
         if(is_file($tempFile = BluginTools::loadDir() . self::OPTION_FILE)){
             unlink($tempFile);

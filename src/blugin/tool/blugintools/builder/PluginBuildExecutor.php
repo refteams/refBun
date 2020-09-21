@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\builder;
 
 use blugin\tool\blugintools\BluginTools;
+use blugin\tool\blugintools\visitor\CommentOptimizingVisitor;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
 use pocketmine\command\CommandSender;
@@ -38,6 +39,26 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat as C;
 
 class PluginBuildExecutor implements CommandExecutor{
+    public const SCRIPTPLUGIN_ALLOW_TAGS = [
+        "name",
+        "main",
+        "version",
+        "api",
+        "mcpe-protocol",
+        "os",
+        "commands",
+        "depend",
+        "extentionssoftdepend",
+        "load",
+        "loadbefore",
+        "website",
+        "description",
+        "prefix",
+        "authors",
+        "author",
+        "permissions"
+    ];
+
     /** @param string[] $args */
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
         if(empty($args))
@@ -59,11 +80,13 @@ class PluginBuildExecutor implements CommandExecutor{
             if(!$plugin instanceof PluginBase){
                 $failures[] = $pluginName;
                 $sender->sendMessage(C::DARK_GRAY . " - " . $pluginName . " is invalid plugin name");
-            }elseif($plugin->getPluginLoader() instanceof ScriptPluginLoader){
-                $failures[] = $pluginName;
-                $sender->sendMessage(C::DARK_GRAY . " - " . ($pluginName = $plugin->getName()) . " is script plugin");
+            }
+
+            $successes[] = $plugin->getName();
+            if($plugin->getPluginLoader() instanceof ScriptPluginLoader){
+                $this->buildScriptPlugin($plugin);
+                $sender->sendMessage(C::DARK_GRAY . " + {$plugin->getName()} has been builded to " . self::getPhpName($plugin));
             }else{
-                $successes[] = $plugin->getName();
                 $this->buildPharPlugin($plugin);
                 $sender->sendMessage(C::DARK_GRAY . " + {$plugin->getName()} has been builded to " . self::getPharName($plugin));
             }
@@ -82,12 +105,29 @@ class PluginBuildExecutor implements CommandExecutor{
         Builder::getInstance()->buildPhar(self::getSourcePath($plugin), self::getPharPath($plugin), self::getPluginNamespace($plugin), self::getPluginMetadata($plugin));
     }
 
+    /** @throws \ReflectionException */
+    public function buildScriptPlugin(PluginBase $plugin) : void{
+        CommentOptimizingVisitor::initAllowTags();
+        foreach(self::SCRIPTPLUGIN_ALLOW_TAGS as $name){
+            CommentOptimizingVisitor::register($name, "/([^\n\r]*)/");
+        }
+        Builder::getInstance()->buildScript(self::getSourcePath($plugin), self::getPhpPath($plugin), self::getPluginMetadata($plugin));
+    }
+
     public static function getPharName(Plugin $plugin) : string{
         return self::getPluginFullName($plugin) . ".phar";
     }
 
+    public static function getPhpName(Plugin $plugin) : string{
+        return self::getPluginFullName($plugin) . ".php";
+    }
+
     public static function getPharPath(Plugin $plugin) : string{
         return BluginTools::loadDir() . self::getPharName($plugin);
+    }
+
+    public static function getPhpPath(Plugin $plugin) : string{
+        return BluginTools::loadDir() . self::getPhpName($plugin);
     }
 
     /** @throws \ReflectionException */
