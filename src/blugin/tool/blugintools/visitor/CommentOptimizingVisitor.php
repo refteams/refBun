@@ -30,9 +30,10 @@ namespace blugin\tool\blugintools\visitor;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
+use pocketmine\utils\Utils;
 
 class CommentOptimizingVisitor extends NodeVisitorAbstract{
-    /** string[] regex format[] */
+    /** string[] name => $contentRegex */
     private static $allowList = null;
 
     public function enterNode(Node $node) : ?Node{
@@ -45,24 +46,25 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
         if($doc === null)
             return null;
 
-        //Store meaningfull comments
-        $docText = $doc->getText();
-        $docComments = [];
-        foreach(self::getAllowList() as $regex){
-            if(preg_match($regex, $docText, $matches)){
-                $docComments[] = implode(" ", array_slice($matches, 1));
-            }
+        $allowTags = self::getAllowList();
+        $tags = [];
+        foreach(Utils::parseDocComment($doc->getText()) as $name => $content){
+            if(!isset($allowTags[$name]))
+                continue;
+
+            preg_match($allowTags[$name], $content, $matches);
+            $tags[] = "@$name " . implode(" ", array_slice($matches, 1));
         }
 
         //If the comment has no meaningfull comments, skip.
-        if(($count = count($docComments)) === 0)
+        if(($count = count($tags)) === 0)
             return null;
 
         if($count === 1){
-            $newDocText = "/** {$docComments[0]} */";
+            $newDocText = "/** {$tags[0]} */";
         }else{
             $newDocText = "/**" . PHP_EOL . " * ";
-            $newDocText .= implode(PHP_EOL . " * ", $docComments);
+            $newDocText .= implode(PHP_EOL . " * ", $tags);
             $newDocText .= PHP_EOL . "*/";
         }
         //Add doc comment
@@ -79,19 +81,19 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
     }
 
     /** @param string $regex */
-    public static function register(string $regex) : void{
+    public static function register(string $name, string $regex = "//") : void{
         if(self::$allowList === null){
             self::initMeaningfullList();
         }
-        self::$allowList[] = $regex;
+        self::$allowList[$name] = $regex;
     }
 
     public static function initMeaningfullList() : void{
         self::$allowList = [];
-        self::register("/^[\s]*\*[\s]*(@notHandler)/m");
-        self::register("/^[\s]*\*[\s]*(@ignoreCancelled)/m");
-        self::register("/^[\s]*\*[\s]*(@handleCancelled)/m");
-        self::register("/^[\s]*\*[\s]*(@softDepend)[\s]+([a-zA-Z]+)/m");
-        self::register("/^[\s]*\*[\s]*(@priority)[\s]+([a-zA-Z]+)/m");
+        self::register("notHandler");
+        self::register("ignoreCancelled");
+        self::register("handleCancelled");
+        self::register("softDepend", "/([a-zA-Z]+)/");
+        self::register("priority", "/([a-zA-Z]+)/");
     }
 }
