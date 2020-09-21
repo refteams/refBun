@@ -55,11 +55,18 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
         }
 
         //If the comment has no meaningfull comments, skip.
-        if(count($docComments) === 0)
+        if(($count = count($docComments)) === 0)
             return null;
 
+        if($count === 1){
+            $newDocText = "/** {$docComments[0]} */";
+        }else{
+            $newDocText = "/**" . PHP_EOL . " * ";
+            $newDocText .= implode(PHP_EOL . " * ", $docComments);
+            $newDocText .= PHP_EOL . "*/";
+        }
         //Add doc comment
-        $node->setAttribute("comments", [new Doc("/**" . implode(PHP_EOL . "* ", $docComments) . PHP_EOL . "*/")]);
+        $node->setAttribute("comments", [new Doc($newDocText)]);
         return $node;
     }
 
