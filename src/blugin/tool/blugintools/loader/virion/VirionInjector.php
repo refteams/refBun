@@ -29,6 +29,7 @@ namespace blugin\tool\blugintools\loader\virion;
 
 use blugin\tool\blugintools\BluginTools;
 use pocketmine\Server;
+use pocketmine\utils\TextFormat;
 
 class VirionInjector{
     public static function injectAll(string $dir, string $namespace, ?array $virionOptions = null) : void{
@@ -39,7 +40,7 @@ class VirionInjector{
             [$ownerName, $repoName, $virionName] = explode("/", $virionOption["src"]);
             $virion = $virionLoader->getVirion($virionName);
             if($virion === null){
-                Server::getInstance()->getLogger()->info("Download virion '$virionName' from poggit.pmmp.io");
+                Server::getInstance()->getLogger()->info(TextFormat::DARK_GRAY . "    Download virion '$virionName' from poggit.pmmp.io");
                 $virion = VirionDownloader::download($ownerName, $repoName, $virionName, $virionOption["version"]);
                 if($virion === null){
                     Server::getInstance()->getLogger()->error("Could not infect virion '{$virionOption["src"]}': Undefined virion");
@@ -58,7 +59,7 @@ class VirionInjector{
         $infections = file_exists($infectionsPath = $dir . Virion::INFECTION_FILE) ? json_decode(file_get_contents($infectionsPath), true) : [];
         foreach($infections as $log){
             if($antigen === $log["antigen"]){
-                Server::getInstance()->getLogger()->error("Could not infect virion '" . $virion->getName() . "': Already infected");
+                Server::getInstance()->getLogger()->info(TextFormat::DARK_GRAY . "   Could not infect virion '" . $virion->getName() . "': Already infected");
                 return false;
             }
         }
