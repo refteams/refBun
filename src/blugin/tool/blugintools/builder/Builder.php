@@ -152,7 +152,7 @@ class Builder{
                     }
 
                     foreach($files as $filename => $stmts){
-                        foreach(Priority::ALL as $priority){
+                        foreach(Priority::DEFAULT as $priority){
                             $stmts = Traverser::get($priority)->traverse($stmts);
                         }
                         file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", Printer::getClone($this->printerMode)->print($stmts));
@@ -200,7 +200,7 @@ class Builder{
         (new BuildStartEvent($this, $sourceDir, $option))->call();
         try{
             $stmts = self::$parser->parse(file_get_contents($sourcePath));
-            foreach(Priority::ALL as $priority){
+            foreach(Priority::DEFAULT as $priority){
                 $stmts = Traverser::get($priority)->traverse($stmts);
             }
             file_put_contents($phpPath, Printer::getClone($this->printerMode)->print($stmts));

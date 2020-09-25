@@ -49,6 +49,15 @@ final class TraverserPriority{
         Priority::MONITOR
     ];
 
+    public const DEFAULT = [
+        Priority::LOWEST,
+        Priority::LOW,
+        Priority::NORMAL,
+        Priority::HIGH,
+        Priority::HIGHEST,
+        Priority::MONITOR
+    ];
+
     /**
      * Traserver call before split files
      */
