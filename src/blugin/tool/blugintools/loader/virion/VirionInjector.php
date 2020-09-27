@@ -33,6 +33,10 @@ use pocketmine\utils\TextFormat;
 
 class VirionInjector{
     public static function injectAll(string $dir, string $namespace, ?array $virionOptions = null) : void{
+        static $deep = -1;
+        $deep++;
+
+        $dir = BluginTools::cleanDirName($dir);
         $namespace = BluginTools::cleaNamespace($namespace);
         $virionOptions = $virionOptions ?? Virion::getVirionOptions($dir);
         $virionLoader = VirionLoader::getInstance();
@@ -48,14 +52,15 @@ class VirionInjector{
                 }
                 $virionLoader->register($virion);
             }
-            if(self::inject($dir, $antibody = $namespace . "libs\\" . $virion->getAntigen(), $virion)){
-                self::injectAll($dir, $antibody, $virion->getOptions());
+            if(self::inject($dir, $antibody = $namespace . "libs\\" . $virion->getAntigen(), $virion, $antibodyDir = $deep === 0 ? "src/$antibody" : "libs/" . $virion->getAntigen())){
+                self::injectAll($dir . $antibodyDir, $antibody, $virion->getOptions());
                 self::infectAll($dir, $antibody, $virion);
             }
         }
+        $deep--;
     }
 
-    public static function inject(string $dir, string $antibody, Virion $virion) : bool{
+    public static function inject(string $dir, string $antibody, Virion $virion, string $antibodyDir) : bool{
         if(!file_exists($dir)){
             mkdir($dir, 0777, true);
         }
@@ -77,9 +82,8 @@ class VirionInjector{
 
             if(strpos($innerPath, "resources/") === 0){
                 $newPath = $dir . $innerPath;
-                copy($path, $newPath);
-            }elseif(strpos($innerPath, $antigenPath = BluginTools::cleanDirName("src/$antigen")) === 0){
-                $newPath = substr_replace($path, $dir . BluginTools::cleanDirName("src/$antibody"), 0, strlen($virionPath . $antigenPath));
+            }elseif(strpos($innerPath, $antigenPath) === 0){
+                $newPath = BluginTools::cleanDirName($dir . $antibodyDir) . substr($innerPath, strlen($antigenPath));
             }else{
                 continue;
             }
