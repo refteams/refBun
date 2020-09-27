@@ -50,11 +50,15 @@ class VirionInjector{
             }
             if(self::inject($dir, $antibody = $namespace . "libs\\" . $virion->getAntigen(), $virion)){
                 self::injectAll($dir, $antibody, $virion->getOptions());
+                self::infectAll($dir, $antibody, $virion);
             }
         }
     }
 
     public static function inject(string $dir, string $antibody, Virion $virion) : bool{
+        if(!file_exists($dir)){
+            mkdir($dir, 0777, true);
+        }
         $antigen = $virion->getAntigen();
         $infections = file_exists($infectionsPath = $dir . Virion::INFECTION_FILE) ? json_decode(file_get_contents($infectionsPath), true) : [];
         foreach($infections as $log){
@@ -67,41 +71,40 @@ class VirionInjector{
         $infections[$antibody] = $virion->getYml();
         file_put_contents($infectionsPath, json_encode($infections));
 
-        foreach(BluginTools::readDirectory($dir, true) as $path){
-            if(!is_file($path) || substr($path, -4) !== ".php")
-                continue;
-
-            $contents = self::infect(file_get_contents($path), $antigen, $antibody);
-            if(!empty($contents)){
-                file_put_contents($path, $contents);
-            }
-        }
-
+        $antigenPath = BluginTools::cleanDirName("src/$antigen");
         foreach(BluginTools::readDirectory($virionPath = $virion->getPath(), true) as $path){
             $innerPath = substr($path, strlen($virionPath));
 
             if(strpos($innerPath, "resources/") === 0){
                 $newPath = $dir . $innerPath;
-                $newDir = dirname($newPath);
-                if(!file_exists($newDir)){
-                    mkdir($newDir, 0777, true);
-                }
-
                 copy($path, $newPath);
             }elseif(strpos($innerPath, $antigenPath = BluginTools::cleanDirName("src/$antigen")) === 0){
                 $newPath = substr_replace($path, $dir . BluginTools::cleanDirName("src/$antibody"), 0, strlen($virionPath . $antigenPath));
-                $newDir = dirname($newPath);
-                if(!file_exists($newDir)){
-                    mkdir($newDir, 0777, true);
-                }
-
-                $contents = self::infect(file_get_contents($path), $antigen, $antibody);
-                if(!empty($contents)){
-                    file_put_contents($newPath, $contents);
-                }
+            }else{
+                continue;
             }
+
+            $newDir = dirname($newPath);
+            if(!file_exists($newDir)){
+                mkdir($newDir, 0777, true);
+            }
+            copy($path, $newPath);
         }
         return true;
+    }
+
+    public static function infectAll(string $dir, string $antibody, Virion $virion) : void{
+        $antigen = $virion->getAntigen();
+        foreach(BluginTools::readDirectory($dir, true) as $path){
+            if(!is_file($path) || substr($path, -4) !== ".php")
+                continue;
+
+            $contents = self::infect(file_get_contents($path), $antigen, $antibody);
+
+            if(!empty($contents)){
+                file_put_contents($path, $contents);
+            }
+        }
     }
 
     public static function infect(string $chromosome, string $antigen, string $antibody) : string{
