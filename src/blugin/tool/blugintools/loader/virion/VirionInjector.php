@@ -29,7 +29,7 @@ namespace blugin\tool\blugintools\loader\virion;
 
 use blugin\tool\blugintools\BluginTools;
 use pocketmine\Server;
-use pocketmine\utils\TextFormat;
+use pocketmine\utils\TextFormat as C;
 
 class VirionInjector{
     public static function injectAll(string $dir, string $namespace, ?array $virionOptions = null) : void{
@@ -40,11 +40,15 @@ class VirionInjector{
         $namespace = BluginTools::cleaNamespace($namespace);
         $virionOptions = $virionOptions ?? Virion::getVirionOptions($dir);
         $virionLoader = VirionLoader::getInstance();
-        foreach(self::filteredVirionOptions($dir, $virionOptions) as $virionOption){
+        $virionOptions = self::filteredVirionOptions($dir, $virionOptions);
+        if(!empty($virionOptions) && $deep === 0){
+            Server::getInstance()->getLogger()->debug(C::DARK_GRAY . "  Virion injected into " . C::GRAY . $namespace);
+        }
+        foreach($virionOptions as $virionOption){
             [$ownerName, $repoName, $virionName] = explode("/", $virionOption["src"]);
             $virion = $virionLoader->getVirion($virionName);
             if($virion === null){
-                Server::getInstance()->getLogger()->info(TextFormat::DARK_GRAY . "    Download virion '$virionName' from poggit.pmmp.io");
+                Server::getInstance()->getLogger()->info(C::DARK_GRAY . "    Download virion '$virionName' from poggit.pmmp.io");
                 $virion = VirionDownloader::download($ownerName, $repoName, $virionName, $virionOption["version"]);
                 if($virion === null){
                     Server::getInstance()->getLogger()->error("Could not infect virion '{$virionOption["src"]}': Undefined virion");
@@ -52,7 +56,13 @@ class VirionInjector{
                 }
                 $virionLoader->register($virion);
             }
-            if(self::inject($dir, $antibody = $namespace . "libs\\" . $virion->getAntigen(), $virion, $antibodyDir = $deep === 0 ? "src/$antibody" : "libs/" . $virion->getAntigen())){
+            $antigen = $virion->getAntigen();
+            if(self::inject($dir, $antibody = $namespace . "libs\\$antigen", $virion, $antibodyDir = $deep === 0 ? "src/$antibody" : "libs/$antigen")){
+                Server::getInstance()->getLogger()->debug(
+                    C::DARK_GRAY . str_repeat("\t", $deep + 1) . "*" .
+                    C::GRAY . $virionName . str_repeat("\t", (int) (5 - $deep - ceil((strlen($virionName) + 2) / 8))) . "(" .
+                    C::DARK_GRAY . $namespace . C::GRAY . "libs\\$antigen)");
+
                 self::injectAll($dir . $antibodyDir, $antibody, $virion->getOptions());
                 self::infectAll($dir, $antibody, $virion);
             }
@@ -68,7 +78,7 @@ class VirionInjector{
         $infections = file_exists($infectionsPath = $dir . Virion::INFECTION_FILE) ? json_decode(file_get_contents($infectionsPath), true) : [];
         foreach($infections as $log){
             if($antigen === $log["antigen"]){
-                Server::getInstance()->getLogger()->info(TextFormat::DARK_GRAY . "   Could not infect virion '" . $virion->getName() . "': Already infected");
+                Server::getInstance()->getLogger()->info(C::DARK_GRAY . "   Could not infect virion '" . $virion->getName() . "': Already infected");
                 return false;
             }
         }
