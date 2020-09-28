@@ -82,6 +82,7 @@ class PluginBuildExecutor implements CommandExecutor{
             if(!$plugin instanceof PluginBase){
                 $failures[] = $pluginName;
                 $sender->sendMessage(C::DARK_GRAY . " - " . $pluginName . " is invalid plugin name");
+                continue;
             }
 
             $successes[] = $plugin->getName();
