@@ -20,7 +20,7 @@
  *  c(")(")
  *
  * @name BluginToolsLoader
- * @api 3.0.0
+ * @api 4.0.0
  * @version 1.0.0
  * @main blugin\tool\blugintools\blugintoolsloader\BluginToolsLoader
  * @load STARTUP
@@ -47,6 +47,7 @@ class BluginToolsLoader extends PluginBase{
                 return is_file($path . "/plugin.yml") && is_dir($path . "/src/");
             }
 
+            /** @load STARTUP */
             public function loadPlugin(string $file) : void{
                 $this->loader->addPath("$file/src");
             }
@@ -68,6 +69,6 @@ class BluginToolsLoader extends PluginBase{
             }
         });
         $this->getServer()->getPluginManager()->loadPlugins($this->getServer()->getPluginPath(), [get_class($loader)]);
-        $this->getServer()->enablePlugins(PluginLoadOrder::STARTUP);
+        $this->getServer()->enablePlugins(PluginLoadOrder::STARTUP());
     }
 }
