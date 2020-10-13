@@ -34,8 +34,7 @@ use PhpParser\NodeVisitorAbstract;
  * This trait override most methods in the {@link NodeVisitorAbstract} abstract class for implements {@link IRenamerHolder} interface.
  */
 trait RenamerHolderTrait{
-    /** @var Renamer */
-    protected $renamer;
+    protected Renamer $renamer;
 
     public function __construct(Renamer $renamer){
         $this->setRenamer($renamer);

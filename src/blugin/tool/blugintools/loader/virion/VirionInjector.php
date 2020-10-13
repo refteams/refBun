@@ -38,7 +38,7 @@ class VirionInjector{
 
         $dir = BluginTools::cleanDirName($dir);
         $namespace = BluginTools::cleaNamespace($namespace);
-        $virionOptions = $virionOptions ?? Virion::getVirionOptions($dir);
+        $virionOptions ??= Virion::getVirionOptions($dir);
         $virionLoader = VirionLoader::getInstance();
         $virionOptions = self::filteredVirionOptions($dir, $virionOptions);
         if(!empty($virionOptions) && $deep === 0){

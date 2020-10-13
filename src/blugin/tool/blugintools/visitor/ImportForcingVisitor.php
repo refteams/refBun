@@ -41,7 +41,7 @@ class ImportForcingVisitor extends NameResolver{
     use GetFullyQualifiedTrait;
 
     /** @var UseUse[] */
-    private $uses = [], $newUses = [];
+    private array $uses = [], $newUses = [];
 
     /**
      * @param Node[] $nodes

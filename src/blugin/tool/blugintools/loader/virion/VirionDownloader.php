@@ -35,11 +35,8 @@ class VirionDownloader{
     public const FILE_NAME_FORMAT = "%s_v%s.phar";
 
     public static function download(string $ownerName, string $repoName, string $projectName, string $versionConstraint = "^0.0.1") : ?Virion{
-        [
-            $body,
-            [$header],
-            $httpCode
-        ] = Internet::simpleCurl(sprintf(self::VIRION_GET_URL, $ownerName, $repoName, $projectName, $versionConstraint));
+        $url = sprintf(self::VIRION_GET_URL, $ownerName, $repoName, $projectName, $versionConstraint);
+        [$body, [$header], $httpCode] = Internet::simpleCurl($url);
         if($httpCode !== 200)
             return null;
 

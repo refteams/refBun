@@ -28,8 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\traits;
 
 trait SingletonTrait{
-    /** @var self */
-    private static $instance = null;
+    private static ?self $instance = null;
 
     public static function getInstance() : self{
         if(self::$instance === null){

@@ -29,7 +29,7 @@ namespace blugin\tool\blugintools\builder\event;
 
 class BuildPrepareEvent extends BuildEvent{
     /** @var string[] path => new path */
-    protected $files = [];
+    protected array $files = [];
 
     /** @return string[] */
     public function getFiles() : array{

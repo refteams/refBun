@@ -85,10 +85,10 @@ final class CodeSpliter{
     }
 
     /**
-     * @param array     $nodes
+     * @param Node[]    $nodes
      * @param ClassLike $replacement
      *
-     * @return array|null
+     * @return Node[] |null
      */
     private static function replaceClassLike(array $nodes, ClassLike $replacement) : ?array{
         foreach($nodes as $node){

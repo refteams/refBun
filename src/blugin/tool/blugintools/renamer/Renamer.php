@@ -43,8 +43,9 @@ abstract class Renamer{
     public const FLAG_INITIAL_VALID = 0b00000100; //It means that the visitor require valid of initial letter
 
     /** @var string[] original name => new name */
-    private $nameTable = [];
-    private $flags = 0 | self::FLAG_INITIAL_VALID;
+    private array $nameTable = [];
+
+    private int $flags = 0 | self::FLAG_INITIAL_VALID;
 
     public function init() : void{
         $this->nameTable = [];

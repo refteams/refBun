@@ -34,7 +34,7 @@ use pocketmine\utils\Utils;
 
 class CommentOptimizingVisitor extends NodeVisitorAbstract{
     /** string[] name => $contentRegex */
-    private static $allowTags = null;
+    private static ?array $allowTags = null;
 
     public function enterNode(Node $node) : ?Node{
         $doc = $node->getDocComment();

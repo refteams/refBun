@@ -31,7 +31,7 @@ use PhpParser\Node;
 
 class SerialRenamer extends Renamer{
     /** @var string[] */
-    private $firstChars, $otherChars;
+    private array $firstChars, $otherChars;
 
     public function __construct(){
         $this->generateChars();

@@ -34,23 +34,19 @@ use pocketmine\Server;
 class Virion{
     public const INFECTION_FILE = "virus-infections.json";
 
-    /** @var string */
-    private $name;
+    private string $name;
 
-    /** @var string */
-    private $version;
+    private string $version;
 
-    /** @var string */
-    private $antigen;
+    private string $antigen;
 
-    /** @var string */
-    private $path;
+    private string $path;
 
     /** @var mixed[] */
-    private $yml;
+    private array $yml;
 
     /** @var mixed[] */
-    private $options;
+    private array $options;
 
     public function __construct(string $path, array $yml, array $virionOption = []){
         $this->path = $path;

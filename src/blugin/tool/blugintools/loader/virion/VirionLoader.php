@@ -35,7 +35,7 @@ class VirionLoader{
     use SingletonFactoryTrait;
 
     /** @var Virion[] */
-    private $virions = [];
+    private array $virions = [];
 
     public function prepare(){
         foreach(["virions/", "plugins/_virions/", "plugins/virions/"] as $subdir){

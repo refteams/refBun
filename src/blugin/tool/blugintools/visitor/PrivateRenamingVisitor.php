@@ -39,7 +39,7 @@ abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRe
     use RenamerHolderVisitorTrait;
 
     /** @var Const_[] */
-    protected $privateNodes = [];
+    protected array $privateNodes = [];
 
     /**
      * @param Node[] $nodes

@@ -48,11 +48,7 @@ class ShortenPrinter extends StandardPrinter{
         };
     }
 
-    /**
-     * @param Node[] $stmts
-     *
-     * @return string
-     */
+    /** @param Node[] $stmts */
     public function print(array $stmts) : string{
         return preg_replace('/^<\?php[\s\n]+/', "<?php ", parent::print($stmts));
     }

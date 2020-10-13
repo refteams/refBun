@@ -59,7 +59,11 @@ class PluginBuildExecutor implements CommandExecutor{
         "permissions"
     ];
 
-    /** @param string[] $args */
+    /**
+     * @param string[] $args
+     *
+     * @throws \ReflectionException
+     */
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
         if(empty($args))
             return false;
@@ -100,7 +104,7 @@ class PluginBuildExecutor implements CommandExecutor{
             C::RED . count($failures) . " failures"
         );
         $sender->sendMessage(C::AQUA . " - Results ($count): " .
-            C::GREEN . implode($successes, ", ",) . C::RESET . ", " .
+            C::GREEN . implode(", ", $successes) . C::RESET . ", " .
             C::RED . implode(", ", $failures)
         );
         return true;

@@ -33,20 +33,15 @@ use pocketmine\event\Event;
 use pocketmine\utils\Config;
 
 abstract class BuildEvent extends Event{
-    /** @var Builder */
-    private $builder;
+    private Builder $builder;
 
-    /** @var string */
-    private $sourceDir;
+    private string $sourceDir;
 
-    /** @var string */
-    private $prepareDir;
+    private string $prepareDir;
 
-    /** @var string */
-    private $buildedDir;
+    private string $buildedDir;
 
-    /** @var Config */
-    private $option;
+    private Config $option;
 
     public function __construct(Builder $builder, string $sourceDir, Config $option){
         $this->builder = $builder;

@@ -62,14 +62,11 @@ class Builder{
     public const DIR_PREPARE = "prepare";
     public const DIR_BUILDED = "builded";
 
-    /** @var Parser */
-    protected static $parser = null;
+    protected static ?Parser $parser = null;
 
-    /** @var mixed[] */
-    private $baseOption = [];
+    private array $baseOption = [];
 
-    /** @var string */
-    private $printerMode = Printer::PRINTER_STANDARD;
+    private string $printerMode = Printer::PRINTER_STANDARD;
 
     public function prepare(){
         Renamer::registerDefaults();
@@ -261,7 +258,7 @@ class Builder{
         }
 
         //Load build settings
-        $this->printerMode = $option->getNested("build.print-format");
+        $this->printerMode = (string) $option->getNested("build.print-format");
 
         return $option;
     }
