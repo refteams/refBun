@@ -84,4 +84,12 @@ abstract class BuildEvent extends Event{
     public function getOption() : Config{
         return $this->option;
     }
+
+    public function isArchive() : bool{
+        return substr($this->resultPath, -strlen(".phar")) === ".phar";
+    }
+
+    public function isScript() : bool{
+        return substr($this->resultPath, -strlen(".php")) === ".php";
+    }
 }
