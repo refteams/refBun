@@ -45,12 +45,16 @@ abstract class BuildEvent extends Event{
     /** @var string */
     private $buildedDir;
 
+    /** @var string */
+    private $resultPath;
+
     /** @var Config */
     private $option;
 
-    public function __construct(Builder $builder, string $sourceDir, Config $option){
+    public function __construct(Builder $builder, string $sourceDir, string $resultPath, Config $option){
         $this->builder = $builder;
         $this->sourceDir = $sourceDir;
+        $this->resultPath = $resultPath;
         $this->option = $option;
 
         $this->prepareDir = BluginTools::loadDir(Builder::DIR_PREPARE);
@@ -71,6 +75,10 @@ abstract class BuildEvent extends Event{
 
     public function getPrepareDir() : string{
         return $this->prepareDir;
+    }
+
+    public function getResultPath() : string{
+        return $this->resultPath;
     }
 
     public function getOption() : Config{

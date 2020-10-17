@@ -105,7 +105,7 @@ class Builder{
 
         //Prepare to copy files for build
         $option = $this->loadOption($sourceDir);
-        $prepareEvent = new BuildPrepareEvent($this, $sourceDir, $option);
+        $prepareEvent = new BuildPrepareEvent($this, $sourceDir, $pharPath, $option);
         foreach(BluginTools::readDirectory($sourceDir, true) as $path){
             if($option->getNested("build.include-minimal", true)){
                 $innerPath = substr($path, strlen($sourceDir));
@@ -130,7 +130,7 @@ class Builder{
         VirionInjector::injectAll($prepareDir, $namespace, Virion::getVirionOptions($sourceDir));
 
         //Build with various options
-        (new BuildStartEvent($this, $sourceDir, $option))->call();
+        (new BuildStartEvent($this, $sourceDir, $pharPath, $option))->call();
         foreach(BluginTools::readDirectory($prepareDir, true) as $path){
             if(substr($path, strlen($prepareDir)) === self::OPTION_FILE) //skip option file
                 continue;
@@ -182,7 +182,7 @@ class Builder{
             $phar->compressFiles(\Phar::GZ);
         }
         $phar->stopBuffering();
-        (new BuildCompleteEvent($this, $sourceDir, $option))->call();
+        (new BuildCompleteEvent($this, $sourceDir, $pharPath, $option))->call();
     }
 
     /** @param mixed[] $metadata */
@@ -197,13 +197,14 @@ class Builder{
         //Prepare to copy files for build
         $option = $this->loadOption($sourceDir = BluginTools::cleanDirName(dirname($sourcePath)));
 
-        (new BuildStartEvent($this, $sourceDir, $option))->call();
+        (new BuildStartEvent($this, $sourceDir, $phpPath, $option))->call();
         try{
             $stmts = self::$parser->parse(file_get_contents($sourcePath));
             foreach(Priority::DEFAULT as $priority){
                 $stmts = Traverser::get($priority)->traverse($stmts);
             }
             file_put_contents($phpPath, Printer::getClone($this->printerMode)->print($stmts));
+            (new BuildCompleteEvent($this, $sourceDir, $phpPath, $option))->call();
         }catch(\Error $e){
             echo 'Parse Error: ', $e->getMessage();
         }
