@@ -49,6 +49,7 @@ use blugin\tool\blugintools\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivatePropertyRenamingVisitor;
+use PhpParser\Node\Stmt;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
@@ -62,9 +63,6 @@ class Builder{
     public const DIR_PREPARE = "prepare";
     public const DIR_BUILDED = "builded";
 
-    /** @var Parser */
-    protected static $parser = null;
-
     /** @var mixed[] */
     private $baseOption = [];
 
@@ -72,7 +70,6 @@ class Builder{
         Renamer::registerDefaults();
         Printer::registerDefaults();
         Traverser::registerDefaults();
-        self::$parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     }
 
     public function init(){
@@ -142,7 +139,7 @@ class Builder{
 
             if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
                 try{
-                    $originStmts = self::$parser->parse(file_get_contents($path));
+                    $originStmts = self::parse(file_get_contents($path));
                     $originStmts = Traverser::get(Priority::BEFORE_SPLIT)->traverse($originStmts);
 
                     $files = [$matchs[1] => $originStmts];
@@ -157,7 +154,7 @@ class Builder{
 
                         $contents = null;
                         foreach($printers as $printer){
-                            $contents = $printer->print($contents === null ? $stmts : self::$parser->parse($contents));
+                            $contents = $printer->print($contents ?? $stmts);
                         }
                         file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", $contents);
                     }
@@ -205,14 +202,14 @@ class Builder{
         $printers = $this->loadPrintersFromOption($option);
 
         try{
-            $stmts = self::$parser->parse(file_get_contents($sourcePath));
+            $stmts = self::parse(file_get_contents($sourcePath));
             foreach(Priority::DEFAULT as $priority){
                 $stmts = Traverser::get($priority)->traverse($stmts);
             }
 
             $contents = null;
             foreach($printers as $printer){
-                $contents = $printer->print($contents === null ? $stmts : self::$parser->parse($contents));
+                $contents = $printer->print($contents ?? $stmts);
             }
             file_put_contents($phpPath, $contents);
             (new BuildCompleteEvent($this, $sourceDir, $phpPath, $option))->call();
@@ -289,5 +286,19 @@ class Builder{
             $printers[] = Printer::getClone();
 
         return $printers;
+    }
+
+    public static function getParser() : Parser{
+        static $parser = null;
+        if(empty($parser)){
+            $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        }
+
+        return $parser;
+    }
+
+    /** @return Stmt[]|null */
+    public static function parse(string $code) : ?array{
+        return self::getParser()->parse($code);
     }
 }

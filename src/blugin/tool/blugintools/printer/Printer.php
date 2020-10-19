@@ -37,7 +37,20 @@ abstract class Printer{
     public const PRINTER_SHORTEN = "shorten";
 
     /** @param Node[] $stmts */
-    public abstract function print(array $stmts) : string;
+    public abstract function printStmts(array $stmts) : string;
+
+    public abstract function printCode(string $code) : string;
+
+    /** @param Node[]|string $value */
+    public function print($value) : string{
+        if(is_array($value)){
+            return $this->printStmts($value);
+        }elseif(is_string($value)){
+            return $this->printCode($value);
+        }else{
+            throw new \RuntimeException("Argument 1 passed must be of the Node[] or string, " . gettype($value) . " given");
+        }
+    }
 
     final public static function registerDefaults() : void{
         self::$defaultKey = self::PRINTER_STANDARD;

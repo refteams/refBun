@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\printer;
 
+use blugin\tool\blugintools\builder\Builder;
 use PhpParser\Node;
 use PhpParser\PrettyPrinter\Standard;
 
@@ -43,12 +44,12 @@ class StandardPrinter extends Printer{
         return $this->standard;
     }
 
-    /**
-     * @param Node[] $stmts
-     *
-     * @return string
-     */
-    public function print(array $stmts) : string{
+    /** @param Node[] $stmts */
+    public function printStmts(array $stmts) : string{
         return $this->standard->prettyPrintFile($stmts);
+    }
+
+    public function printCode(string $code) : string{
+        return $this->printStmts(Builder::parse($code));
     }
 }
