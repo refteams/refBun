@@ -68,9 +68,6 @@ class Builder{
     /** @var mixed[] */
     private $baseOption = [];
 
-    /** @var string */
-    private $printerMode = Printer::PRINTER_STANDARD;
-
     public function prepare(){
         Renamer::registerDefaults();
         Printer::registerDefaults();
@@ -131,6 +128,8 @@ class Builder{
 
         //Build with various options
         (new BuildStartEvent($this, $sourceDir, $pharPath, $option))->call();
+        $printers = $this->loadPrintersFromOption($option);
+
         foreach(BluginTools::readDirectory($prepareDir, true) as $path){
             if(substr($path, strlen($prepareDir)) === self::OPTION_FILE) //skip option file
                 continue;
@@ -155,7 +154,12 @@ class Builder{
                         foreach(Priority::DEFAULT as $priority){
                             $stmts = Traverser::get($priority)->traverse($stmts);
                         }
-                        file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", Printer::getClone($this->printerMode)->print($stmts));
+
+                        $contents = null;
+                        foreach($printers as $printer){
+                            $contents = $printer->print($contents === null ? $stmts : self::$parser->parse($contents));
+                        }
+                        file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", $contents);
                     }
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
@@ -198,12 +202,19 @@ class Builder{
         $option = $this->loadOption($sourceDir = BluginTools::cleanDirName(dirname($sourcePath)));
 
         (new BuildStartEvent($this, $sourceDir, $phpPath, $option))->call();
+        $printers = $this->loadPrintersFromOption($option);
+
         try{
             $stmts = self::$parser->parse(file_get_contents($sourcePath));
             foreach(Priority::DEFAULT as $priority){
                 $stmts = Traverser::get($priority)->traverse($stmts);
             }
-            file_put_contents($phpPath, Printer::getClone($this->printerMode)->print($stmts));
+
+            $contents = null;
+            foreach($printers as $printer){
+                $contents = $printer->print($contents === null ? $stmts : self::$parser->parse($contents));
+            }
+            file_put_contents($phpPath, $contents);
             (new BuildCompleteEvent($this, $sourceDir, $phpPath, $option))->call();
         }catch(\Error $e){
             echo 'Parse Error: ', $e->getMessage();
@@ -261,9 +272,22 @@ class Builder{
             }
         }
 
-        //Load build settings
-        $this->printerMode = $option->getNested("build.print-format");
-
         return $option;
+    }
+
+    /** @return Printer[] */
+    public function loadPrintersFromOption(Config $option) : array{
+        $printers = [];
+        foreach($option->getNested("build.print-format") as $printerName){
+            $printer = Printer::getClone($printerName);
+            if($printer === null)
+                throw new \Error("$printerName is invalid printer mode");
+
+            $printers [] = $printer;
+        }
+        if(empty($printers))
+            $printers[] = Printer::getClone();
+
+        return $printers;
     }
 }
