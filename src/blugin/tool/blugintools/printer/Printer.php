@@ -44,12 +44,14 @@ abstract class Printer{
     /** @param Node[]|string $value */
     public function print($value) : string{
         if(is_array($value)){
-            return $this->printStmts($value);
+            $code = $this->printStmts($value);
         }elseif(is_string($value)){
-            return $this->printCode($value);
+            $code = $this->printCode(preg_replace("/^<\\?php\\s+/", "", $value));
         }else{
             throw new \RuntimeException("Argument 1 passed must be of the Node[] or string, " . gettype($value) . " given");
         }
+
+        return "<?php " . $code;
     }
 
     final public static function registerDefaults() : void{

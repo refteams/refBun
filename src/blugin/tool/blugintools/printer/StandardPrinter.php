@@ -46,7 +46,7 @@ class StandardPrinter extends Printer{
 
     /** @param Node[] $stmts */
     public function printStmts(array $stmts) : string{
-        return $this->standard->prettyPrintFile($stmts);
+        return $this->standard->prettyPrint($stmts);
     }
 
     public function printCode(string $code) : string{

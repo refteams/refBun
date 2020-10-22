@@ -54,6 +54,6 @@ class ShortenPrinter extends StandardPrinter{
     }
 
     public function printCode(string $code) : string{
-        return preg_replace('/^<\?php[\s\n]+/', "<?php ", $code);
+        return ltrim($code);
     }
 }
