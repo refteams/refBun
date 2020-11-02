@@ -27,8 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools;
 
-use blugin\lib\translator\traits\MultilingualConfigTrait;
-use blugin\tool\blugintools\builder\AdvancedBuilder;
+use blugin\tool\blugintools\builder\Builder;
 use blugin\tool\blugintools\loader\FolderPluginLoader;
 use blugin\tool\blugintools\loader\virion\VirionLoader;
 use blugin\tool\blugintools\traits\SingletonTrait;
@@ -37,17 +36,17 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
 class BluginTools extends PluginBase{
-    use SingletonTrait, MultilingualConfigTrait;
+    use SingletonTrait;
 
     public function onLoad(){
         self::$instance = $this;
 
-        AdvancedBuilder::getInstance()->prepare();
         VirionLoader::getInstance()->prepare();
+        Builder::getInstance()->prepare();
     }
 
     public function onEnable(){
-        AdvancedBuilder::getInstance()->init();
+        Builder::getInstance()->init();
         FolderPluginLoader::getInstance()->init();
     }
 
@@ -84,8 +83,16 @@ class BluginTools extends PluginBase{
         return $result;
     }
 
+    public static function cleanPath(string $path) : string{
+        return rtrim(str_replace("\\", "/", $path), "/");
+    }
+
     public static function cleanDirName(string $path) : string{
-        return rtrim(str_replace("\\", "/", $path), "/") . "/";
+        return self::cleanPath($path) . "/";
+    }
+
+    public static function cleaNamespace(string $path) : string{
+        return rtrim(str_replace("/", "\\", $path), "\\") . "\\";
     }
 
     public static function getPlugin(string $name) : ?Plugin{
@@ -111,7 +118,7 @@ class BluginTools extends PluginBase{
         return $found;
     }
 
-    public static function loadDir(string $dirname, bool $clean = false) : string{
+    public static function loadDir(string $dirname = "", bool $clean = false) : string{
         $dir = BluginTools::cleanDirName(BluginTools::getInstance()->getDataFolder() . $dirname);
         if(!file_exists($dir)){
             mkdir($dir, 0777, true);

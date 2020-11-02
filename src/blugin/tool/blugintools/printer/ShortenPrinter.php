@@ -28,28 +28,32 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\printer;
 
 use PhpParser\Node;
+use PhpParser\PrettyPrinter\Standard;
 
 class ShortenPrinter extends StandardPrinter{
-    /**
-     * @override for remove line breaks
-     *
-     * @param Node[] $stmts
-     *
-     * @return string
-     */
-    public function print(array $stmts) : string{
-        return preg_replace('/^<\?php[\s\n]+/', "<?php ", parent::print($stmts));
+    public function __construct(){
+        $this->standard = new class extends Standard{
+            /** @override for prevent indenting and linebreak */
+            protected function resetState(){
+                $this->nl = " ";
+                $this->origTokens = null;
+            }
+
+            /** @override for prevent indenting */
+            protected function setIndentLevel(int $level){ }
+
+            protected function indent(){ }
+
+            protected function outdent(){ }
+        };
     }
 
-    /** @override for prevent indenting and linebreak */
-    protected function resetState(){
-        $this->indentLevel = 0;
-        $this->nl = " ";
-        $this->origTokens = null;
+    /** @param Node[] $stmts */
+    public function printStmts(array $stmts) : string{
+        return $this->printCode(parent::printStmts($stmts));
     }
 
-    /** @override for prevent indenting */
-    protected function setIndentLevel(int $level){}
-    protected function indent(){}
-    protected function outdent(){}
+    public function printCode(string $code) : string{
+        return ltrim($code);
+    }
 }

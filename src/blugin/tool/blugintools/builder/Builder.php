@@ -31,13 +31,14 @@ use blugin\tool\blugintools\BluginTools;
 use blugin\tool\blugintools\builder\event\BuildCompleteEvent;
 use blugin\tool\blugintools\builder\event\BuildPrepareEvent;
 use blugin\tool\blugintools\builder\event\BuildStartEvent;
-use blugin\tool\blugintools\builder\TraverserPriority as Priority;
+use blugin\tool\blugintools\loader\virion\Virion;
 use blugin\tool\blugintools\loader\virion\VirionInjector;
 use blugin\tool\blugintools\printer\Printer;
 use blugin\tool\blugintools\processor\CodeSpliter;
 use blugin\tool\blugintools\renamer\Renamer;
 use blugin\tool\blugintools\traits\SingletonFactoryTrait;
-use blugin\tool\blugintools\traverser\AdvancedTraverser;
+use blugin\tool\blugintools\traverser\Traverser;
+use blugin\tool\blugintools\traverser\TraverserPriority as Priority;
 use blugin\tool\blugintools\visitor\CommentOptimizingVisitor;
 use blugin\tool\blugintools\visitor\ImportForcingVisitor;
 use blugin\tool\blugintools\visitor\ImportGroupingVisitor;
@@ -48,14 +49,16 @@ use blugin\tool\blugintools\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivatePropertyRenamingVisitor;
+use PhpParser\Node\Stmt;
+use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
 use pocketmine\utils\Config;
 
-class AdvancedBuilder{
+class Builder{
     use SingletonFactoryTrait;
 
-    public const OPTION_FILE = ".advancedbuilder.yml";
+    public const OPTION_FILE = ".buildoption.yml";
 
     public const DIR_PREPARE = "prepare";
     public const DIR_BUILDED = "builded";
@@ -63,13 +66,10 @@ class AdvancedBuilder{
     /** @var mixed[] */
     private $baseOption = [];
 
-    /** @var string */
-    private $printerMode = Printer::PRINTER_STANDARD;
-
     public function prepare(){
         Renamer::registerDefaults();
         Printer::registerDefaults();
-        AdvancedTraverser::registerDefaults();
+        Traverser::registerDefaults();
     }
 
     public function init(){
@@ -77,13 +77,14 @@ class AdvancedBuilder{
 
         $command = BluginTools::getInstance()->getCommand("bluginbuilder");
         if($command instanceof PluginCommand){
-            $command->setExecutor(new BuildCommandExecutor($this));
+            $command->setExecutor(new PluginBuildExecutor());
         }
     }
 
     /** @param mixed[] $metadata */
-    public function buildPhar(string $sourceDir, string $pharPath, array $metadata) : void{
+    public function buildPhar(string $sourceDir, string $pharPath, string $namespace, array $metadata = []) : void{
         $sourceDir = BluginTools::cleanDirName($sourceDir);
+        $pharPath = BluginTools::cleanPath($pharPath);
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
@@ -98,7 +99,7 @@ class AdvancedBuilder{
 
         //Prepare to copy files for build
         $option = $this->loadOption($sourceDir);
-        $prepareEvent = new BuildPrepareEvent($this, $sourceDir, $option);
+        $prepareEvent = new BuildPrepareEvent($this, $sourceDir, $pharPath, $option);
         foreach(BluginTools::readDirectory($sourceDir, true) as $path){
             if($option->getNested("build.include-minimal", true)){
                 $innerPath = substr($path, strlen($sourceDir));
@@ -120,22 +121,12 @@ class AdvancedBuilder{
         }
 
         //Infect virions by '.poggit.yml' or option
-        if(file_exists($poggitYmlFile = $sourceDir . ".poggit.yml")){
-            $poggitYml = yaml_parse(file_get_contents($poggitYmlFile));
-            if(is_array($poggitYml) && isset($poggitYml["projects"])){
-                foreach($poggitYml["projects"] as $projectOption){
-                    if(empty($projectOption["path"])){
-                        $option->setNested("virions", $projectOption["libs"] ?? []);
-                        break;
-                    }
-                }
-            }
-        }
-        VirionInjector::injectAll($prepareDir, $option);
+        VirionInjector::injectAll($prepareDir, $namespace, Virion::getVirionOptions($sourceDir));
 
         //Build with various options
-        (new BuildStartEvent($this, $sourceDir, $option))->call();
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        (new BuildStartEvent($this, $sourceDir, $pharPath, $option))->call();
+        $printers = $this->loadPrintersFromOption($option);
+
         foreach(BluginTools::readDirectory($prepareDir, true) as $path){
             if(substr($path, strlen($prepareDir)) === self::OPTION_FILE) //skip option file
                 continue;
@@ -148,8 +139,8 @@ class AdvancedBuilder{
 
             if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
                 try{
-                    $originStmts = $parser->parse(file_get_contents($path));
-                    $originStmts = AdvancedTraverser::get(Priority::BEFORE_SPLIT)->traverse($originStmts);
+                    $originStmts = self::parse(file_get_contents($path));
+                    $originStmts = Traverser::get(Priority::BEFORE_SPLIT)->traverse($originStmts);
 
                     $files = [$matchs[1] => $originStmts];
                     if($option->getNested("preprocessing.spliting", true)){
@@ -157,10 +148,15 @@ class AdvancedBuilder{
                     }
 
                     foreach($files as $filename => $stmts){
-                        foreach(Priority::ALL as $priority){
-                            $stmts = AdvancedTraverser::get($priority)->traverse($stmts);
+                        foreach(Priority::DEFAULT as $priority){
+                            $stmts = Traverser::get($priority)->traverse($stmts);
                         }
-                        file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", Printer::getClone($this->printerMode)->print($stmts));
+
+                        $contents = null;
+                        foreach($printers as $printer){
+                            $contents = $printer->print($contents ?? $stmts);
+                        }
+                        file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", $contents);
                     }
                 }catch(\Error $e){
                     echo 'Parse Error: ', $e->getMessage();
@@ -187,23 +183,58 @@ class AdvancedBuilder{
             $phar->compressFiles(\Phar::GZ);
         }
         $phar->stopBuffering();
-        (new BuildCompleteEvent($this, $sourceDir, $option))->call();
+        (new BuildCompleteEvent($this, $sourceDir, $pharPath, $option))->call();
     }
 
-    public function loadOption(string $dir, int $type = Config::DETECT) : Config{
-        if(!is_file($file = $dir . self::OPTION_FILE)){
-            $file = BluginTools::loadDir(self::DIR_PREPARE) . self::OPTION_FILE;
+    /** @param mixed[] $metadata */
+    public function buildScript(string $sourcePath, string $phpPath, array $metadata = []) : void{
+        $sourcePath = BluginTools::cleanPath($sourcePath);
+        $phpPath = BluginTools::cleanPath($phpPath);
+        //Remove the existing PHP file
+        if(is_file($phpPath)){
+            unlink($phpPath);
         }
-        $option = new Config($file, $type, $this->baseOption);
+
+        //Prepare to copy files for build
+        $option = $this->loadOption($sourceDir = BluginTools::cleanDirName(dirname($sourcePath)));
+
+        (new BuildStartEvent($this, $sourceDir, $phpPath, $option))->call();
+        $printers = $this->loadPrintersFromOption($option);
+
+        try{
+            $stmts = self::parse(file_get_contents($sourcePath));
+            foreach(Priority::DEFAULT as $priority){
+                $stmts = Traverser::get($priority)->traverse($stmts);
+            }
+
+            $contents = null;
+            foreach($printers as $printer){
+                $contents = $printer->print($contents ?? $stmts);
+            }
+            file_put_contents($phpPath, $contents);
+            (new BuildCompleteEvent($this, $sourceDir, $phpPath, $option))->call();
+        }catch(\Error $e){
+            echo 'Parse Error: ', $e->getMessage();
+        }
+    }
+
+    public function loadOption(string $dir) : Config{
+        if(is_file($tempFile = BluginTools::loadDir() . self::OPTION_FILE)){
+            unlink($tempFile);
+        }
+        if(is_file($optionFile = $dir . self::OPTION_FILE)){
+            copy($optionFile, $tempFile);
+        }
+        $option = new Config($tempFile, Config::DETECT, $this->baseOption);
 
         //Remove old visitors of traserver
-        foreach(AdvancedTraverser::getAll() as $traverser){
+        foreach(Traverser::getAll() as $traverser){
             $traverser->removeVisitors();
         }
 
         //Load pre-processing settings
         if($option->getNested("preprocessing.comment-optimizing", true)){
-            AdvancedTraverser::registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
+            Traverser::registerVisitor(Priority::NORMAL, new CommentOptimizingVisitor());
         }
 
         //Load renaming mode settings
@@ -215,32 +246,59 @@ class AdvancedBuilder{
         ] as $key => $class){
             $renamer = Renamer::getClone($option->getNested("preprocessing.renaming.$key", "serial"));
             if($renamer !== null){
-                AdvancedTraverser::registerVisitor(Priority::NORMAL, new $class($renamer));
+                Traverser::registerVisitor(Priority::NORMAL, new $class($renamer));
             }
         }
 
         //Load import processing mode settings
         $mode = $option->getNested("preprocessing.importing.renaming", "serial");
         if($mode === "resolve"){
-            AdvancedTraverser::registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
+            Traverser::registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
         }else{
             if(($renamer = Renamer::getClone($mode)) !== null){
-                AdvancedTraverser::registerVisitor(Priority::HIGH, new ImportRenamingVisitor($renamer));
+                Traverser::registerVisitor(Priority::HIGH, new ImportRenamingVisitor($renamer));
             }
             if($option->getNested("preprocessing.importing.forcing", true)){
-                AdvancedTraverser::registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
+                Traverser::registerVisitor(Priority::NORMAL, new ImportForcingVisitor());
             }
             if($option->getNested("preprocessing.importing.grouping", true)){
-                AdvancedTraverser::registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
+                Traverser::registerVisitor(Priority::HIGHEST, new ImportGroupingVisitor());
             }
             if($option->getNested("preprocessing.importing.sorting", true)){
-                AdvancedTraverser::registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
+                Traverser::registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
             }
         }
 
-        //Load build settings
-        $this->printerMode = $option->getNested("build.print-format");
-
         return $option;
+    }
+
+    /** @return Printer[] */
+    public function loadPrintersFromOption(Config $option) : array{
+        $printers = [];
+        foreach($option->getNested("build.print-format") as $printerName){
+            $printer = Printer::getClone($printerName);
+            if($printer === null)
+                throw new \Error("$printerName is invalid printer mode");
+
+            $printers [] = $printer;
+        }
+        if(empty($printers))
+            $printers[] = Printer::getClone();
+
+        return $printers;
+    }
+
+    public static function getParser() : Parser{
+        static $parser = null;
+        if(empty($parser)){
+            $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        }
+
+        return $parser;
+    }
+
+    /** @return Stmt[]|null */
+    public static function parse(string $code) : ?array{
+        return self::getParser()->parse($code);
     }
 }

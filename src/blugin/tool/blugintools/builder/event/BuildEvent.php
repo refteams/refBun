@@ -28,12 +28,12 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\builder\event;
 
 use blugin\tool\blugintools\BluginTools;
-use blugin\tool\blugintools\builder\AdvancedBuilder;
+use blugin\tool\blugintools\builder\Builder;
 use pocketmine\event\Event;
 use pocketmine\utils\Config;
 
 abstract class BuildEvent extends Event{
-    /** @var AdvancedBuilder */
+    /** @var Builder */
     private $builder;
 
     /** @var string */
@@ -45,19 +45,23 @@ abstract class BuildEvent extends Event{
     /** @var string */
     private $buildedDir;
 
+    /** @var string */
+    private $resultPath;
+
     /** @var Config */
     private $option;
 
-    public function __construct(AdvancedBuilder $builder, string $sourceDir, Config $option){
+    public function __construct(Builder $builder, string $sourceDir, string $resultPath, Config $option){
         $this->builder = $builder;
         $this->sourceDir = $sourceDir;
+        $this->resultPath = $resultPath;
         $this->option = $option;
 
-        $this->prepareDir = BluginTools::loadDir(AdvancedBuilder::DIR_PREPARE);
-        $this->buildedDir = BluginTools::loadDir(AdvancedBuilder::DIR_BUILDED);
+        $this->prepareDir = BluginTools::loadDir(Builder::DIR_PREPARE);
+        $this->buildedDir = BluginTools::loadDir(Builder::DIR_BUILDED);
     }
 
-    public function getBuilder() : AdvancedBuilder{
+    public function getBuilder() : Builder{
         return $this->builder;
     }
 
@@ -73,7 +77,19 @@ abstract class BuildEvent extends Event{
         return $this->prepareDir;
     }
 
+    public function getResultPath() : string{
+        return $this->resultPath;
+    }
+
     public function getOption() : Config{
         return $this->option;
+    }
+
+    public function isArchive() : bool{
+        return substr($this->resultPath, -strlen(".phar")) === ".phar";
+    }
+
+    public function isScript() : bool{
+        return substr($this->resultPath, -strlen(".php")) === ".php";
     }
 }

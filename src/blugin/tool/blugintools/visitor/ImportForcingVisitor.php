@@ -67,18 +67,15 @@ class ImportForcingVisitor extends NameResolver{
     }
 
     protected function resolveName(Name $name, int $type) : Name{
-        $originalName = str_replace("\\", "", $name->toCodeString());
         $result = parent::resolveName($name, $type);
         $code = $result->toCodeString();
         if($result instanceof FullyQualified){
             if(!isset($this->uses[$code])){
-                $parts = $result->parts;
-                if(count($parts) === 1){ //Replace to global function/constant
+                if($result->isUnqualified()){ //Replace to global function/constant
                     return $this->resolveGlobal($result) ?? $name;
                 }
-                $lastPart = array_pop($parts);
-                $this->newUses[$code] = new UseUse(new Name(ltrim($code, "\\")), $lastPart === $originalName ? null : new Node\Identifier($originalName), Use_::TYPE_NORMAL);
-                return new Name($originalName, $name->getAttributes());
+                $this->newUses[$code] = new UseUse(new Name(ltrim($code, "\\")), $result->getLast() === $name->getLast() ? null : new Node\Identifier($name->toCodeString()), Use_::TYPE_NORMAL);
+                return new Name($name->getLast(), $name->getAttributes());
             }
         }else{
             return $this->resolveGlobal($result) ?? $name;
@@ -86,7 +83,7 @@ class ImportForcingVisitor extends NameResolver{
         return $name; //Return original name instead of resolved name
     }
 
-    /** @param Node[] $nodes * */
+    /** @param Node[] $nodes */
     private function registerUses(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){
@@ -102,7 +99,7 @@ class ImportForcingVisitor extends NameResolver{
         }
     }
 
-    /** @param Node[] $nodes * */
+    /** @param Node[] $nodes */
     private function appendUsesToNamespace(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Namespace_){

@@ -144,7 +144,6 @@ abstract class Renamer{
     final public static function registerDefaults() : void{
         self::register(self::RENAMER_SHORTEN, new ShortenRenamer());
         self::register(self::RENAMER_SERIAL, new SerialRenamer());
-        self::register(self::RENAMER_SPACE, new SpaceRenamer());
         self::register(self::RENAMER_MD5, new MD5Renamer());
     }
 }

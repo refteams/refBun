@@ -27,13 +27,13 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\traverser;
 
-use blugin\tool\blugintools\builder\TraverserPriority as Priority;
 use blugin\tool\blugintools\traits\SelfFactoryTrait;
+use blugin\tool\blugintools\traverser\TraverserPriority as Priority;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitorAbstract;
 
-class AdvancedTraverser extends NodeTraverser{
+class Traverser extends NodeTraverser{
     use SelfFactoryTrait;
 
     /** @var NodeVisitor[] Visitors */
@@ -47,7 +47,7 @@ class AdvancedTraverser extends NodeTraverser{
 
     final public static function registerDefaults() : void{
         foreach(Priority::ALL as $priority){
-            self::register($priority, new AdvancedTraverser());
+            self::register($priority, new Traverser());
         }
     }
 

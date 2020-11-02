@@ -28,9 +28,12 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\loader\virion;
 
 use blugin\tool\blugintools\BluginTools;
+use blugin\tool\blugintools\builder\Builder;
 use pocketmine\Server;
 
 class Virion{
+    public const INFECTION_FILE = "virus-infections.json";
+
     /** @var string */
     private $name;
 
@@ -46,9 +49,13 @@ class Virion{
     /** @var mixed[] */
     private $yml;
 
-    public function __construct(string $path, array $yml){
+    /** @var mixed[] */
+    private $options;
+
+    public function __construct(string $path, array $yml, array $virionOption = []){
         $this->path = $path;
         $this->yml = $yml;
+        $this->options = $virionOption;
 
         $this->name = $yml["name"];
         $this->version = $yml["version"];
@@ -76,21 +83,23 @@ class Virion{
         return $this->yml;
     }
 
+    /** @return mixed[] */
+    public function getOptions() : array{
+        return $this->options;
+    }
+
     public static function from(string $path) : ?Virion{
         if(is_dir($path)){
             $path = BluginTools::cleanDirName($path);
         }elseif(is_file($path) && substr($path, -5) === ".phar"){
             $path = "phar://" . BluginTools::cleanDirName($path);
         }else{
-            Server::getInstance()->getLogger()->error("Could not load virion: invalid path ($path)");
             return null;
         }
 
         $virionYml = "{$path}virion.yml";
-        if(!is_file($virionYml)){
-            Server::getInstance()->getLogger()->error("Could not load virion: virion.yml missing");
+        if(!is_file($virionYml))
             return null;
-        }
 
         $data = yaml_parse(file_get_contents($virionYml));
         if(!is_array($data)){
@@ -106,6 +115,24 @@ class Virion{
             }
         }
 
-        return new Virion($path, $data);
+        return new Virion($path, $data, self::getVirionOptions($path));
+    }
+
+    public static function getVirionOptions(string $path, string $projectPath = "") : array{
+        if(is_file($file = $path . ".poggit.yml") && is_array($manifest = yaml_parse(file_get_contents($file)))){
+            foreach(($manifest["projects"] ?? []) as $projectOption){
+                if(BluginTools::cleanDirName(($projectOption["path"] ?? "")) === BluginTools::cleanDirName($projectPath)){
+                    return $projectOption["libs"] ?? [];
+                }
+            }
+        }elseif(empty($projectPath)){
+            if(is_file($file = $path . Builder::OPTION_FILE) && is_array($manifest = yaml_parse(file_get_contents($file)))){
+                $manifest = yaml_parse(file_get_contents($file));
+                return $manifest["virion"] ?? [];
+            }else{
+                return self::getVirionOptions($parentDir = BluginTools::cleanDirName(dirname($path)), substr($path, strlen($parentDir)));
+            }
+        }
+        return [];
     }
 }

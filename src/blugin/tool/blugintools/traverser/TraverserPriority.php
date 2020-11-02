@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace blugin\tool\blugintools\builder;
+namespace blugin\tool\blugintools\traverser;
 
 use pocketmine\event\EventPriority as Priority;
 
@@ -41,6 +41,15 @@ final class TraverserPriority{
 
     public const ALL = [
         self::BEFORE_SPLIT,
+        Priority::LOWEST,
+        Priority::LOW,
+        Priority::NORMAL,
+        Priority::HIGH,
+        Priority::HIGHEST,
+        Priority::MONITOR
+    ];
+
+    public const DEFAULT = [
         Priority::LOWEST,
         Priority::LOW,
         Priority::NORMAL,

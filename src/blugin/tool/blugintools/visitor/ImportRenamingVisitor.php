@@ -29,7 +29,7 @@ namespace blugin\tool\blugintools\visitor;
 
 use blugin\tool\blugintools\renamer\IRenamerHolder;
 use blugin\tool\blugintools\renamer\Renamer;
-use blugin\tool\blugintools\renamer\RenamerHolderTrait;
+use blugin\tool\blugintools\traits\renamer\RenamerHolderTrait;
 use PhpParser\ErrorHandler;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ConstFetch;

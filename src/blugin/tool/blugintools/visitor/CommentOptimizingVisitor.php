@@ -30,10 +30,11 @@ namespace blugin\tool\blugintools\visitor;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
+use pocketmine\utils\Utils;
 
 class CommentOptimizingVisitor extends NodeVisitorAbstract{
-    /** string[] regex format[] */
-    private static $allowList = null;
+    /** string[] name => $contentRegex */
+    private static $allowTags = null;
 
     public function enterNode(Node $node) : ?Node{
         $doc = $node->getDocComment();
@@ -45,51 +46,54 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
         if($doc === null)
             return null;
 
-        //Store meaningfull comments
-        $docComments = [];
-        $docText = $doc->getText();
-        foreach(self::getAllowList() as $_ => $regex){
-            if(preg_match($regex, $docText, $matches) > 0){
-                $docComments[] = implode(" ", array_slice($matches, 1));
-            }
+        $allowTags = self::getAllowTags();
+        $tags = [];
+        foreach(Utils::parseDocComment($doc->getText()) as $name => $content){
+            if(!isset($allowTags[$name]))
+                continue;
+
+            preg_match($allowTags[$name], $content, $matches);
+            $tags[] = "@$name " . implode(" ", array_slice($matches, 1));
         }
 
         //If the comment has no meaningfull comments, skip.
-        if(empty($docComments))
+        if(($count = count($tags)) === 0)
             return null;
 
-        //Add doc comment
-        $text = "/**" . PHP_EOL;
-        foreach($docComments as $value){
-            $text .= "* @$value" . PHP_EOL;
+        if($count === 1){
+            $newDocText = "/** {$tags[0]} */";
+        }else{
+            $newDocText = "/**" . PHP_EOL . " * ";
+            $newDocText .= implode(PHP_EOL . " * ", $tags);
+            $newDocText .= PHP_EOL . "*/";
         }
-        $text .= "*/";
-        $node->setAttribute("comments", [new Doc($text)]);
+        //Add doc comment
+        $node->setAttribute("comments", [new Doc($newDocText)]);
         return $node;
     }
 
     /** @return string[] regex format[] */
-    public static function getAllowList() : array{
-        if(self::$allowList === null){
-            self::initMeaningfullList();;
+    public static function getAllowTags() : array{
+        if(self::$allowTags === null){
+            self::initAllowTags();
         }
-        return self::$allowList;
+        return self::$allowTags;
     }
 
     /** @param string $regex */
-    public static function register(string $regex) : void{
-        if(self::$allowList === null){
-            self::initMeaningfullList();;
+    public static function register(string $name, string $regex = "//") : void{
+        if(self::$allowTags === null){
+            self::initAllowTags();
         }
-        self::$allowList[] = $regex;
+        self::$allowTags[$name] = $regex;
     }
 
-    public static function initMeaningfullList() : void{
-        self::$allowList = [];
-        self::register("/^[\t ]*\* @(notHandler)/m");
-        self::register("/^[\t ]*\* @(ignoreCancelled)/m");
-        self::register("/^[\t ]*\* @(handleCancelled)/m");
-        self::register("/^[\t ]*\* @(softDepend)[\t ]+([a-zA-Z]+)/m");
-        self::register("/^[\t ]*\* @(priority)[\t ]+([a-zA-Z]+)/m");
+    public static function initAllowTags() : void{
+        self::$allowTags = [];
+        self::register("notHandler");
+        self::register("ignoreCancelled");
+        self::register("handleCancelled");
+        self::register("softDepend", "/([a-zA-Z]+)/");
+        self::register("priority", "/([a-zA-Z]+)/");
     }
 }
