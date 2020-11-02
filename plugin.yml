@@ -1,7 +1,7 @@
 ---
 name: BluginTools
 main: blugin\tool\blugintools\BluginTools
-version: 2.1.0
+version: 3.1.0
 api: [3.0.0]
 authors: ['Blugin-team', 'PresentKim']
 description: '[tool] Several tools to help with pmmp plugin development'
