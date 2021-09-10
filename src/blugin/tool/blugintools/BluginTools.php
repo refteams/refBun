@@ -58,10 +58,10 @@ final class BluginTools extends PluginBase{
         self::$instance = $this;
 
         $parserSrc = realpath(__DIR__ . "/../../../../lib/php-parser/lib/PhpParser");
-        $this->getServer()->getLoader()->addPath("PhpParser", $parserSrc);
-        if(!is_dir($parserSrc)){
+        if(!$parserSrc || !is_dir($parserSrc)){
             throw new PluginException("PhpParser library not found");
         }
+        $this->getServer()->getLoader()->addPath("PhpParser", $parserSrc);
 
         VirionLoader::getInstance()->prepare();
         Builder::getInstance()->prepare();
