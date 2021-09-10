@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace blugin\tool\blugintools\printer;
 
 use PhpParser\Node;
+use PhpParser\Node\Stmt;
 use PhpParser\PrettyPrinter\Standard;
 
 class ShortenPrinter extends StandardPrinter{
@@ -48,8 +49,12 @@ class ShortenPrinter extends StandardPrinter{
         };
     }
 
-    /** @param Node[] $stmts */
-    public function print(array $stmts) : string{
-        return preg_replace('/^<\?php[\s\n]+/', "<?php ", parent::print($stmts));
+    /** @param Stmt[] $stmts */
+    public function printStmts(array $stmts) : string{
+        return $this->printCode(parent::printStmts($stmts));
+    }
+
+    public function printCode(string $code) : string{
+        return ltrim($code);
     }
 }

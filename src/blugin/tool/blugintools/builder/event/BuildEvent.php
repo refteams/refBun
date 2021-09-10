@@ -43,9 +43,12 @@ abstract class BuildEvent extends Event{
 
     private Config $option;
 
-    public function __construct(Builder $builder, string $sourceDir, Config $option){
+    private string $resultPath;
+
+    public function __construct(Builder $builder, string $sourceDir, string $resultPath, Config $option){
         $this->builder = $builder;
         $this->sourceDir = $sourceDir;
+        $this->resultPath = $resultPath;
         $this->option = $option;
 
         $this->prepareDir = BluginTools::loadDir(Builder::DIR_PREPARE);
@@ -68,7 +71,19 @@ abstract class BuildEvent extends Event{
         return $this->prepareDir;
     }
 
+    public function getResultPath() : string{
+        return $this->resultPath;
+    }
+
     public function getOption() : Config{
         return $this->option;
+    }
+
+    public function isArchive() : bool{
+        return substr($this->resultPath, -strlen(".phar")) === ".phar";
+    }
+
+    public function isScript() : bool{
+        return substr($this->resultPath, -strlen(".php")) === ".php";
     }
 }
