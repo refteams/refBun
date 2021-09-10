@@ -29,8 +29,8 @@ namespace blugin\tool\blugintools\loader;
 
 use blugin\tool\blugintools\traits\SingletonFactoryTrait;
 use pocketmine\plugin\PluginDescription;
+use pocketmine\plugin\PluginEnableOrder;
 use pocketmine\plugin\PluginLoader;
-use pocketmine\plugin\PluginLoadOrder;
 use pocketmine\Server;
 
 class FolderPluginLoader implements PluginLoader{
@@ -40,7 +40,7 @@ class FolderPluginLoader implements PluginLoader{
         $server = Server::getInstance();
         $server->getPluginManager()->registerInterface($this);
         $server->getPluginManager()->loadPlugins($server->getPluginPath(), [FolderPluginLoader::class]);
-        $server->enablePlugins(PluginLoadOrder::STARTUP());
+        $server->enablePlugins(PluginEnableOrder::STARTUP());
     }
 
     public function canLoadPlugin(string $path) : bool{
