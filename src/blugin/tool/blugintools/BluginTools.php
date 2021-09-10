@@ -33,6 +33,7 @@ use blugin\tool\blugintools\loader\virion\VirionLoader;
 use blugin\tool\blugintools\traits\SingletonTrait;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
+use pocketmine\plugin\PluginException;
 use pocketmine\Server;
 
 final class BluginTools extends PluginBase{
@@ -40,6 +41,12 @@ final class BluginTools extends PluginBase{
 
     protected function onLoad() : void{
         self::$instance = $this;
+
+        $parserSrc = realpath(__DIR__ . "/../../../../lib/php-parser/lib/PhpParser");
+        $this->getServer()->getLoader()->addPath("PhpParser", $parserSrc);
+        if(!is_dir($parserSrc)){
+            throw new PluginException("PhpParser library not found");
+        }
 
         VirionLoader::getInstance()->prepare();
         Builder::getInstance()->prepare();
