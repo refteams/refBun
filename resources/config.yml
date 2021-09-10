@@ -5,7 +5,7 @@
 #Pre-processing settings
 preprocessing:
   #Split multiple class/trait/interface
-  spliting: true
+  splitting: true
 
   #Renaming mode settings
   #Modes Supported : shorten, serial(Sequential variable), md5(5 character hash text),  false(disable)

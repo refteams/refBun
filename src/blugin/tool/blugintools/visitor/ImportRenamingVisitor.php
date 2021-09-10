@@ -40,10 +40,12 @@ use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\NodeVisitor\NameResolver;
 
+use function is_array;
+use function ltrim;
+
 class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
     use RenamerHolderTrait, GetFullyQualifiedTrait;
 
-    /** @param mixed[] $options Options */
     public function __construct(Renamer $renamer, ErrorHandler $errorHandler = null, array $options = []){
         parent::__construct($errorHandler, $options);
         $this->setRenamer($renamer);
@@ -66,10 +68,9 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         return $nodes;
     }
 
-    /** @return int|Node|null */
     public function enterNode(Node $node) : ?Node{
         if($node instanceof FunctionLike){
-            foreach($node->getParams() as $key => $param){
+            foreach($node->getParams() as $param){
                 if($param->default instanceof ConstFetch && $param->default->name->parts[0] === "null"){
                     $param->default->setAttribute("byParams", $param);
                 }
@@ -84,7 +85,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
     /** @return int|Node|Node[]|null */
     public function leaveNode(Node $node){
         if($node instanceof Use_ || $node instanceof GroupUse){
-            foreach($node->uses as $k => $use){
+            foreach($node->uses as $use){
                 $newName = $this->renamer->rename(new Identifier($this->getFullyQualifiedString($use, $node)));
                 if($newName instanceof Identifier){
                     $use->alias = $newName;
@@ -106,11 +107,11 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
         return $result;
     }
 
-    /** @param Node[] $nodes **/
+    /** @param Node[] $nodes * */
     private function registerUses(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){
-                foreach($node->uses as $k => $use){
+                foreach($node->uses as $use){
                     $this->renamer->generate(new Identifier($this->getFullyQualifiedString($use, $node)));
                 }
             }

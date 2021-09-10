@@ -33,6 +33,8 @@ use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\UseUse;
 
+use function ltrim;
+
 trait GetFullyQualifiedTrait{
     protected function getFullyQualified(UseUse $use, ?Node $node = null) : FullyQualified{
         return new FullyQualified($node instanceof GroupUse && $node->prefix ? Name::concat($node->prefix, $use->name) : $use->name, $use->getAttributes());

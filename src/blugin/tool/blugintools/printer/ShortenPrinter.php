@@ -27,12 +27,14 @@ declare(strict_types=1);
 
 namespace blugin\tool\blugintools\printer;
 
-use PhpParser\Node;
 use PhpParser\Node\Stmt;
 use PhpParser\PrettyPrinter\Standard;
 
+use function ltrim;
+
 class ShortenPrinter extends StandardPrinter{
     public function __construct(){
+        parent::__construct();
         $this->standard = new class extends Standard{
             /** @override for prevent indenting and linebreak */
             protected function resetState(){

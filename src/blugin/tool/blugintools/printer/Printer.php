@@ -30,6 +30,13 @@ namespace blugin\tool\blugintools\printer;
 use blugin\tool\blugintools\traits\SelfFactoryTrait;
 use PhpParser\Node;
 
+use RuntimeException;
+
+use function gettype;
+use function is_array;
+use function is_string;
+use function preg_replace;
+
 abstract class Printer{
     use SelfFactoryTrait;
 
@@ -42,13 +49,13 @@ abstract class Printer{
     public abstract function printCode(string $code) : string;
 
     /** @param Node[]|string $value */
-    public function print($value) : string{
+    public function print(array|string $value) : string{
         if(is_array($value)){
             $code = $this->printStmts($value);
         }elseif(is_string($value)){
             $code = $this->printCode(preg_replace("/^<\\?php\\s+/", "", $value));
         }else{
-            throw new \RuntimeException("Argument 1 passed must be of the Node[] or string, " . gettype($value) . " given");
+            throw new RuntimeException("Argument 1 passed must be of the Node[] or string, " . gettype($value) . " given");
         }
 
         return "<?php " . $code;

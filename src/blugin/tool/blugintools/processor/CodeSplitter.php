@@ -33,8 +33,12 @@ use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\ParserFactory;
 
-final class CodeSpliter{
-    private function __contruct(){
+use function array_keys;
+use function count;
+use function is_array;
+
+final class CodeSplitter{
+    private function __construct(){
     }
 
     /**

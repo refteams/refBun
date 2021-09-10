@@ -30,10 +30,10 @@ namespace blugin\tool\blugintools\traverser;
 use pocketmine\event\EventPriority as Priority;
 
 /**
- * List of traserver priorities extends EventPriority
+ * List of traverser priorities extends EventPriority
  *
  * Traverser will be called in this order:
- * BEFORE_SPLIT -> (spliting file ->) LOWEST -> LOW -> NORMAL -> HIGH -> HIGHEST
+ * BEFORE_SPLIT -> (splitting file ->) LOWEST -> LOW -> NORMAL -> HIGH -> HIGHEST
  */
 final class TraverserPriority{
     private function __construct(){
@@ -59,7 +59,7 @@ final class TraverserPriority{
     ];
 
     /**
-     * Traserver call before split files
+     * Traverser call before split files
      */
     public const BEFORE_SPLIT = 6;
 

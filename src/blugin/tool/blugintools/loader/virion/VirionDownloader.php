@@ -30,6 +30,11 @@ namespace blugin\tool\blugintools\loader\virion;
 use pocketmine\Server;
 use pocketmine\utils\Internet;
 
+use function file_exists;
+use function file_put_contents;
+use function mkdir;
+use function sprintf;
+
 class VirionDownloader{
     public const VIRION_GET_URL = "https://poggit.pmmp.io//v.dl/%s/%s/%s/%s";
     public const FILE_NAME_FORMAT = "%s_v%s.phar";

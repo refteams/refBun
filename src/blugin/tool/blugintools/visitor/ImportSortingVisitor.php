@@ -34,11 +34,12 @@ use PhpParser\Node\Stmt\Use_;
 use PhpParser\Node\Stmt\UseUse;
 use PhpParser\NodeVisitorAbstract;
 
+use function is_array;
+use function usort;
+
 class ImportSortingVisitor extends NodeVisitorAbstract{
     /**
      * @param Node[] $nodes
-     *
-     * @return array
      **/
     public function afterTraverse(array $nodes) : ?array{
         $this->readUses($nodes);

@@ -38,6 +38,11 @@ use pocketmine\plugin\ScriptPluginLoader;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as C;
 
+use function count;
+use function implode;
+use function preg_replace;
+use function time;
+
 class PluginBuildExecutor implements CommandExecutor{
     public const SCRIPTPLUGIN_ALLOW_TAGS = [
         "name",

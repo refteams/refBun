@@ -30,11 +30,26 @@ namespace blugin\tool\blugintools;
 use blugin\tool\blugintools\builder\Builder;
 use blugin\tool\blugintools\loader\FolderPluginLoader;
 use blugin\tool\blugintools\loader\virion\VirionLoader;
-use blugin\tool\blugintools\traits\SingletonTrait;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginException;
 use pocketmine\Server;
+use pocketmine\utils\SingletonTrait;
+
+use function array_diff;
+use function count;
+use function file_exists;
+use function is_dir;
+use function is_file;
+use function mkdir;
+use function realpath;
+use function rmdir;
+use function rtrim;
+use function scandir;
+use function str_replace;
+use function stripos;
+use function strlen;
+use function unlink;
 
 final class BluginTools extends PluginBase{
     use SingletonTrait;
@@ -59,7 +74,7 @@ final class BluginTools extends PluginBase{
 
     public static function clearDirectory(string $dir) : bool{
         foreach(self::readDirectory($dir) as $file){
-            $path = "{$dir}/{$file}";
+            $path = "$dir/$file";
             if(is_dir($path)){
                 self::clearDirectory($path);
                 rmdir($path);

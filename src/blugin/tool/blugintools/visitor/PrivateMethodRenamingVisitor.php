@@ -34,6 +34,8 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
 
+use function strpos;
+
 class PrivateMethodRenamingVisitor extends PrivateRenamingVisitor{
     protected function registerNode(Node $node) : void{
         if($node instanceof ClassMethod && $node->isPrivate()){

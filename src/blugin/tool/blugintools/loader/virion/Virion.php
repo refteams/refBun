@@ -31,6 +31,15 @@ use blugin\tool\blugintools\BluginTools;
 use blugin\tool\blugintools\builder\Builder;
 use pocketmine\Server;
 
+use function dirname;
+use function file_get_contents;
+use function is_array;
+use function is_dir;
+use function is_file;
+use function strlen;
+use function substr;
+use function yaml_parse;
+
 class Virion{
     public const INFECTION_FILE = "virus-infections.json";
 
@@ -42,10 +51,7 @@ class Virion{
 
     private string $path;
 
-    /** @var mixed[] */
     private array $yml;
-
-    /** @var mixed[] */
     private array $options;
 
     public function __construct(string $path, array $yml, array $virionOption = []){
@@ -74,12 +80,10 @@ class Virion{
         return $this->path;
     }
 
-    /** @return mixed[] */
     public function getYml() : array{
         return $this->yml;
     }
 
-    /** @return mixed[] */
     public function getOptions() : array{
         return $this->options;
     }

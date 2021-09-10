@@ -30,9 +30,9 @@ namespace blugin\tool\blugintools\traits;
 trait SingletonTrait{
     private static ?self $instance = null;
 
-    public static function getInstance() : self{
+    public static function getInstance() : static{
         if(self::$instance === null){
-            self::$instance = new self();
+            self::$instance = new static();
         }
         return self::$instance;
     }

@@ -31,6 +31,8 @@ use blugin\tool\blugintools\BluginTools;
 use blugin\tool\blugintools\traits\SingletonFactoryTrait;
 use pocketmine\Server;
 
+use function is_dir;
+
 class VirionLoader{
     use SingletonFactoryTrait;
 

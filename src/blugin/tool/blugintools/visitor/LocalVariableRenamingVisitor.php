@@ -37,6 +37,9 @@ use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\StaticVar;
 use PhpParser\NodeVisitorAbstract;
 
+use function in_array;
+use function is_string;
+
 class LocalVariableRenamingVisitor extends NodeVisitorAbstract implements IRenamerHolder{
     use RenamerHolderVisitorTrait;
 
@@ -62,7 +65,7 @@ class LocalVariableRenamingVisitor extends NodeVisitorAbstract implements IRenam
 
     protected function isValid(Node $node, string $property = "name") : bool{
         $target = $this->getTarget($node);
-        //Ignore to rename if it not string or global variable or $this(ex: $$varname, $_GET, $this)
+        //Ignore to rename if it not string or global variable or $this(ex: $$varName, $_GET, $this)
         return isset($target->$property) && is_string($target->$property) && $target instanceof Variable && is_string($target->name) && !in_array($target->name, self::IGNORE_LIST);
     }
 }

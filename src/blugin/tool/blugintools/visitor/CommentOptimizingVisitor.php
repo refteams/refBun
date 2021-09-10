@@ -32,6 +32,11 @@ use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 use pocketmine\utils\Utils;
 
+use function array_slice;
+use function count;
+use function implode;
+use function preg_match;
+
 class CommentOptimizingVisitor extends NodeVisitorAbstract{
     /** string[] name => $contentRegex */
     private static ?array $allowTags = null;
@@ -56,12 +61,12 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
             $tags[] = "@$name " . implode(" ", array_slice($matches, 1));
         }
 
-        //If the comment has no meaningfull comments, skip.
+        //If the comment has no meaningful comments, skip.
         if(($count = count($tags)) === 0)
             return null;
 
         if($count === 1){
-            $newDocText = "/** {$tags[0]} */";
+            $newDocText = "/** $tags[0] */";
         }else{
             $newDocText = "/**" . PHP_EOL . " * ";
             $newDocText .= implode(PHP_EOL . " * ", $tags);
@@ -80,7 +85,10 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
         return self::$allowTags;
     }
 
-    /** @param string $regex */
+    /**
+     * @param string $name
+     * @param string $regex
+     */
     public static function register(string $name, string $regex = "//") : void{
         if(self::$allowTags === null){
             self::initAllowTags();

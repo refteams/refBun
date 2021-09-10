@@ -30,6 +30,10 @@ namespace blugin\tool\blugintools\renamer;
 use blugin\tool\blugintools\traits\SelfFactoryTrait;
 use PhpParser\Node;
 
+use function in_array;
+use function str_replace;
+use function strcasecmp;
+
 abstract class Renamer{
     use SelfFactoryTrait;
 

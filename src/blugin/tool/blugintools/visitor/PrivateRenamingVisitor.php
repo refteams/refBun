@@ -35,6 +35,9 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\NodeVisitorAbstract;
 
+use function in_array;
+use function is_array;
+
 abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRenamerHolder{
     use RenamerHolderVisitorTrait;
 
@@ -53,7 +56,7 @@ abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRe
         return $nodes;
     }
 
-    /** @param Node[] $nodes **/
+    /** @param Node[] $nodes * */
     private function registerPrivateNodes(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof ClassLike && !$node instanceof Class_)

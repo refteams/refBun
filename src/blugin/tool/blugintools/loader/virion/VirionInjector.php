@@ -31,6 +31,25 @@ use blugin\tool\blugintools\BluginTools;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as C;
 
+use function array_values;
+use function ceil;
+use function copy;
+use function dirname;
+use function explode;
+use function file_exists;
+use function file_get_contents;
+use function file_put_contents;
+use function is_array;
+use function is_file;
+use function json_decode;
+use function json_encode;
+use function mkdir;
+use function str_repeat;
+use function strlen;
+use function strpos;
+use function substr;
+use function token_get_all;
+
 class VirionInjector{
     public static function injectAll(string $dir, string $namespace, ?array $virionOptions = null) : void{
         static $deep = -1;
@@ -126,7 +145,7 @@ class VirionInjector{
         $tokens[] = "";
         foreach($tokens as $offset => $token){
             if(!is_array($token) or $token[0] !== T_WHITESPACE){
-                list($id, $str, $line) = is_array($token) ? $token : [-1, $token, $line ?? 1];
+                [$id, $str, $line] = is_array($token) ? $token : [-1, $token, $line ?? 1];
                 if(isset($init, $current, $prefixToken)){
                     if($current === "" && $prefixToken === T_USE and $id === T_FUNCTION || $id === T_CONST){
                         continue;

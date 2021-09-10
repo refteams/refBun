@@ -31,27 +31,24 @@ trait SelfFactoryTrait{
     /** @var self[] */
     protected static array $instances = [];
 
-    /** @var mixed|null */
-    protected static $defaultKey = null;
+    protected static string|int $defaultKey = 0;
 
     /** @return self[] */
     public static function getAll() : array{
         return self::$instances;
     }
 
-    /** @param mixed $key */
-    public static function get($key = null) : ?self{
+    public static function get(string|int $key = null) : ?self{
         return self::$instances[$key] ?? self::$instances[self::$defaultKey] ?? null;
     }
 
-    /** @param mixed $key */
-    public static function getClone($key = null) : ?self{
+    public static function getClone(string|int $key = null) : ?self{
         $instance = self::get($key);
         return $instance === null ? null : clone $instance;
     }
 
     /** @param mixed $key */
-    public static function register($key, self $instance) : void{
+    public static function register(string|int $key, self $instance) : void{
         self::$instances[$key] = $instance;
     }
 

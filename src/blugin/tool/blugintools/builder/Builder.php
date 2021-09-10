@@ -34,7 +34,7 @@ use blugin\tool\blugintools\builder\event\BuildStartEvent;
 use blugin\tool\blugintools\loader\virion\Virion;
 use blugin\tool\blugintools\loader\virion\VirionInjector;
 use blugin\tool\blugintools\printer\Printer;
-use blugin\tool\blugintools\processor\CodeSpliter;
+use blugin\tool\blugintools\processor\CodeSplitter;
 use blugin\tool\blugintools\renamer\Renamer;
 use blugin\tool\blugintools\traits\SingletonFactoryTrait;
 use blugin\tool\blugintools\traverser\Traverser;
@@ -49,11 +49,29 @@ use blugin\tool\blugintools\visitor\LocalVariableRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateConstRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivateMethodRenamingVisitor;
 use blugin\tool\blugintools\visitor\PrivatePropertyRenamingVisitor;
+use Error;
+use Exception;
+use Phar;
 use PhpParser\Node\Stmt;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use pocketmine\command\PluginCommand;
 use pocketmine\utils\Config;
+
+use function copy;
+use function date;
+use function dirname;
+use function file_exists;
+use function file_get_contents;
+use function file_put_contents;
+use function is_file;
+use function mkdir;
+use function preg_match;
+use function strlen;
+use function strpos;
+use function substr;
+use function substr_replace;
+use function unlink;
 
 class Builder{
     use SingletonFactoryTrait;
@@ -65,7 +83,6 @@ class Builder{
 
     protected static ?Parser $parser = null;
 
-    /** @var mixed[] */
     private array $baseOption = [];
 
     private string $printerMode = Printer::PRINTER_STANDARD;
@@ -85,15 +102,14 @@ class Builder{
         }
     }
 
-    /** @param mixed[] $metadata */
     public function buildPhar(string $sourceDir, string $pharPath, string $namespace, array $metadata = []) : void{
         $sourceDir = BluginTools::cleanDirName($sourceDir);
         $pharPath = BluginTools::cleanPath($pharPath);
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
-                \Phar::unlinkArchive($pharPath);
-            }catch(\Exception $e){
+                Phar::unlinkArchive($pharPath);
+            }catch(Exception $e){
                 unlink($pharPath);
             }
         }
@@ -141,14 +157,14 @@ class Builder{
                 mkdir($newDir, 0777, true);
             }
 
-            if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matchs)){
+            if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matches)){
                 try{
                     $originStmts = self::parse(file_get_contents($path));
                     $originStmts = Traverser::get(Priority::BEFORE_SPLIT)->traverse($originStmts);
 
-                    $files = [$matchs[1] => $originStmts];
-                    if($option->getNested("preprocessing.spliting", true)){
-                        $files = CodeSpliter::splitNodes($originStmts, $matchs[1]);
+                    $files = [$matches[1] => $originStmts];
+                    if($option->getNested("preprocessing.splitting", true)){
+                        $files = CodeSplitter::splitNodes($originStmts, $matches[1]);
                     }
 
                     foreach($files as $filename => $stmts){
@@ -162,7 +178,7 @@ class Builder{
                         }
                         file_put_contents($newDir . DIRECTORY_SEPARATOR . $filename . ".php", $contents);
                     }
-                }catch(\Error $e){
+                }catch(Error $e){
                     echo 'Parse Error: ', $e->getMessage();
                 }
             }else{
@@ -171,26 +187,25 @@ class Builder{
         }
 
         //Build the plugin with .phar file
-        $phar = new \Phar($pharPath);
-        $phar->setSignatureAlgorithm(\Phar::SHA1);
+        $phar = new Phar($pharPath);
+        $phar->setSignatureAlgorithm(Phar::SHA1);
         if(!$option->getNested("build.skip-metadata", true)){
             $phar->setMetadata($metadata);
         }
         if(!$option->getNested("build.skip-stub", true)){
-            $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$metadata["name"]}_v{$metadata["version"]}\nThis file has been generated using BluginBuilder at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
+            $phar->setStub('<?php echo "PocketMine-MP plugin ' . "{$metadata["name"]}_v{$metadata["version"]}\nThis file has been generated using BluginBuilder at " . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
         }else{
             $phar->setStub("<?php __HALT_COMPILER();");
         }
         $phar->startBuffering();
         $phar->buildFromDirectory($buildDir);
-        if(\Phar::canCompress(\Phar::GZ)){
-            $phar->compressFiles(\Phar::GZ);
+        if(Phar::canCompress(Phar::GZ)){
+            $phar->compressFiles(Phar::GZ);
         }
         $phar->stopBuffering();
         (new BuildCompleteEvent($this, $sourceDir, $pharPath, $option))->call();
     }
 
-    /** @param mixed[] $metadata */
     public function buildScript(string $sourcePath, string $phpPath, array $metadata = []) : void{
         $sourcePath = BluginTools::cleanPath($sourcePath);
         $phpPath = BluginTools::cleanPath($phpPath);
@@ -217,7 +232,7 @@ class Builder{
             }
             file_put_contents($phpPath, $contents);
             (new BuildCompleteEvent($this, $sourceDir, $phpPath, $option))->call();
-        }catch(\Error $e){
+        }catch(Error $e){
             echo 'Parse Error: ', $e->getMessage();
         }
     }
@@ -231,7 +246,7 @@ class Builder{
         }
         $option = new Config($tempFile, Config::DETECT, $this->baseOption);
 
-        //Remove old visitors of traserver
+        //Remove old visitors of traverser
         foreach(Traverser::getAll() as $traverser){
             $traverser->removeVisitors();
         }
@@ -285,7 +300,7 @@ class Builder{
         foreach($option->getNested("build.print-format") as $printerName){
             $printer = Printer::getClone($printerName);
             if($printer === null)
-                throw new \Error("$printerName is invalid printer mode");
+                throw new Error("$printerName is invalid printer mode");
 
             $printers [] = $printer;
         }

@@ -35,6 +35,12 @@ use PhpParser\Node\Stmt\Use_;
 use PhpParser\Node\Stmt\UseUse;
 use PhpParser\NodeVisitorAbstract;
 
+use function array_keys;
+use function array_pop;
+use function array_unshift;
+use function count;
+use function is_array;
+
 class ImportGroupingVisitor extends NodeVisitorAbstract{
     use GetFullyQualifiedTrait;
 
@@ -64,7 +70,7 @@ class ImportGroupingVisitor extends NodeVisitorAbstract{
         for($i = 0, $keys = array_keys($nodes), $count = count($keys); $i < $count; ++$i){
             $node = $nodes[$keys[$i]];
             if($node instanceof Use_ || $node instanceof GroupUse){
-                foreach($node->uses as $k => $use){
+                foreach($node->uses as $use){
                     //Re-create for reset use type
                     $type = $use->type !== 0 ? $use->type : $node->type;
                     $newUse = new UseUse($this->getFullyQualifiedName($use, $node), $use->alias);
@@ -94,7 +100,7 @@ class ImportGroupingVisitor extends NodeVisitorAbstract{
                 $groups = [];
                 $classUses = $usesList[Use_::TYPE_NORMAL];
                 $usesList[Use_::TYPE_NORMAL] = [];
-                foreach($classUses as $_ => $use){
+                foreach($classUses as $use){
                     if(count($use->name->parts) === 1){ //Pass root class use
                         $usesList[Use_::TYPE_NORMAL][] = $use;
                         continue;
@@ -105,14 +111,14 @@ class ImportGroupingVisitor extends NodeVisitorAbstract{
                     if(!isset($groups[$groupName])){
                         $groups[$groupName] = new GroupUse($use->name, [], $use->type);
                     }
-                    $groups[$groupName]->uses[] = new UseUse($useName, $use->alias, $use->type);;
+                    $groups[$groupName]->uses[] = new UseUse($useName, $use->alias, $use->type);
                 }
                 foreach($usesList as $type => $uses){
                     if(!empty($uses)){
                         array_unshift($node->stmts, new Use_($uses, $type));
                     }
                 }
-                foreach($groups as $_ => $group){
+                foreach($groups as $group){
                     if(count($group->uses) === 1){
                         $use = $group->uses[0];
                         array_unshift($node->stmts, new Use_([new UseUse($this->getFullyQualifiedName($use, $group), $use->alias, $use->type)]));

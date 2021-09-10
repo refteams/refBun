@@ -37,6 +37,12 @@ use PhpParser\Node\Stmt\Use_;
 use PhpParser\Node\Stmt\UseUse;
 use PhpParser\NodeVisitor\NameResolver;
 
+use function array_unshift;
+use function defined;
+use function function_exists;
+use function is_array;
+use function ltrim;
+
 class ImportForcingVisitor extends NameResolver{
     use GetFullyQualifiedTrait;
 
@@ -87,7 +93,7 @@ class ImportForcingVisitor extends NameResolver{
     private function registerUses(array $nodes) : void{
         foreach($nodes as $node){
             if($node instanceof Use_ || $node instanceof GroupUse){
-                foreach($node->uses as $k => $use){
+                foreach($node->uses as $use){
                     $this->uses[$this->getFullyQualifiedString($use, $node, false)] = $use;
                 }
             }

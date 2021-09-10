@@ -29,6 +29,12 @@ namespace blugin\tool\blugintools\renamer;
 
 use PhpParser\Node;
 
+use function lcg_value;
+use function md5;
+use function mt_rand;
+use function range;
+use function substr;
+
 class MD5Renamer extends Renamer{
     public function generate(Node $node, string $property = "name") : void{
         $nameTable = $this->getNameTable();

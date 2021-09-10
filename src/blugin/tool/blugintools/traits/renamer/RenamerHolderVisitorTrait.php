@@ -30,6 +30,8 @@ namespace blugin\tool\blugintools\traits\renamer;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
+use function is_string;
+
 /**
  * This trait override most methods in the {@link NodeVisitorAbstract} abstract class for implements {@link IRenamerHolder} interface.
  */

@@ -29,6 +29,11 @@ namespace blugin\tool\blugintools\renamer;
 
 use PhpParser\Node;
 
+use function array_merge;
+use function count;
+use function floor;
+use function range;
+
 class SerialRenamer extends Renamer{
     /** @var string[] */
     private array $firstChars, $otherChars;

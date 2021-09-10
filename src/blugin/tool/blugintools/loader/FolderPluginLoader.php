@@ -33,6 +33,10 @@ use pocketmine\plugin\PluginEnableOrder;
 use pocketmine\plugin\PluginLoader;
 use pocketmine\Server;
 
+use function file_get_contents;
+use function is_dir;
+use function is_file;
+
 class FolderPluginLoader implements PluginLoader{
     use SingletonFactoryTrait;
 
