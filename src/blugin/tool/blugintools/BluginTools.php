@@ -35,17 +35,17 @@ use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
-class BluginTools extends PluginBase{
+final class BluginTools extends PluginBase{
     use SingletonTrait;
 
-    public function onLoad(){
+    protected function onLoad() : void{
         self::$instance = $this;
 
         VirionLoader::getInstance()->prepare();
         Builder::getInstance()->prepare();
     }
 
-    public function onEnable(){
+    protected function onEnable() : void{
         Builder::getInstance()->init();
         FolderPluginLoader::getInstance()->init();
     }
