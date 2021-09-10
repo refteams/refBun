@@ -49,7 +49,7 @@ class BluginToolsLoader extends PluginBase{
 
             /** @load STARTUP */
             public function loadPlugin(string $file) : void{
-                $this->loader->addPath("$file/src");
+                $this->loader->addPath("", "$file/src");
             }
 
             public function getPluginDescription(string $file) : ?PluginDescription{

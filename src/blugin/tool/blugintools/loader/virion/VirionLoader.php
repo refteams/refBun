@@ -58,7 +58,7 @@ class VirionLoader{
             return;
         }
         $this->virions[$virion->getName()] = $virion;
-        $server->getLoader()->addPath($virion->getPath() . "src/");
+        $server->getLoader()->addPath("", $virion->getPath() . "src/");
 
         $server->getLogger()->info("Loading virion '{$virion->getName()}' v{$virion->getVersion()} (antigen: {$virion->getAntigen()})");
     }

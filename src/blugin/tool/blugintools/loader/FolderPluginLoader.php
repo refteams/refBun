@@ -48,7 +48,7 @@ class FolderPluginLoader implements PluginLoader{
     }
 
     public function loadPlugin(string $file) : void{
-        Server::getInstance()->getLoader()->addPath("$file/src");
+        Server::getInstance()->getLoader()->addPath("", "$file/src");
     }
 
     public function getPluginDescription(string $file) : ?PluginDescription{
