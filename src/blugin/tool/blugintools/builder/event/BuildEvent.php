@@ -39,7 +39,7 @@ abstract class BuildEvent extends Event{
 
     private string $prepareDir;
 
-    private string $buildedDir;
+    private string $resultDir;
 
     private Config $option;
 
@@ -52,7 +52,7 @@ abstract class BuildEvent extends Event{
         $this->option = $option;
 
         $this->prepareDir = BluginTools::loadDir(Builder::DIR_PREPARE);
-        $this->buildedDir = BluginTools::loadDir(Builder::DIR_BUILDED);
+        $this->resultDir = BluginTools::loadDir(Builder::DIR_RESULT);
     }
 
     public function getBuilder() : Builder{
@@ -63,8 +63,8 @@ abstract class BuildEvent extends Event{
         return $this->sourceDir;
     }
 
-    public function getBuildedDir() : string{
-        return $this->buildedDir;
+    public function getResultDir() : string{
+        return $this->resultDir;
     }
 
     public function getPrepareDir() : string{

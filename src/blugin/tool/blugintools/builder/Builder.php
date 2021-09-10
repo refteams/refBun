@@ -61,7 +61,7 @@ class Builder{
     public const OPTION_FILE = ".buildoption.yml";
 
     public const DIR_PREPARE = "prepare";
-    public const DIR_BUILDED = "builded";
+    public const DIR_RESULT = "result";
 
     protected static ?Parser $parser = null;
 
@@ -99,7 +99,7 @@ class Builder{
         }
 
         $prepareDir = BluginTools::loadDir(self::DIR_PREPARE, true);
-        $buildDir = BluginTools::loadDir(self::DIR_BUILDED, true);
+        $buildDir = BluginTools::loadDir(self::DIR_RESULT, true);
 
         //Prepare to copy files for build
         $option = $this->loadOption($sourceDir);
