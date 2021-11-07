@@ -45,7 +45,7 @@ class PrivateMethodRenamingVisitor extends PrivateRenamingVisitor{
     }
 
     protected function isValid(Node $node, string $property = "name") : bool{
-        return parent::isValid($node, $property) && strpos($this->getTarget($node)->$property, "__") !== 0;
+        return parent::isValid($node, $property) && !str_starts_with($this->getTarget($node)->$property, "__");
     }
 
     protected function isTarget(Node $node) : bool{
