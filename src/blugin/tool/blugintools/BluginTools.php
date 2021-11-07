@@ -42,7 +42,6 @@ use function file_exists;
 use function is_dir;
 use function is_file;
 use function mkdir;
-use function realpath;
 use function rmdir;
 use function rtrim;
 use function scandir;
@@ -57,8 +56,8 @@ final class BluginTools extends PluginBase{
     protected function onLoad() : void{
         self::$instance = $this;
 
-        $parserSrc = realpath(__DIR__ . "/../../../../lib/php-parser/lib/PhpParser");
-        if(!$parserSrc || !is_dir($parserSrc)){
+        $parserSrc = __DIR__ . "/../../../../lib/php-parser/lib/PhpParser";
+        if(!is_dir($parserSrc)){
             throw new PluginException("PhpParser library not found");
         }
         $this->getServer()->getLoader()->addPath("PhpParser", $parserSrc);
