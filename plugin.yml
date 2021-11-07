@@ -1,6 +1,6 @@
 ---
 name: refTools
-main: blugin\tool\blugintools\BluginTools
+main: ref\tool\reftools\refTools
 version: 3.1.0
 api: [4.0.0]
 author: 'refTeam'
