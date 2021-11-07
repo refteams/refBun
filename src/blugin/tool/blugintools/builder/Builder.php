@@ -40,6 +40,7 @@ use blugin\tool\blugintools\traits\SingletonFactoryTrait;
 use blugin\tool\blugintools\traverser\Traverser;
 use blugin\tool\blugintools\traverser\TraverserPriority as Priority;
 use blugin\tool\blugintools\visitor\CommentOptimizingVisitor;
+use blugin\tool\blugintools\visitor\ConstructorPromotionRemoveVisitor;
 use blugin\tool\blugintools\visitor\ImportForcingVisitor;
 use blugin\tool\blugintools\visitor\ImportGroupingVisitor;
 use blugin\tool\blugintools\visitor\ImportRemovingVisitor;
@@ -248,6 +249,7 @@ class Builder{
         foreach(Traverser::getAll() as $traverser){
             $traverser->removeVisitors();
         }
+        Traverser::registerVisitor(Priority::BEFORE_SPLIT, new ConstructorPromotionRemoveVisitor());
 
         //Load pre-processing settings
         if($option->getNested("preprocessing.comment-optimizing", true)){
