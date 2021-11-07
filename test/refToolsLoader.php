@@ -11,30 +11,30 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the MIT License.
  *
- * @author  Blugin team
- * @link    https://github.com/Blugin
+ * @author  ref team
+ * @link    https://github.com/ref-plugin
  * @license https://www.gnu.org/licenses/mit MIT License
  *
  *   (\ /)
  *  ( . .) ♥
  *  c(")(")
  *
- * @name BluginToolsLoader
+ * @name refToolsLoader
  * @api 4.0.0
  * @version 1.0.0
- * @main blugin\tool\blugintools\blugintoolsloader\BluginToolsLoader
+ * @main ref\tool\loader\refToolsLoader
  * @load STARTUP
  */
 
-namespace blugin\tool\blugintools\blugintoolsloader;
+namespace ref\tool\loader;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginDescription;
+use pocketmine\plugin\PluginEnableOrder;
 use pocketmine\plugin\PluginLoader;
-use pocketmine\plugin\PluginLoadOrder;
 
-class BluginToolsLoader extends PluginBase{
-    public function onEnable(){
+class refToolsLoader extends PluginBase{
+    public function onEnable() : void{
         $this->getServer()->getPluginManager()->registerInterface($loader = new class($this->getServer()->getLoader()) implements PluginLoader{
             /** @var \ClassLoader */
             private $loader;
@@ -57,7 +57,7 @@ class BluginToolsLoader extends PluginBase{
                     if(!empty($yml = file_get_contents($ymlFile))){
                         $description = new PluginDescription($yml);
                         //Load BluginTools only
-                        return $description->getName() === "BluginTools" ? $description : null;
+                        return $description->getName() === "refTools" ? $description : null;
                     }
                 }
 
@@ -69,6 +69,6 @@ class BluginToolsLoader extends PluginBase{
             }
         });
         $this->getServer()->getPluginManager()->loadPlugins($this->getServer()->getPluginPath(), [get_class($loader)]);
-        $this->getServer()->enablePlugins(PluginLoadOrder::STARTUP());
+        $this->getServer()->enablePlugins(PluginEnableOrder::STARTUP());
     }
 }

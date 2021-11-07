@@ -43,7 +43,7 @@ class FolderPluginLoader implements PluginLoader{
     public function init(){
         $server = Server::getInstance();
         $server->getPluginManager()->registerInterface($this);
-        $server->getPluginManager()->loadPlugins($server->getPluginPath(), [FolderPluginLoader::class]);
+        $server->getPluginManager()->loadPlugins($server->getPluginPath());
         $server->enablePlugins(PluginEnableOrder::STARTUP());
     }
 
