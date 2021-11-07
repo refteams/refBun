@@ -85,8 +85,6 @@ class Builder{
 
     private array $baseOption = [];
 
-    private string $printerMode = Printer::PRINTER_STANDARD;
-
     public function prepare(){
         Renamer::registerDefaults();
         Printer::registerDefaults();
@@ -287,9 +285,6 @@ class Builder{
                 Traverser::registerVisitor(Priority::HIGHEST, new ImportSortingVisitor());
             }
         }
-
-        //Load build settings
-        $this->printerMode = (string) $option->getNested("build.print-format");
 
         return $option;
     }
