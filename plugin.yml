@@ -1,9 +1,9 @@
 ---
-name: BluginTools
+name: refTools
 main: blugin\tool\blugintools\BluginTools
 version: 3.1.0
 api: [4.0.0]
-authors: ['Blugin-team', 'PresentKim']
+author: 'refTeam'
 description: '[tool] Several tools to help with pmmp plugin development'
 load: STARTUP
 loadbefore: ['DevTools']
