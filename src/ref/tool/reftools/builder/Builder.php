@@ -263,14 +263,14 @@ class Builder{
             "private-method" => PrivateMethodRenamingVisitor::class,
             "private-const" => PrivateConstRenamingVisitor::class
         ] as $key => $class){
-            $renamer = Renamer::getClone($option->getNested("preprocessing.renaming.$key", "serial"));
+            $renamer = Renamer::getClone((string) $option->getNested("preprocessing.renaming.$key", "serial"));
             if($renamer !== null){
                 Traverser::registerVisitor(Priority::NORMAL, new $class($renamer));
             }
         }
 
         //Load import processing mode settings
-        $mode = $option->getNested("preprocessing.importing.renaming", "serial");
+        $mode = (string) $option->getNested("preprocessing.importing.renaming", "serial");
         if($mode === "resolve"){
             Traverser::registerVisitor(Priority::HIGH, new ImportRemovingVisitor());
         }else{
@@ -295,7 +295,7 @@ class Builder{
     public function loadPrintersFromOption(Config $option) : array{
         $printers = [];
         foreach($option->getNested("build.print-format") as $printerName){
-            $printer = Printer::getClone($printerName);
+            $printer = Printer::getClone((string) $printerName);
             if($printer === null)
                 throw new Error("$printerName is invalid printer mode");
 
