@@ -1,5 +1,5 @@
 <p align="center"> <img src="https://ghcdn.rawgit.org/Blugin/BluginTools/master/icon.png" width="360"> </p>
-<br> <h1 align="center"> BluginTools :: 더 많은 옵션으로 플러그인을 빌드하세요! </h1>
+<br> <h1 align="center"> refBun :: 더 많은 옵션으로 플러그인을 빌드하세요! </h1>
 <p align="right">  
   <a href="https://github.com/Blugin/BluginTools/blob/master/README.md">  
     <img src="https://img.shields.io/static/v1?label=read%20in&message=English&color=success">
