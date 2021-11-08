@@ -6,29 +6,23 @@
   </a>  
 </p>  
 <p align="center">  
-  <a href="https://poggit.pmmp.io/ci/Blugin/BluginTools/BluginTools">  
-    <img src="https://poggit.pmmp.io/ci.shield/Blugin/BluginTools/BluginTools?style=flat-square">  
-  </a>  
-  <a href="https://github.com/Blugin/BluginTools/releases">  
+  <a href="https://github.com/ref-plugin/refBun/releases">  
     <img src="https://img.shields.io/github/release/Blugin/BluginTools.svg?style=flat-square">  
   </a>  
-  <a href="https://github.com/Blugin/BluginTools/releases">  
+  <a href="https://github.com/ref-plugin/refBun/releases">  
     <img src="https://img.shields.io/github/downloads/Blugin/BluginTools/total.svg?style=flat-square">  
   </a>  
   </a>  
-  <a href="https://github.com/Blugin/BluginTools/blob/master/LICENSE">  
+  <a href="https://github.com/ref-plugin/refBun/blob/master/LICENSE">  
     <img src="https://img.shields.io/github/license/Blugin/BluginTools.svg?style=flat-square">  
   </a>  
-  <a href="http://hits.dwyl.com/Blugin/BluginTools">  
-    <img src="http://hits.dwyl.com/Blugin/BluginTools.svg">  
-  </a>  
   <strong>
-  <br> ✔️ Rename <code>local</code>/<code>private</code> elements with various format!
-  <br> ✔️ Replace all import(<code>use</code>) to fully qualified name!
+  <br> ✔️ Cleanup all import(<code>use</code>)!
   <br> ✔️ Cleanup all meaningless comments(`annotation`)!
   <br> ✔️ Remove all whitespace!
-  <br> ✔️ Skip <code>PHAR</code> metadata and stub!
   <br> ✔️ Build with minimal files!
+  <br> ✔️ Infect plugin with virion!
+  <br> ✔️ Skip <code>PHAR</code> metadata and stub!
   </strong>
 </p>  
   
@@ -40,28 +34,6 @@
 > Work on both API [`3.x.x`](https://github.com/pmmp/PocketMine-MP/tree/stable) [`4.x.x`](https://github.com/pmmp/PocketMine-MP/tree/master)  
   
 <br>  
-  
-## :wrench: Installation
-1) Download `.phar` from releases  
-2) Move dowloaded `.phar` file to server's **/plugins/** folder  
-3) Restart the server or execute `/reload` command  
-
-<br>  
-  
-## :warning: Required dependency plugins
-- [**pmmp/DevTools-PMMP**](https://github.com/pmmp/DevTools)
-
-<br>  
-  
-## :package: Downloads  
-  
-| Version | Phar Download | Updates Note |  
-| :-----: | :-----------: | :----------: |    
-| 2.0.0 | [GitHub](https://github.com/Blugin/BluginTools/releases/download/2.0.0/BluginTools_v2.0.0.phar)  | **Init plugin (Implements plugin features)** |  
-  
-> **All released versions [here](https://github.com/Blugin/BluginTools/releases)**  
-  
-<br>   
   
 ## :memo: License  
 > You can check out the full license [here](https://github.com/Blugin/BluginTools/blob/master/LICENSE)  
