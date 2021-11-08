@@ -80,7 +80,7 @@ class ImportForcingVisitor extends NameResolver{
                 if($result->isUnqualified()){ //Replace to global function/constant
                     return $this->resolveGlobal($result) ?? $name;
                 }
-                $this->newUses[$code] = new UseUse(new Name(ltrim($code, "\\")), $result->getLast() === $name->getLast() ? null : new Node\Identifier($name->toCodeString()), Use_::TYPE_NORMAL);
+                $this->newUses[$code] = new UseUse(new Name(ltrim($code, "\\")), $result->getLast() === $name->getLast() ? null : new Node\Identifier($name->toCodeString()), $type);
                 return new Name($name->getLast(), $name->getAttributes());
             }
         }else{
