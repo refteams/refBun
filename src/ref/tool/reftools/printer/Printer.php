@@ -41,7 +41,6 @@ abstract class Printer{
     use SelfFactoryTrait;
 
     public const PRINTER_STANDARD = "standard";
-    public const PRINTER_SHORTEN = "shorten";
 
     /** @param Node[] $stmts */
     public abstract function printStmts(array $stmts) : string;
@@ -64,6 +63,5 @@ abstract class Printer{
     final public static function registerDefaults() : void{
         self::$defaultKey = self::PRINTER_STANDARD;
         self::register(self::PRINTER_STANDARD, new StandardPrinter());
-        self::register(self::PRINTER_SHORTEN, new ShortenPrinter());
     }
 }

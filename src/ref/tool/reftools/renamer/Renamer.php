@@ -37,11 +37,6 @@ use function strcasecmp;
 abstract class Renamer{
     use SelfFactoryTrait;
 
-    public const RENAMER_SHORTEN = "shorten";
-    public const RENAMER_SERIAL = "serial";
-    public const RENAMER_SPACE = "space";
-    public const RENAMER_MD5 = "md5";
-
     public const FLAG_IGNORECASE = 0b00000001;    //It means that the visitor ignores case in name
     public const FLAG_ALLOW_SLASH = 0b00000010;   //It means that the visitor allow slash in name
     public const FLAG_INITIAL_VALID = 0b00000100; //It means that the visitor require valid of initial letter
@@ -144,11 +139,5 @@ abstract class Renamer{
             $name = str_replace(["/", "\\"], "", $name);
         }
         return $name;
-    }
-
-    final public static function registerDefaults() : void{
-        self::register(self::RENAMER_SHORTEN, new ShortenRenamer());
-        self::register(self::RENAMER_SERIAL, new SerialRenamer());
-        self::register(self::RENAMER_MD5, new MD5Renamer());
     }
 }
