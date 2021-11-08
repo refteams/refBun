@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace ref\tool\reftools\builder\event;
 
-use ref\tool\reftools\refTools;
+use ref\tool\reftools\refBun;
 use ref\tool\reftools\builder\Builder;
 use pocketmine\event\Event;
 use pocketmine\utils\Config;
@@ -51,8 +51,8 @@ abstract class BuildEvent extends Event{
         $this->resultPath = $resultPath;
         $this->option = $option;
 
-        $this->prepareDir = refTools::loadDir(Builder::DIR_PREPARE);
-        $this->resultDir = refTools::loadDir(Builder::DIR_RESULT);
+        $this->prepareDir = refBun::loadDir(Builder::DIR_PREPARE);
+        $this->resultDir = refBun::loadDir(Builder::DIR_RESULT);
     }
 
     public function getBuilder() : Builder{

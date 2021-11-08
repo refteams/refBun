@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace ref\tool\reftools\loader\virion;
 
-use ref\tool\reftools\refTools;
+use ref\tool\reftools\refBun;
 use ref\tool\reftools\builder\Builder;
 use pocketmine\Server;
 
@@ -90,9 +90,9 @@ class Virion{
 
     public static function from(string $path) : ?Virion{
         if(is_dir($path)){
-            $path = refTools::cleanDirName($path);
+            $path = refBun::cleanDirName($path);
         }elseif(is_file($path) && substr($path, -5) === ".phar"){
-            $path = "phar://" . refTools::cleanDirName($path);
+            $path = "phar://" . refBun::cleanDirName($path);
         }else{
             return null;
         }
@@ -121,7 +121,7 @@ class Virion{
     public static function getVirionOptions(string $path, string $projectPath = "") : array{
         if(is_file($file = $path . ".poggit.yml") && is_array($manifest = yaml_parse(file_get_contents($file)))){
             foreach(($manifest["projects"] ?? []) as $projectOption){
-                if(refTools::cleanDirName(($projectOption["path"] ?? "")) === refTools::cleanDirName($projectPath)){
+                if(refBun::cleanDirName(($projectOption["path"] ?? "")) === refBun::cleanDirName($projectPath)){
                     return $projectOption["libs"] ?? [];
                 }
             }
@@ -130,7 +130,7 @@ class Virion{
                 $manifest = yaml_parse(file_get_contents($file));
                 return $manifest["virion"] ?? [];
             }else{
-                return self::getVirionOptions($parentDir = refTools::cleanDirName(dirname($path)), substr($path, strlen($parentDir)));
+                return self::getVirionOptions($parentDir = refBun::cleanDirName(dirname($path)), substr($path, strlen($parentDir)));
             }
         }
         return [];

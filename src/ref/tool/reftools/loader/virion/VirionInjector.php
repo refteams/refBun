@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace ref\tool\reftools\loader\virion;
 
-use ref\tool\reftools\refTools;
+use ref\tool\reftools\refBun;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as C;
 
@@ -55,8 +55,8 @@ class VirionInjector{
         static $deep = -1;
         $deep++;
 
-        $dir = refTools::cleanDirName($dir);
-        $namespace = refTools::cleaNamespace($namespace);
+        $dir = refBun::cleanDirName($dir);
+        $namespace = refBun::cleaNamespace($namespace);
         $virionOptions ??= Virion::getVirionOptions($dir);
         $virionLoader = VirionLoader::getInstance();
         $virionOptions = self::filteredVirionOptions($dir, $virionOptions);
@@ -105,14 +105,14 @@ class VirionInjector{
         $infections[$antibody] = $virion->getYml();
         file_put_contents($infectionsPath, json_encode($infections));
 
-        $antigenPath = refTools::cleanDirName("src/$antigen");
-        foreach(refTools::readDirectory($virionPath = $virion->getPath(), true) as $path){
+        $antigenPath = refBun::cleanDirName("src/$antigen");
+        foreach(refBun::readDirectory($virionPath = $virion->getPath(), true) as $path){
             $innerPath = substr($path, strlen($virionPath));
 
             if(strpos($innerPath, "resources/") === 0){
                 $newPath = $dir . $innerPath;
             }elseif(strpos($innerPath, $antigenPath) === 0){
-                $newPath = refTools::cleanDirName($dir . $antibodyDir) . substr($innerPath, strlen($antigenPath));
+                $newPath = refBun::cleanDirName($dir . $antibodyDir) . substr($innerPath, strlen($antigenPath));
             }else{
                 continue;
             }
@@ -128,7 +128,7 @@ class VirionInjector{
 
     public static function infectAll(string $dir, string $antibody, Virion $virion) : void{
         $antigen = $virion->getAntigen();
-        foreach(refTools::readDirectory($dir, true) as $path){
+        foreach(refBun::readDirectory($dir, true) as $path){
             if(!is_file($path) || substr($path, -4) !== ".php")
                 continue;
 

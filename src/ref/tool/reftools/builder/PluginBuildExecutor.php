@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace ref\tool\reftools\builder;
 
-use ref\tool\reftools\refTools;
+use ref\tool\reftools\refBun;
 use ref\tool\reftools\visitor\CommentOptimizingVisitor;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
@@ -81,13 +81,13 @@ class PluginBuildExecutor implements CommandExecutor{
         }
         $count = count($args);
         $sender->sendMessage(C::AQUA . "[PluginBuild] Start build the $count plugins. " .
-            "(create in " . C::DARK_AQUA . refTools::cleanDirName(refTools::getInstance()->getDataFolder()) . C::AQUA . ")"
+            "(create in " . C::DARK_AQUA . refBun::cleanDirName(refBun::getInstance()->getDataFolder()) . C::AQUA . ")"
         );
 
         $failures = [];
         $successes = [];
         foreach($args as $pluginName){
-            $plugin = refTools::getPlugin($pluginName);
+            $plugin = refBun::getPlugin($pluginName);
             if(!$plugin instanceof PluginBase){
                 $failures[] = $pluginName;
                 $sender->sendMessage(C::DARK_GRAY . " - " . $pluginName . " is invalid plugin name");
@@ -139,11 +139,11 @@ class PluginBuildExecutor implements CommandExecutor{
     }
 
     public static function getPharPath(Plugin $plugin) : string{
-        return refTools::loadDir() . self::getPharName($plugin);
+        return refBun::loadDir() . self::getPharName($plugin);
     }
 
     public static function getPhpPath(Plugin $plugin) : string{
-        return refTools::loadDir() . self::getPhpName($plugin);
+        return refBun::loadDir() . self::getPhpName($plugin);
     }
 
     /** @throws \ReflectionException */

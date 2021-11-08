@@ -50,7 +50,7 @@ use function stripos;
 use function strlen;
 use function unlink;
 
-final class refTools extends PluginBase{
+final class refBun extends PluginBase{
     use SingletonTrait;
 
     protected function onLoad() : void{
@@ -140,12 +140,12 @@ final class refTools extends PluginBase{
     }
 
     public static function loadDir(string $dirname = "", bool $clean = false) : string{
-        $dir = refTools::cleanDirName(refTools::getInstance()->getDataFolder() . $dirname);
+        $dir = refBun::cleanDirName(refBun::getInstance()->getDataFolder() . $dirname);
         if(!file_exists($dir)){
             mkdir($dir, 0777, true);
         }
         if($clean){
-            refTools::clearDirectory($dir);
+            refBun::clearDirectory($dir);
         }
         return $dir;
     }

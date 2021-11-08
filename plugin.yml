@@ -1,7 +1,7 @@
 ---
-name: refTools
-main: ref\tool\reftools\refTools
-version: 3.1.0
+name: refBun
+main: ref\tool\reftools\refBun
+version: 3.1.1
 api: [4.0.0]
 author: 'refTeam'
 description: '[tool] Several tools to help with pmmp plugin development'
@@ -9,14 +9,14 @@ load: STARTUP
 loadbefore: ['DevTools']
 
 commands:
-  bluginbuilder:
+  refbundle:
     description: Build plugin with more option
-    usage: /bluginbuilder <plugin name | *>
-    aliases: [build, bb]
-    permission: bluginbuilder.cmd
+    usage: /refbundle <plugin name | *>
+    aliases: [build, rb, bb]
+    permission: refbundle.cmd
 
 permissions:
-  bluginbuilder.cmd:
-    description: 'Build plugin with more option'
+  refbundle.cmd:
+    description: 'Build plugin'
     default: op
 ...

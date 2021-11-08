@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace ref\tool\reftools\loader\virion;
 
-use ref\tool\reftools\refTools;
+use ref\tool\reftools\refBun;
 use ref\tool\reftools\traits\SingletonFactoryTrait;
 use pocketmine\Server;
 
@@ -44,7 +44,7 @@ class VirionLoader{
             if(!is_dir($dir = Server::getInstance()->getDataPath() . $subdir))
                 continue;
 
-            foreach(refTools::readDirectory($dir) as $path){
+            foreach(refBun::readDirectory($dir) as $path){
                 $virion = Virion::from($dir . $path);
                 if($virion !== null){
                     $this->register($virion);

@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace ref\tool\reftools\builder;
 
-use ref\tool\reftools\refTools;
+use ref\tool\reftools\refBun;
 use ref\tool\reftools\builder\event\BuildCompleteEvent;
 use ref\tool\reftools\builder\event\BuildPrepareEvent;
 use ref\tool\reftools\builder\event\BuildStartEvent;
@@ -93,17 +93,17 @@ class Builder{
     }
 
     public function init(){
-        $this->baseOption = refTools::getInstance()->getConfig()->getAll();
+        $this->baseOption = refBun::getInstance()->getConfig()->getAll();
 
-        $command = refTools::getInstance()->getCommand("bluginbuilder");
+        $command = refBun::getInstance()->getCommand("refbundle");
         if($command instanceof PluginCommand){
             $command->setExecutor(new PluginBuildExecutor());
         }
     }
 
     public function buildPhar(string $sourceDir, string $pharPath, string $namespace, array $metadata = []) : void{
-        $sourceDir = refTools::cleanDirName($sourceDir);
-        $pharPath = refTools::cleanPath($pharPath);
+        $sourceDir = refBun::cleanDirName($sourceDir);
+        $pharPath = refBun::cleanPath($pharPath);
         //Remove the existing PHAR file
         if(file_exists($pharPath)){
             try{
@@ -113,13 +113,13 @@ class Builder{
             }
         }
 
-        $prepareDir = refTools::loadDir(self::DIR_PREPARE, true);
-        $buildDir = refTools::loadDir(self::DIR_RESULT, true);
+        $prepareDir = refBun::loadDir(self::DIR_PREPARE, true);
+        $buildDir = refBun::loadDir(self::DIR_RESULT, true);
 
         //Prepare to copy files for build
         $option = $this->loadOption($sourceDir);
         $prepareEvent = new BuildPrepareEvent($this, $sourceDir, $pharPath, $option);
-        foreach(refTools::readDirectory($sourceDir, true) as $path){
+        foreach(refBun::readDirectory($sourceDir, true) as $path){
             if($option->getNested("build.include-minimal", true)){
                 $innerPath = substr($path, strlen($sourceDir));
                 if($innerPath !== "plugin.yml" && strpos($innerPath, "src/") !== 0 && strpos($innerPath, "resources/") !== 0)
@@ -146,7 +146,7 @@ class Builder{
         (new BuildStartEvent($this, $sourceDir, $pharPath, $option))->call();
         $printers = $this->loadPrintersFromOption($option);
 
-        foreach(refTools::readDirectory($prepareDir, true) as $path){
+        foreach(refBun::readDirectory($prepareDir, true) as $path){
             if(substr($path, strlen($prepareDir)) === self::OPTION_FILE) //skip option file
                 continue;
 
@@ -206,15 +206,15 @@ class Builder{
     }
 
     public function buildScript(string $sourcePath, string $phpPath, array $metadata = []) : void{
-        $sourcePath = refTools::cleanPath($sourcePath);
-        $phpPath = refTools::cleanPath($phpPath);
+        $sourcePath = refBun::cleanPath($sourcePath);
+        $phpPath = refBun::cleanPath($phpPath);
         //Remove the existing PHP file
         if(is_file($phpPath)){
             unlink($phpPath);
         }
 
         //Prepare to copy files for build
-        $option = $this->loadOption($sourceDir = refTools::cleanDirName(dirname($sourcePath)));
+        $option = $this->loadOption($sourceDir = refBun::cleanDirName(dirname($sourcePath)));
 
         (new BuildStartEvent($this, $sourceDir, $phpPath, $option))->call();
         $printers = $this->loadPrintersFromOption($option);
@@ -237,7 +237,7 @@ class Builder{
     }
 
     public function loadOption(string $dir) : Config{
-        if(is_file($tempFile = refTools::loadDir() . self::OPTION_FILE)){
+        if(is_file($tempFile = refBun::loadDir() . self::OPTION_FILE)){
             unlink($tempFile);
         }
         if(is_file($optionFile = $dir . self::OPTION_FILE)){
