@@ -1,7 +1,7 @@
-<p align="center"> <img src="https://ghcdn.rawgit.org/ref-plugin/refBun/develop/icon.png" width="360" alt="icon"> </p>
+<p align="center"> <img src="https://ghcdn.rawgit.org/ref-plugin/refBun/4.0.0/icon.png" width="360" alt="icon"> </p>
 <br> <h1 align="center"> refBun :: Several tools to help with pmmp plugin development </h1>
 <p align="right">  
-  <a href="https://github.com/ref-plugin/refBun/blob/master/README_KOR.md">  
+  <a href="https://github.com/ref-plugin/refBun/blob/4.0.0/README_KOR.md">  
     <img src="https://img.shields.io/static/v1?label=%ED%95%9C%EA%B5%AD%EC%96%B4&message=%EB%B2%84%EC%A0%84&labelColor=success" alt="한국어 버전">  
   </a>  
 </p>  

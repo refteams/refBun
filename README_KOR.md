@@ -1,7 +1,7 @@
-<p align="center"> <img src="https://ghcdn.rawgit.org/ref-plugin/refBun/master/icon.png" width="360" alt="icon"> </p>
+<p align="center"> <img src="https://ghcdn.rawgit.org/ref-plugin/refBun/4.0.0/icon.png" width="360" alt="icon"> </p>
 <br> <h1 align="center"> refBun :: 더 많은 옵션으로 플러그인을 빌드하세요! </h1>
 <p align="right">  
-  <a href="https://github.com/ref-plugin/refBun/blob/master/README.md">  
+  <a href="https://github.com/ref-plugin/refBun/blob/4.0.0/README.md">  
     <img src="https://img.shields.io/static/v1?label=English&message=version&color=success" alt="icon">
   </a>  
 </p>  
