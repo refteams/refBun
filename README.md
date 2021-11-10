@@ -35,6 +35,6 @@
 <br>  
   
 ## :memo: License  
-> You can check out the full license [here](https://github.com/Blugin/BluginTools/blob/master/LICENSE)  
+> You can check out the full license [here](https://github.com/ref-plugin/refBun/blob/master/LICENSE)  
   
 This project licensed under the terms of the **LGPL 3.0**  

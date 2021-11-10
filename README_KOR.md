@@ -35,6 +35,6 @@
 <br>  
 
 ## :memo: 라이센스
-> 라이센스 전문은 [여기](https://github.com/Blugin/BluginTools/blob/master/LICENSE) 에서 확인할 수 있습니다
+> 라이센스 전문은 [여기](https://github.com/ref-plugin/refBun/blob/master/LICENSE) 에서 확인할 수 있습니다
 
 이 프로젝트는 **LGPL 3.0** 라이센스 조건에 따라 라이센스가 부여됩니다
