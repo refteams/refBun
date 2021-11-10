@@ -6,12 +6,6 @@
   </a>  
 </p>  
 <p align="center">  
-  <a href="https://github.com/ref-plugin/refBun/releases">  
-    <img src="https://img.shields.io/github/release/Blugin/BluginTools.svg?style=flat-square" alt="release">  
-  </a>  
-  <a href="https://github.com/ref-plugin/refBun/releases">  
-    <img src="https://img.shields.io/github/downloads/Blugin/BluginTools/total.svg?style=flat-square" alt="downloads">  
-  </a>
   <a href="https://github.com/ref-plugin/refBun/blob/master/LICENSE">  
     <img src="https://img.shields.io/github/license/Blugin/BluginTools.svg?style=flat-square" alt="license">  
   </a>  

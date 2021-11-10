@@ -6,12 +6,6 @@
   </a>  
 </p>  
 <p align="center">  
-  <a href="https://github.com/Blugin/BluginTools/releases">  
-    <img src="https://img.shields.io/github/release/Blugin/BluginTools.svg?style=flat-square" alt="icon">  
-  </a>  
-  <a href="https://github.com/Blugin/BluginTools/releases">  
-    <img src="https://img.shields.io/github/downloads/Blugin/BluginTools/total.svg?style=flat-square" alt="icon">  
-  </a>  
   <a href="https://github.com/Blugin/BluginTools/blob/master/LICENSE">  
     <img src="https://img.shields.io/github/license/Blugin/BluginTools.svg?style=flat-square" alt="icon">  
   </a>  
@@ -30,11 +24,11 @@
 
 ## :file_folder: 대상 소프트웨어:
 **이 플러그인은 공식적으로 [**Pocketmine-MP**](https://github.com/pmmp/PocketMine-MP/)에서만 작동합니다**
-> API [`3.x.x`](https://github.com/pmmp/PocketMine-MP/tree/stable) [`4.x.x`](https://github.com/pmmp/PocketMine-MP/tree/master) 모두 작동합니다
+> API는 [`3.x.x`](https://github.com/pmmp/PocketMine-MP/tree/stable)과 [`4.x.x`](https://github.com/pmmp/PocketMine-MP/tree/master) 모두 작동합니다
 
 <br>  
 
 ## :memo: 라이센스
-> 라이센스 전문은 [여기](https://github.com/ref-plugin/refBun/blob/master/LICENSE) 에서 확인할 수 있습니다
+> 라이센스 전문은 [여기](https://github.com/ref-plugin/refBun/blob/master/LICENSE)에서 확인할 수 있습니다
 
 이 프로젝트는 **LGPL 3.0** 라이센스 조건에 따라 라이센스가 부여됩니다
