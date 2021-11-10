@@ -12,7 +12,7 @@ commands:
   refbundle:
     description: Build plugin with more option
     usage: /refbundle <plugin name | *>
-    aliases: [build, rb, bb]
+    aliases: [build, refbun, rb, bb]
     permission: refbundle.cmd
 
 permissions:
