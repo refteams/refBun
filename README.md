@@ -1,20 +1,19 @@
-<p align="center"> <img src="https://ghcdn.rawgit.org/Blugin/BluginTools/master/icon.png" width="360"> </p>
+<p align="center"> <img src="https://ghcdn.rawgit.org/ref-plugin/refBun/develop/icon.png" width="360" alt="icon"> </p>
 <br> <h1 align="center"> refBun :: Several tools to help with pmmp plugin development </h1>
 <p align="right">  
-  <a href="https://github.com/Blugin/BluginTools/blob/master/README_KOR.md">  
-    <img src="https://img.shields.io/static/v1?label=%ED%95%9C%EA%B5%AD%EC%96%B4&message=%EB%A1%9C+%EC%9D%BD%EA%B8%B0&labelColor=success">  
+  <a href="https://github.com/ref-plugin/refBun/blob/master/README_KOR.md">  
+    <img src="https://img.shields.io/static/v1?label=%ED%95%9C%EA%B5%AD%EC%96%B4&message=%EB%B2%84%EC%A0%84&labelColor=success" alt="한국어 버전">  
   </a>  
 </p>  
 <p align="center">  
   <a href="https://github.com/ref-plugin/refBun/releases">  
-    <img src="https://img.shields.io/github/release/Blugin/BluginTools.svg?style=flat-square">  
+    <img src="https://img.shields.io/github/release/Blugin/BluginTools.svg?style=flat-square" alt="release">  
   </a>  
   <a href="https://github.com/ref-plugin/refBun/releases">  
-    <img src="https://img.shields.io/github/downloads/Blugin/BluginTools/total.svg?style=flat-square">  
-  </a>  
-  </a>  
+    <img src="https://img.shields.io/github/downloads/Blugin/BluginTools/total.svg?style=flat-square" alt="downloads">  
+  </a>
   <a href="https://github.com/ref-plugin/refBun/blob/master/LICENSE">  
-    <img src="https://img.shields.io/github/license/Blugin/BluginTools.svg?style=flat-square">  
+    <img src="https://img.shields.io/github/license/Blugin/BluginTools.svg?style=flat-square" alt="license">  
   </a>  
   <strong>
   <br> ✔️ Cleanup all import(<code>use</code>)!
