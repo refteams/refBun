@@ -19,27 +19,41 @@
  *  ( . .) ♥
  *  c(")(")
  *
- * @name refToolsLoader
+ * @name refBunLoader
  * @api 4.0.0
  * @version 1.0.0
- * @main ref\tool\loader\refToolsLoader
+ * @main ref\bundle\refBunLoader
  * @load STARTUP
+ *
+ * @noinspection PhpUndefinedFieldInspection
+ * @noinspection PhpUndefinedMethodInspection
  */
 
-namespace ref\tool\loader;
+namespace ref\bundle;
 
+use ClassLoader;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginDescription;
 use pocketmine\plugin\PluginEnableOrder;
 use pocketmine\plugin\PluginLoader;
+use pocketmine\scheduler\ClosureTask;
 
-class refToolsLoader extends PluginBase{
-    public function onEnable() : void{
-        $this->getServer()->getPluginManager()->registerInterface($loader = new class($this->getServer()->getLoader()) implements PluginLoader{
-            /** @var \ClassLoader */
-            private $loader;
+use function file_get_contents;
+use function get_class;
+use function is_dir;
+use function is_file;
 
-            public function __construct(\ClassLoader $loader){
+final class refBunLoader extends PluginBase{
+    public string $pluginLoaderClass;
+
+    protected function onEnable() : void{
+        $server = $this->getServer();
+        $pluginManager = $server->getPluginManager();
+
+        $pluginManager->registerInterface($pluginLoader = new class($server->getLoader()) implements PluginLoader{
+            private ClassLoader $loader;
+
+            public function __construct(ClassLoader $loader){
                 $this->loader = $loader;
             }
 
@@ -56,8 +70,7 @@ class refToolsLoader extends PluginBase{
                 if(is_file($ymlFile = $file . "/plugin.yml")){
                     if(!empty($yml = file_get_contents($ymlFile))){
                         $description = new PluginDescription($yml);
-                        //Load BluginTools only
-                        return $description->getName() === "refTools" ? $description : null;
+                        return $description->getName() === "refBun" ? $description : null;
                     }
                 }
 
@@ -68,7 +81,21 @@ class refToolsLoader extends PluginBase{
                 return "";
             }
         });
-        $this->getServer()->getPluginManager()->loadPlugins($this->getServer()->getPluginPath(), [get_class($loader)]);
-        $this->getServer()->enablePlugins(PluginEnableOrder::STARTUP());
+        $this->pluginLoaderClass = get_class($pluginLoader);
+
+        $pluginManager->loadPlugins($server->getPluginPath());
+        $server->enablePlugins(PluginEnableOrder::STARTUP());
+
+        $this->getScheduler()->scheduleTask(new ClosureTask(fn() => $pluginManager->disablePlugin($this)));
+    }
+
+    protected function onDisable() : void{
+        (function(refBunLoader $plugin){ //HACK : Closure bind hack to access inaccessible members
+            /** @see \pocketmine\plugin\PluginManager::$plugins */
+            unset($this->plugins[$plugin->getDescription()->getName()]);
+
+            /** @see \pocketmine\plugin\PluginManager::$fileAssociations */
+            unset($this->fileAssociations[$plugin->pluginLoaderClass]);
+        })->call($this->getServer()->getPluginManager(), $this);
     }
 }
