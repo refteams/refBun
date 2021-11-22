@@ -56,7 +56,7 @@ final class refBun extends PluginBase{
     protected function onLoad() : void{
         self::$instance = $this;
 
-        $parserSrc = __DIR__ . "/../../../../lib/php-parser/lib/PhpParser";
+        $parserSrc = __DIR__ . "/../../../lib/php-parser/lib/PhpParser";
         if(!is_dir($parserSrc)){
             throw new PluginException("PhpParser library not found");
         }
