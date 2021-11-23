@@ -39,10 +39,11 @@ class VirionLoader{
     /** @var Virion[] */
     private array $virions = [];
 
-    public function prepare(){
+    public function prepare() : void{
         foreach(["virions/", "plugins/_virions/", "plugins/virions/"] as $subdir){
-            if(!is_dir($dir = Server::getInstance()->getDataPath() . $subdir))
+            if(!is_dir($dir = Server::getInstance()->getDataPath() . $subdir)){
                 continue;
+            }
 
             foreach(refBun::readDirectory($dir) as $path){
                 $virion = Virion::from($dir . $path);

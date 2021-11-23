@@ -27,11 +27,11 @@ declare(strict_types=1);
 
 namespace ref\bundle\processor;
 
-use ref\bundle\printer\Printer;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\ParserFactory;
+use ref\bundle\printer\Printer;
 
 use function array_keys;
 use function count;
@@ -75,6 +75,9 @@ final class CodeSplitter{
                 $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
             }
             $printer = Printer::getClone(Printer::PRINTER_STANDARD);
+            if($printer === null){
+                return $result;
+            }
             foreach($classLikes as $classLike){
                 //TODO: Deep copy implement instead of re-parse trick
                 //TODO: Remove unused imports
@@ -109,10 +112,8 @@ final class CodeSplitter{
             }
 
             //Child node with recursion processing
-            if(isset($node->stmts) && is_array($node->stmts)){
-                if(self::replaceClassLike($node->stmts, $replacement) !== null){
-                    return $nodes;
-                }
+            if(isset($node->stmts) && is_array($node->stmts) && self::replaceClassLike($node->stmts, $replacement) !== null){
+                return $nodes;
             }
         }
         return null;

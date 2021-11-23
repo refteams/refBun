@@ -27,13 +27,13 @@ declare(strict_types=1);
 
 namespace ref\bundle\visitor;
 
-use ref\bundle\renamer\IRenamerHolder;
-use ref\bundle\traits\renamer\RenamerHolderVisitorTrait;
 use PhpParser\Node;
 use PhpParser\Node\Const_;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\NodeVisitorAbstract;
+use ref\bundle\renamer\IRenamerHolder;
+use ref\bundle\traits\renamer\RenamerHolderVisitorTrait;
 
 use function in_array;
 use function is_array;
@@ -59,8 +59,9 @@ abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRe
     /** @param Node[] $nodes * */
     private function registerPrivateNodes(array $nodes) : void{
         foreach($nodes as $node){
-            if($node instanceof ClassLike && !$node instanceof Class_)
+            if($node instanceof ClassLike && !$node instanceof Class_){
                 continue;
+            }
 
             $this->registerNode($node);
 
@@ -85,7 +86,7 @@ abstract class PrivateRenamingVisitor extends NodeVisitorAbstract implements IRe
     }
 
     protected function isValidToGenerate(Node $node, string $property = "name") : bool{
-        return $this->isValid($node, $property) && in_array($node, $this->privateNodes);
+        return $this->isValid($node, $property) && in_array($node, $this->privateNodes, true);
     }
 
     protected function isValidToRename(Node $node, string $property = "name") : bool{

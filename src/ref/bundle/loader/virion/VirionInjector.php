@@ -27,9 +27,9 @@ declare(strict_types=1);
 
 namespace ref\bundle\loader\virion;
 
-use ref\bundle\refBun;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as C;
+use ref\bundle\refBun;
 
 use function array_values;
 use function ceil;
@@ -46,7 +46,6 @@ use function json_encode;
 use function mkdir;
 use function str_repeat;
 use function strlen;
-use function strpos;
 use function substr;
 use function token_get_all;
 
@@ -109,9 +108,9 @@ class VirionInjector{
         foreach(refBun::readDirectory($virionPath = $virion->getPath(), true) as $path){
             $innerPath = substr($path, strlen($virionPath));
 
-            if(strpos($innerPath, "resources/") === 0){
+            if(str_starts_with($innerPath, "resources/")){
                 $newPath = $dir . $innerPath;
-            }elseif(strpos($innerPath, $antigenPath) === 0){
+            }elseif(str_starts_with($innerPath, $antigenPath)){
                 $newPath = refBun::cleanDirName($dir . $antibodyDir) . substr($innerPath, strlen($antigenPath));
             }else{
                 continue;
@@ -129,8 +128,9 @@ class VirionInjector{
     public static function infectAll(string $dir, string $antibody, Virion $virion) : void{
         $antigen = $virion->getAntigen();
         foreach(refBun::readDirectory($dir, true) as $path){
-            if(!is_file($path) || substr($path, -4) !== ".php")
+            if(!is_file($path) || !str_ends_with($path, ".php")){
                 continue;
+            }
 
             $contents = self::infect(file_get_contents($path), $antigen, $antibody);
 
@@ -144,15 +144,17 @@ class VirionInjector{
         $tokens = token_get_all($chromosome);
         $tokens[] = "";
         foreach($tokens as $offset => $token){
-            if(!is_array($token) or $token[0] !== T_WHITESPACE){
+            if(!is_array($token) || $token[0] !== T_WHITESPACE){
                 [$id, $str, $line] = is_array($token) ? $token : [-1, $token, $line ?? 1];
                 if(isset($init, $current, $prefixToken)){
-                    if($current === "" && $prefixToken === T_USE and $id === T_FUNCTION || $id === T_CONST){
+                    if(($current === "" && $prefixToken === T_USE && $id === T_FUNCTION) || $id === T_CONST){
                         continue;
-                    }elseif($id === T_NS_SEPARATOR || $id === T_STRING){
+                    }
+
+                    if($id === T_NS_SEPARATOR || $id === T_STRING){
                         $current .= $str;
-                    }elseif(!($current === "" && $prefixToken === T_USE and $id === T_FUNCTION || $id === T_CONST)){
-                        if(strpos($current, $antigen) === 0){ // case-sensitive!
+                    }elseif(!(($current === "" && $prefixToken === T_USE && $id === T_FUNCTION) || $id === T_CONST)){
+                        if(str_starts_with($current, $antigen)){ // case-sensitive!
                             $new = $antibody . substr($current, strlen($antigen));
                             for($o = $init + 1; $o < $offset; ++$o){
                                 if($tokens[$o][0] === T_NS_SEPARATOR || $tokens[$o][0] === T_STRING){
@@ -163,12 +165,10 @@ class VirionInjector{
                         }
                         unset($init, $current, $prefixToken);
                     }
-                }else{
-                    if($id === T_NS_SEPARATOR || $id === T_NAMESPACE || $id === T_USE){
-                        $init = $offset;
-                        $current = "";
-                        $prefixToken = $id;
-                    }
+                }elseif($id === T_NS_SEPARATOR || $id === T_NAMESPACE || $id === T_USE){
+                    $init = $offset;
+                    $current = "";
+                    $prefixToken = $id;
                 }
             }
         }
@@ -185,8 +185,9 @@ class VirionInjector{
         $infections = file_exists($infectionsPath = $path . Virion::INFECTION_FILE) ? json_decode(file_get_contents($infectionsPath), true) : [];
         foreach($virionOptions as $key => $virionOption){
             $virion = $virionLoader->getVirion(explode("/", $virionOption["src"])[2]);
-            if($virion === null)
+            if($virion === null){
                 continue;
+            }
 
             foreach($infections as $log){
                 if($virion->getAntigen() === $log["antigen"]){

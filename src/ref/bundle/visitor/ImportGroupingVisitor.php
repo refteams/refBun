@@ -67,7 +67,8 @@ class ImportGroupingVisitor extends NodeVisitorAbstract{
      * @param UseUse[][]  &$usesList
      */
     private function readUses(array &$nodes, array &$usesList) : void{
-        for($i = 0, $keys = array_keys($nodes), $count = count($keys); $i < $count; ++$i){
+        $keys = array_keys($nodes);
+        for($i = 0, $count = count($keys); $i < $count; ++$i){
             $node = $nodes[$keys[$i]];
             if($node instanceof Use_ || $node instanceof GroupUse){
                 foreach($node->uses as $use){

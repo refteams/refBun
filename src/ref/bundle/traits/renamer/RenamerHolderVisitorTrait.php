@@ -45,7 +45,7 @@ trait RenamerHolderVisitorTrait{
      *
      * @return Node[]|null
      */
-    public function beforeTraverse(array $nodes){
+    public function beforeTraverse(array $nodes) : ?array{
         $this->renamer->init();
         return null;
     }
@@ -57,7 +57,7 @@ trait RenamerHolderVisitorTrait{
      *
      * @return Node|null
      */
-    public function enterNode(Node $node){
+    public function enterNode(Node $node) : ?Node{
         $this->generate($node);
         return null;
     }
@@ -69,19 +69,21 @@ trait RenamerHolderVisitorTrait{
      *
      * @return Node|null
      */
-    public function leaveNode(Node $node){
+    public function leaveNode(Node $node) : ?Node{
         $this->rename($node);
         return null;
     }
 
     public function generate(Node $node, string $property = "name") : void{
-        if($this->isValidToGenerate($node, $property))
+        if($this->isValidToGenerate($node, $property)){
             $this->renamer->generate($this->getTarget($node), $property);
+        }
     }
 
     public function rename(Node $node, string $property = "name") : ?Node{
-        if($this->isValidToRename($node, $property))
+        if($this->isValidToRename($node, $property)){
             return $this->renamer->rename($this->getTarget($node));
+        }
         return null;
     }
 

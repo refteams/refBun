@@ -42,9 +42,7 @@ use PhpParser\NodeVisitorAbstract;
 use function array_unshift;
 
 class ConstructorPromotionRemoveVisitor extends NodeVisitorAbstract{
-    /**
-     * @return null|int|Node|Node[] Replacement node (or special return value)
-     */
+    /** @return null|int|Node|Node[] Replacement node (or special return value) */
     public function leaveNode(Node $node) : Node|array|null{
         if($node instanceof Node\Stmt\ClassMethod && $node->name->toLowerString() === "__construct"){
             $nodes = [];

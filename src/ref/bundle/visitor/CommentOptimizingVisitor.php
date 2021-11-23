@@ -48,22 +48,25 @@ class CommentOptimizingVisitor extends NodeVisitorAbstract{
         $node->setAttribute("comments", []);
 
         //If the comment has no doc comment, skip.
-        if($doc === null)
+        if($doc === null){
             return null;
+        }
 
         $allowTags = self::getAllowTags();
         $tags = [];
         foreach(Utils::parseDocComment($doc->getText()) as $name => $content){
-            if(!isset($allowTags[$name]))
+            if(!isset($allowTags[$name])){
                 continue;
+            }
 
             preg_match($allowTags[$name], $content, $matches);
             $tags[] = "@$name " . implode(" ", array_slice($matches, 1));
         }
 
         //If the comment has no meaningful comments, skip.
-        if(($count = count($tags)) === 0)
+        if(($count = count($tags)) === 0){
             return null;
+        }
 
         if($count === 1){
             $newDocText = "/** $tags[0] */";

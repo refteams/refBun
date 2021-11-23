@@ -27,8 +27,6 @@ declare(strict_types=1);
 
 namespace ref\bundle\visitor;
 
-use ref\bundle\renamer\IRenamerHolder;
-use ref\bundle\traits\renamer\RenamerHolderVisitorTrait;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClosureUse;
 use PhpParser\Node\Expr\Variable;
@@ -36,6 +34,8 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\StaticVar;
 use PhpParser\NodeVisitorAbstract;
+use ref\bundle\renamer\IRenamerHolder;
+use ref\bundle\traits\renamer\RenamerHolderVisitorTrait;
 
 use function in_array;
 use function is_string;
@@ -65,7 +65,7 @@ class LocalVariableRenamingVisitor extends NodeVisitorAbstract implements IRenam
 
     protected function isValid(Node $node, string $property = "name") : bool{
         $target = $this->getTarget($node);
-        //Ignore to rename if it not string or global variable or $this(ex: $$varName, $_GET, $this)
-        return isset($target->$property) && is_string($target->$property) && $target instanceof Variable && is_string($target->name) && !in_array($target->name, self::IGNORE_LIST);
+        //Ignore to rename if it not strings or global variable or $this(ex: $$varName, $_GET, $this)
+        return isset($target->$property) && is_string($target->$property) && $target instanceof Variable && is_string($target->name) && !in_array($target->name, self::IGNORE_LIST, true);
     }
 }

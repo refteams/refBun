@@ -21,14 +21,16 @@
  *   (\ /)
  *  ( . .) ♥
  *  c(")(")
+ *
+ * @noinspection PhpUnused
  */
 
 declare(strict_types=1);
 
 namespace ref\bundle\renamer;
 
-use ref\bundle\traits\SelfFactoryTrait;
 use PhpParser\Node;
+use ref\bundle\traits\SelfFactoryTrait;
 
 use function in_array;
 use function str_replace;
@@ -37,9 +39,9 @@ use function strcasecmp;
 abstract class Renamer{
     use SelfFactoryTrait;
 
-    public const FLAG_IGNORECASE = 0b00000001;    //It means that the visitor ignores case in name
-    public const FLAG_ALLOW_SLASH = 0b00000010;   //It means that the visitor allow slash in name
-    public const FLAG_INITIAL_VALID = 0b00000100; //It means that the visitor require valid of initial letter
+    public const FLAG_IGNORE_CASE = 0b00000001;    //It means that the visitor ignores case in name
+    public const FLAG_ALLOW_SLASH = 0b00000010;    //It means that the visitor allow slash in name
+    public const FLAG_INITIAL_VALID = 0b00000100;  //It means that the visitor require valid of initial letter
 
     /** @var string[] original name => new name */
     private array $nameTable = [];
@@ -50,12 +52,13 @@ abstract class Renamer{
         $this->nameTable = [];
     }
 
-    public abstract function generate(Node $node, string $property = "name") : void;
+    abstract public function generate(Node $node, string $property = "name") : void;
 
     public function rename(Node $node, string $property = "name") : ?Node{
         $newName = $this->nameTable[$node->$property] ?? null;
-        if(!$newName)
+        if(!$newName){
             return null;
+        }
 
         $node->$property = $newName;
         return $node;
@@ -78,15 +81,15 @@ abstract class Renamer{
         return $this->flags;
     }
 
-    public function isIgnorecase() : bool{
-        return ($this->flags & self::FLAG_IGNORECASE) !== 0;
+    public function isIgnoreCase() : bool{
+        return ($this->flags & self::FLAG_IGNORE_CASE) !== 0;
     }
 
-    public function setIgnorecase(bool $value = true) : void{
+    public function setIgnoreCase(bool $value = true) : void{
         if($value){
-            $this->flags |= self::FLAG_IGNORECASE;
+            $this->flags |= self::FLAG_IGNORE_CASE;
         }else{
-            $this->flags &= ~self::FLAG_IGNORECASE;
+            $this->flags &= ~self::FLAG_IGNORE_CASE;
         }
     }
 
@@ -123,15 +126,16 @@ abstract class Renamer{
      * @return bool
      */
     protected function in_array($needle, $array) : bool{
-        if($this->isIgnorecase()){
-            foreach($array as $key => $value){
-                if(strcasecmp($needle, $value) === 0)
+        if($this->isIgnoreCase()){
+            foreach($array as $value){
+                if(strcasecmp($needle, $value) === 0){
                     return true;
+                }
             }
             return false;
-        }else{
-            return in_array($needle, $array);
         }
+
+        return in_array($needle, $array, true);
     }
 
     protected function clean(string $name) : string{

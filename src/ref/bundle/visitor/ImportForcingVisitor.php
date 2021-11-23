@@ -129,8 +129,9 @@ class ImportForcingVisitor extends NameResolver{
 
     private function resolveGlobal(Name $name) : Name{
         $code = ltrim($name->toCodeString(), "\\");
-        if($code === "self" || $code === "parent" || $code === "static")
+        if($code === "self" || $code === "parent" || $code === "static"){
             return $name;
+        }
 
         $fullCode = "\\" . $code;
         $use = new UseUse(new Name($code), null, Use_::TYPE_UNKNOWN);

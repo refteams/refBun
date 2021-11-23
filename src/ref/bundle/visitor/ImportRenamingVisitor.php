@@ -27,9 +27,6 @@ declare(strict_types=1);
 
 namespace ref\bundle\visitor;
 
-use ref\bundle\renamer\IRenamerHolder;
-use ref\bundle\renamer\Renamer;
-use ref\bundle\traits\renamer\RenamerHolderTrait;
 use PhpParser\ErrorHandler;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ConstFetch;
@@ -39,6 +36,9 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\NodeVisitor\NameResolver;
+use ref\bundle\renamer\IRenamerHolder;
+use ref\bundle\renamer\Renamer;
+use ref\bundle\traits\renamer\RenamerHolderTrait;
 
 use function is_array;
 use function ltrim;
@@ -53,7 +53,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
 
     public function setRenamer(Renamer $renamer) : void{
         $this->renamer = $renamer;
-        $renamer->setIgnorecase();
+        $renamer->setIgnoreCase();
     }
 
     /**
@@ -83,7 +83,7 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
     }
 
     /** @return int|Node|Node[]|null */
-    public function leaveNode(Node $node){
+    public function leaveNode(Node $node) : int|Node|array|null{
         if($node instanceof Use_ || $node instanceof GroupUse){
             foreach($node->uses as $use){
                 $newName = $this->renamer->rename(new Identifier($this->getFullyQualifiedString($use, $node)));
@@ -98,12 +98,14 @@ class ImportRenamingVisitor extends NameResolver implements IRenamerHolder{
 
     protected function resolveName(Name $name, int $type) : Name{
         $result = parent::resolveName($name, $type);
-        if(!$this->replaceNodes)
+        if(!$this->replaceNodes){
             return $result;
+        }
 
         $newName = $this->renamer->rename(new Identifier(ltrim($result->toCodeString(), "\\")));
-        if($newName instanceof Identifier)
+        if($newName instanceof Identifier){
             return new Name($newName->name, $result->getAttributes());
+        }
         return $result;
     }
 

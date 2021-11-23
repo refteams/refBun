@@ -37,7 +37,7 @@ use PhpParser\Node\Stmt\ClassConst;
 class PrivateConstRenamingVisitor extends PrivateRenamingVisitor{
     public function setRenamer(Renamer $renamer) : void{
         $this->renamer = $renamer;
-        $renamer->setIgnorecase();
+        $renamer->setIgnoreCase();
     }
 
     protected function registerNode(Node $node) : void{
@@ -50,6 +50,6 @@ class PrivateConstRenamingVisitor extends PrivateRenamingVisitor{
     }
 
     protected function isTarget(Node $node) : bool{
-        return $node instanceof Const_ || $node instanceof ClassConstFetch && $node->class instanceof Name && $node->class->parts[0] === "self";
+        return $node instanceof Const_ || ($node instanceof ClassConstFetch && $node->class instanceof Name && $node->class->parts[0] === "self");
     }
 }

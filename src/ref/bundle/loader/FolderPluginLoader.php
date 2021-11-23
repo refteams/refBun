@@ -27,11 +27,11 @@ declare(strict_types=1);
 
 namespace ref\bundle\loader;
 
-use ref\bundle\traits\SingletonFactoryTrait;
 use pocketmine\plugin\PluginDescription;
 use pocketmine\plugin\PluginEnableOrder;
 use pocketmine\plugin\PluginLoader;
 use pocketmine\Server;
+use ref\bundle\traits\SingletonFactoryTrait;
 
 use function file_get_contents;
 use function is_dir;
@@ -40,7 +40,7 @@ use function is_file;
 class FolderPluginLoader implements PluginLoader{
     use SingletonFactoryTrait;
 
-    public function init(){
+    public function init() : void{
         $server = Server::getInstance();
         $server->getPluginManager()->registerInterface($this);
         $server->getPluginManager()->loadPlugins($server->getPluginPath());
@@ -56,12 +56,10 @@ class FolderPluginLoader implements PluginLoader{
     }
 
     public function getPluginDescription(string $file) : ?PluginDescription{
-        if(is_file($ymlFile = $file . "/plugin.yml")){
-            if(!empty($yml = file_get_contents($ymlFile))){
-                $description = new PluginDescription($yml);
-                //Prevent load exists plugin
-                return Server::getInstance()->getPluginManager()->getPlugin($description->getName()) === null ? $description : null;
-            }
+        if(is_file($ymlFile = $file . "/plugin.yml") && !empty($yml = file_get_contents($ymlFile))){
+            $description = new PluginDescription($yml);
+            //Prevent load exists plugin
+            return Server::getInstance()->getPluginManager()->getPlugin($description->getName()) === null ? $description : null;
         }
 
         return null;

@@ -33,9 +33,9 @@ trait SingletonFactoryTrait{
     private function __construct(){
     }
 
-    public function prepare(){
+    public function prepare() : void{
     }
 
-    public function init(){
+    public function init() : void{
     }
 }

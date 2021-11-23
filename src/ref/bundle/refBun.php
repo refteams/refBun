@@ -27,14 +27,14 @@ declare(strict_types=1);
 
 namespace ref\bundle;
 
-use ref\bundle\builder\Builder;
-use ref\bundle\loader\FolderPluginLoader;
-use ref\bundle\loader\virion\VirionLoader;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginException;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
+use ref\bundle\builder\Builder;
+use ref\bundle\loader\FolderPluginLoader;
+use ref\bundle\loader\virion\VirionLoader;
 
 use function array_diff;
 use function count;
@@ -81,17 +81,19 @@ final class refBun extends PluginBase{
                 unlink($path);
             }
         }
-        return (count(scandir($dir)) == 2);
+        return (count(scandir($dir)) === 2);
     }
 
     public static function readDirectory(string $dir, bool $recursive = false, array $result = []) : array{
         $dir = self::cleanDirName($dir);
-        if(!file_exists($dir))
+        if(!file_exists($dir)){
             mkdir($dir, 0777, true);
+        }
 
         $files = array_diff(scandir($dir), [".", ".."]);
-        if(!$recursive)
+        if(!$recursive){
             return $files;
+        }
 
         foreach($files as $filename){
             $path = $dir . $filename;
@@ -118,8 +120,9 @@ final class refBun extends PluginBase{
 
     public static function getPlugin(string $name) : ?Plugin{
         $plugins = Server::getInstance()->getPluginManager()->getPlugins();
-        if(isset($plugins[$name]))
+        if(isset($plugins[$name])){
             return $plugins[$name];
+        }
 
         $found = null;
         $length = strlen($name);
@@ -129,8 +132,9 @@ final class refBun extends PluginBase{
                 $diff = strlen($pluginName) - $length;
                 if($diff < $minDiff){
                     $found = $plugin;
-                    if($diff === 0)
+                    if($diff === 0){
                         break;
+                    }
 
                     $minDiff = $diff;
                 }
@@ -140,12 +144,12 @@ final class refBun extends PluginBase{
     }
 
     public static function loadDir(string $dirname = "", bool $clean = false) : string{
-        $dir = refBun::cleanDirName(refBun::getInstance()->getDataFolder() . $dirname);
+        $dir = self::cleanDirName(self::getInstance()->getDataFolder() . $dirname);
         if(!file_exists($dir)){
             mkdir($dir, 0777, true);
         }
         if($clean){
-            refBun::clearDirectory($dir);
+            self::clearDirectory($dir);
         }
         return $dir;
     }

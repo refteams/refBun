@@ -27,8 +27,6 @@ declare(strict_types=1);
 
 namespace ref\bundle\builder;
 
-use ref\bundle\refBun;
-use ref\bundle\visitor\CommentOptimizingVisitor;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
 use pocketmine\command\CommandSender;
@@ -37,14 +35,16 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\ScriptPluginLoader;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as C;
+use ref\bundle\refBun;
+use ref\bundle\visitor\CommentOptimizingVisitor;
+use ReflectionClass;
 
 use function count;
 use function implode;
 use function preg_replace;
-use function time;
 
 class PluginBuildExecutor implements CommandExecutor{
-    public const SCRIPTPLUGIN_ALLOW_TAGS = [
+    public const SCRIPT_PLUGIN_ALLOW_TAGS = [
         "name",
         "main",
         "version",
@@ -64,14 +64,11 @@ class PluginBuildExecutor implements CommandExecutor{
         "permissions"
     ];
 
-    /**
-     * @param string[] $args
-     *
-     * @throws \ReflectionException
-     */
+    /** @param string[] $args */
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
-        if(empty($args))
+        if(empty($args)){
             return false;
+        }
 
         if($args[0] === "*"){
             $args = [];
@@ -115,19 +112,17 @@ class PluginBuildExecutor implements CommandExecutor{
         return true;
     }
 
-    /** @throws \ReflectionException */
     public function buildPharPlugin(PluginBase $plugin) : void{
         CommentOptimizingVisitor::initAllowTags();
-        Builder::getInstance()->buildPhar(self::getSourcePath($plugin), self::getPharPath($plugin), self::getNamespace($plugin), self::getMetadata($plugin));
+        Builder::getInstance()->buildPhar(self::getSourcePath($plugin), self::getPharPath($plugin), self::getNamespace($plugin));
     }
 
-    /** @throws \ReflectionException */
     public function buildScriptPlugin(PluginBase $plugin) : void{
         CommentOptimizingVisitor::initAllowTags();
-        foreach(self::SCRIPTPLUGIN_ALLOW_TAGS as $name){
+        foreach(self::SCRIPT_PLUGIN_ALLOW_TAGS as $name){
             CommentOptimizingVisitor::register($name, "/([^\n\r]*)/");
         }
-        Builder::getInstance()->buildScript(self::getSourcePath($plugin), self::getPhpPath($plugin), self::getMetadata($plugin));
+        Builder::getInstance()->buildScript(self::getSourcePath($plugin), self::getPhpPath($plugin));
     }
 
     public static function getPharName(Plugin $plugin) : string{
@@ -146,11 +141,10 @@ class PluginBuildExecutor implements CommandExecutor{
         return refBun::loadDir() . self::getPhpName($plugin);
     }
 
-    /** @throws \ReflectionException */
     public static function getSourcePath(Plugin $plugin) : string{
         static $fileProperty;
         if(!isset($fileProperty)){
-            $reflection = new \ReflectionClass(PluginBase::class);
+            $reflection = new ReflectionClass(PluginBase::class);
             $fileProperty = $reflection->getProperty("file");
             $fileProperty->setAccessible(true);
         }
@@ -163,20 +157,5 @@ class PluginBuildExecutor implements CommandExecutor{
 
     public static function getPluginFullName(Plugin $plugin) : string{
         return "{$plugin->getName()}_v{$plugin->getDescription()->getVersion()}";
-    }
-
-    public static function getMetadata(Plugin $plugin) : array{
-        $description = $plugin->getDescription();
-        return [
-            "name" => $description->getName(),
-            "version" => $description->getVersion(),
-            "main" => $description->getMain(),
-            "api" => $description->getCompatibleApis(),
-            "depend" => $description->getDepend(),
-            "description" => $description->getDescription(),
-            "authors" => $description->getAuthors(),
-            "website" => $description->getWebsite(),
-            "creationDate" => time()
-        ];
     }
 }

@@ -42,16 +42,19 @@ class VirionDownloader{
     public static function download(string $ownerName, string $repoName, string $projectName, string $versionConstraint = "^0.0.1") : ?Virion{
         $url = sprintf(self::VIRION_GET_URL, $ownerName, $repoName, $projectName, $versionConstraint);
         [$body, [$header], $httpCode] = Internet::simpleCurl($url);
-        if($httpCode !== 200)
+        if($httpCode !== 200){
             return null;
+        }
 
         $dir = Server::getInstance()->getDataPath() . "virions/";
-        if(!file_exists($dir))
+        if(!file_exists($dir)){
             mkdir($dir, 0777, true);
+        }
 
         $path = $dir . sprintf(self::FILE_NAME_FORMAT, $projectName, $header["x-poggit-virion-version"] ?? $versionConstraint);
-        if(file_put_contents($path, $body) === false)
+        if(file_put_contents($path, $body) === false){
             return null;
+        }
 
         return Virion::from($path);
     }

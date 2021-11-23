@@ -43,9 +43,9 @@ abstract class Printer{
     public const PRINTER_STANDARD = "standard";
 
     /** @param Node[] $stmts */
-    public abstract function printStmts(array $stmts) : string;
+    abstract public function printStmts(array $stmts) : string;
 
-    public abstract function printCode(string $code) : string;
+    abstract public function printCode(string $code) : string;
 
     /** @param Node[]|string $value */
     public function print(array|string $value) : string{

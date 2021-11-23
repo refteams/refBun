@@ -21,17 +21,19 @@
  *   (\ /)
  *  ( . .) ♥
  *  c(")(")
+ *
+ * @noinspection PhpUnused
  */
 
 declare(strict_types=1);
 
 namespace ref\bundle\traverser;
 
-use ref\bundle\traits\SelfFactoryTrait;
-use ref\bundle\traverser\TraverserPriority as Priority;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitorAbstract;
+use ref\bundle\traits\SelfFactoryTrait;
+use ref\bundle\traverser\TraverserPriority as Priority;
 
 class Traverser extends NodeTraverser{
     use SelfFactoryTrait;
@@ -41,7 +43,7 @@ class Traverser extends NodeTraverser{
         return $this->visitors;
     }
 
-    public function removeVisitors(){
+    public function removeVisitors() : void{
         $this->visitors = [];
     }
 
@@ -53,8 +55,9 @@ class Traverser extends NodeTraverser{
 
     public static function registerVisitor(int $priority, NodeVisitorAbstract $visitor) : bool{
         $traverser = self::get($priority);
-        if($traverser === null)
+        if($traverser === null){
             return false;
+        }
 
         $traverser->addVisitor($visitor);
         return true;

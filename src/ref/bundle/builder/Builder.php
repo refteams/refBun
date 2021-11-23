@@ -27,7 +27,14 @@ declare(strict_types=1);
 
 namespace ref\bundle\builder;
 
-use ref\bundle\refBun;
+use Error;
+use Exception;
+use Phar;
+use PhpParser\Node\Stmt;
+use PhpParser\Parser;
+use PhpParser\ParserFactory;
+use pocketmine\command\PluginCommand;
+use pocketmine\utils\Config;
 use ref\bundle\builder\event\BuildCompleteEvent;
 use ref\bundle\builder\event\BuildPrepareEvent;
 use ref\bundle\builder\event\BuildStartEvent;
@@ -35,6 +42,7 @@ use ref\bundle\loader\virion\Virion;
 use ref\bundle\loader\virion\VirionInjector;
 use ref\bundle\printer\Printer;
 use ref\bundle\processor\CodeSplitter;
+use ref\bundle\refBun;
 use ref\bundle\renamer\Renamer;
 use ref\bundle\traits\SingletonFactoryTrait;
 use ref\bundle\traverser\Traverser;
@@ -50,14 +58,6 @@ use ref\bundle\visitor\LocalVariableRenamingVisitor;
 use ref\bundle\visitor\PrivateConstRenamingVisitor;
 use ref\bundle\visitor\PrivateMethodRenamingVisitor;
 use ref\bundle\visitor\PrivatePropertyRenamingVisitor;
-use Error;
-use Exception;
-use Phar;
-use PhpParser\Node\Stmt;
-use PhpParser\Parser;
-use PhpParser\ParserFactory;
-use pocketmine\command\PluginCommand;
-use pocketmine\utils\Config;
 
 use function copy;
 use function date;
@@ -69,7 +69,6 @@ use function is_file;
 use function mkdir;
 use function preg_match;
 use function strlen;
-use function strpos;
 use function substr;
 use function substr_replace;
 use function unlink;
@@ -86,13 +85,13 @@ class Builder{
 
     private array $baseOption = [];
 
-    public function prepare(){
+    public function prepare() : void{
         Renamer::registerDefaults();
         Printer::registerDefaults();
         Traverser::registerDefaults();
     }
 
-    public function init(){
+    public function init() : void{
         $this->baseOption = refBun::getInstance()->getConfig()->getAll();
 
         $command = refBun::getInstance()->getCommand("refbundle");
@@ -108,7 +107,7 @@ class Builder{
         if(file_exists($pharPath)){
             try{
                 Phar::unlinkArchive($pharPath);
-            }catch(Exception $e){
+            }catch(Exception){
                 unlink($pharPath);
             }
         }
@@ -122,8 +121,9 @@ class Builder{
         foreach(refBun::readDirectory($sourceDir, true) as $path){
             if($option->getNested("build.include-minimal", true)){
                 $innerPath = substr($path, strlen($sourceDir));
-                if($innerPath !== "plugin.yml" && strpos($innerPath, "src/") !== 0 && strpos($innerPath, "resources/") !== 0)
+                if($innerPath !== "plugin.yml" && !str_starts_with($innerPath, "src/") && !str_starts_with($innerPath, "resources/")){
                     continue;
+                }
             }
             $prepareEvent->addFile($path, substr_replace($path, $prepareDir, 0, strlen($sourceDir)));
         }
@@ -147,8 +147,9 @@ class Builder{
         $printers = $this->loadPrintersFromOption($option);
 
         foreach(refBun::readDirectory($prepareDir, true) as $path){
-            if(substr($path, strlen($prepareDir)) === self::OPTION_FILE) //skip option file
+            if(substr($path, strlen($prepareDir)) === self::OPTION_FILE){ //skip option file
                 continue;
+            }
 
             $newPath = substr_replace($path, $buildDir, 0, strlen($prepareDir));
             $newDir = dirname($newPath);
@@ -159,7 +160,7 @@ class Builder{
             if(preg_match("/([a-zA-Z0-9]*)\.php$/", $path, $matches)){
                 try{
                     $originStmts = self::parse(file_get_contents($path));
-                    $originStmts = Traverser::get(Priority::BEFORE_SPLIT)->traverse($originStmts);
+                    $originStmts = Traverser::get(Priority::BEFORE_SPLIT)?->traverse($originStmts);
 
                     $files = [$matches[1] => $originStmts];
                     if($option->getNested("preprocessing.splitting", true)){
@@ -168,7 +169,7 @@ class Builder{
 
                     foreach($files as $filename => $stmts){
                         foreach(Priority::DEFAULT as $priority){
-                            $stmts = Traverser::get($priority)->traverse($stmts);
+                            $stmts = Traverser::get($priority)?->traverse($stmts);
                         }
 
                         $contents = null;
@@ -205,7 +206,7 @@ class Builder{
         (new BuildCompleteEvent($this, $sourceDir, $pharPath, $option))->call();
     }
 
-    public function buildScript(string $sourcePath, string $phpPath, array $metadata = []) : void{
+    public function buildScript(string $sourcePath, string $phpPath) : void{
         $sourcePath = refBun::cleanPath($sourcePath);
         $phpPath = refBun::cleanPath($phpPath);
         //Remove the existing PHP file
@@ -222,7 +223,7 @@ class Builder{
         try{
             $stmts = self::parse(file_get_contents($sourcePath));
             foreach(Priority::DEFAULT as $priority){
-                $stmts = Traverser::get($priority)->traverse($stmts);
+                $stmts = Traverser::get($priority)?->traverse($stmts);
             }
 
             $contents = null;
@@ -296,13 +297,15 @@ class Builder{
         $printers = [];
         foreach($option->getNested("build.print-format") as $printerName){
             $printer = Printer::getClone((string) $printerName);
-            if($printer === null)
+            if($printer === null){
                 throw new Error("$printerName is invalid printer mode");
+            }
 
             $printers [] = $printer;
         }
-        if(empty($printers))
+        if(empty($printers)){
             $printers[] = Printer::getClone();
+        }
 
         return $printers;
     }

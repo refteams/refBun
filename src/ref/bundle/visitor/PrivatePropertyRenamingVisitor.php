@@ -46,6 +46,9 @@ class PrivatePropertyRenamingVisitor extends PrivateRenamingVisitor{
     }
 
     protected function isTarget(Node $node) : bool{
-        return $node instanceof PropertyProperty || $node instanceof PropertyFetch && $node->var instanceof Variable && $node->var->name === "this" || $node instanceof StaticPropertyFetch && $node->class instanceof Name && $node->class->parts[0] === "self";
+        return
+            $node instanceof PropertyProperty ||
+            ($node instanceof PropertyFetch && $node->var instanceof Variable && $node->var->name === "this") ||
+            ($node instanceof StaticPropertyFetch && $node->class instanceof Name && $node->class->parts[0] === "self");
     }
 }

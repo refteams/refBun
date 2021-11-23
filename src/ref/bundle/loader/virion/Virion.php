@@ -27,9 +27,9 @@ declare(strict_types=1);
 
 namespace ref\bundle\loader\virion;
 
-use ref\bundle\refBun;
-use ref\bundle\builder\Builder;
 use pocketmine\Server;
+use ref\bundle\builder\Builder;
+use ref\bundle\refBun;
 
 use function dirname;
 use function file_get_contents;
@@ -91,15 +91,16 @@ class Virion{
     public static function from(string $path) : ?Virion{
         if(is_dir($path)){
             $path = refBun::cleanDirName($path);
-        }elseif(is_file($path) && substr($path, -5) === ".phar"){
+        }elseif(is_file($path) && str_ends_with($path, ".phar")){
             $path = "phar://" . refBun::cleanDirName($path);
         }else{
             return null;
         }
 
         $virionYml = "{$path}virion.yml";
-        if(!is_file($virionYml))
+        if(!is_file($virionYml)){
             return null;
+        }
 
         $data = yaml_parse(file_get_contents($virionYml));
         if(!is_array($data)){
@@ -126,12 +127,15 @@ class Virion{
                 }
             }
         }elseif(empty($projectPath)){
-            if(is_file($file = $path . Builder::OPTION_FILE) && is_array($manifest = yaml_parse(file_get_contents($file)))){
+            $file = $path . Builder::OPTION_FILE;
+            if(is_file($file)){
                 $manifest = yaml_parse(file_get_contents($file));
-                return $manifest["virion"] ?? [];
-            }else{
-                return self::getVirionOptions($parentDir = refBun::cleanDirName(dirname($path)), substr($path, strlen($parentDir)));
+                if(is_array($manifest)){
+                    return $manifest["virion"] ?? [];
+                }
             }
+
+            return self::getVirionOptions($parentDir = refBun::cleanDirName(dirname($path)), substr($path, strlen($parentDir)));
         }
         return [];
     }

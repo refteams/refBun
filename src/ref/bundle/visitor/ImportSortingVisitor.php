@@ -38,9 +38,7 @@ use function is_array;
 use function usort;
 
 class ImportSortingVisitor extends NodeVisitorAbstract{
-    /**
-     * @param Node[] $nodes
-     **/
+    /** @param Node[] $nodes */
     public function afterTraverse(array $nodes) : ?array{
         $this->readUses($nodes);
         return $nodes;
@@ -55,14 +53,15 @@ class ImportSortingVisitor extends NodeVisitorAbstract{
                     /** @var Use_|GroupUse $b */
                     if($this->isUse($a) && $this->isUse($b)){
                         $typeDiff = $a->type <=> $b->type;
-                        if($typeDiff !== 0)
+                        if($typeDiff !== 0){
                             return $typeDiff;
+                        }
                         return $this->getName($a) <=> $this->getName($b);
                     }
                     return (int) !$this->isUse($a);
                 });
             }elseif($this->isUse($node)){
-                usort($node->uses, function(UseUse $a, UseUse $b){
+                usort($node->uses, static function(UseUse $a, UseUse $b){
                     return $a->name->toCodeString() <=> $b->name->toCodeString();
                 });
             }
@@ -81,10 +80,12 @@ class ImportSortingVisitor extends NodeVisitorAbstract{
     private function getName(Node $node) : string{
         if($node instanceof Use_){
             return $node->uses[0]->name->toCodeString();
-        }elseif($node instanceof GroupUse){
-            return $node->prefix->toCodeString();
-        }else{
-            return $node->getType();
         }
+
+        if($node instanceof GroupUse){
+            return $node->prefix->toCodeString();
+        }
+
+        return $node->getType();
     }
 }
