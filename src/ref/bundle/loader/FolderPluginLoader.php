@@ -33,18 +33,34 @@ use pocketmine\plugin\PluginLoader;
 use pocketmine\Server;
 use ref\bundle\traits\SingletonFactoryTrait;
 
+use function array_keys;
 use function file_get_contents;
 use function is_dir;
 use function is_file;
+use function var_dump;
 
 class FolderPluginLoader implements PluginLoader{
     use SingletonFactoryTrait;
 
+    /** @noinspection PhpUndefinedFieldInspection */
     public function init() : void{
         $server = Server::getInstance();
-        $server->getPluginManager()->registerInterface($this);
-        $server->getPluginManager()->loadPlugins($server->getPluginPath());
+        $pluginManager = $server->getPluginManager();
+        $fileAssociations = [];
+        (function(FolderPluginLoader $loader) use (&$fileAssociations){ //HACK : Closure bind hack to access inaccessible members
+            /** @see \pocketmine\plugin\PluginManager::$fileAssociations */
+            $fileAssociations = $this->fileAssociations;
+            $this->fileAssociations = [$loader::class => $loader];
+        })->call($pluginManager, $this);
+
+        $pluginManager->loadPlugins($server->getPluginPath());
         $server->enablePlugins(PluginEnableOrder::STARTUP());
+
+        (function(FolderPluginLoader $loader) use ($fileAssociations){ //HACK : Closure bind hack to access inaccessible members
+            /** @see \pocketmine\plugin\PluginManager::$fileAssociations */
+            $this->fileAssociations = array_merge($fileAssociations, $this->fileAssociations);
+            unset($this->fileAssociations[$loader::class]);
+        })->call($pluginManager, $this);
     }
 
     public function canLoadPlugin(string $path) : bool{
