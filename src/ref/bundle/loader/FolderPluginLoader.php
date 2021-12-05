@@ -33,11 +33,10 @@ use pocketmine\plugin\PluginLoader;
 use pocketmine\Server;
 use ref\bundle\traits\SingletonFactoryTrait;
 
-use function array_keys;
+use function array_merge;
 use function file_get_contents;
 use function is_dir;
 use function is_file;
-use function var_dump;
 
 class FolderPluginLoader implements PluginLoader{
     use SingletonFactoryTrait;
@@ -68,7 +67,11 @@ class FolderPluginLoader implements PluginLoader{
     }
 
     public function loadPlugin(string $file) : void{
-        Server::getInstance()->getLoader()->addPath("", "$file/src");
+        $description = $this->getPluginDescription($file);
+        if($description === null){
+            return;
+        }
+        Server::getInstance()->getLoader()->addPath($description->getSrcNamespacePrefix(), "$file/src");
     }
 
     public function getPluginDescription(string $file) : ?PluginDescription{
