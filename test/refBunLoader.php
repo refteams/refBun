@@ -25,17 +25,18 @@
  * @main ref\bundle\refBunLoader
  * @load STARTUP
  *
- * @noinspection PhpUndefinedFieldInspection
  * @noinspection PhpUndefinedMethodInspection
  */
 
 namespace ref\bundle;
 
 use ClassLoader;
+use Closure;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginDescription;
 use pocketmine\plugin\PluginEnableOrder;
 use pocketmine\plugin\PluginLoader;
+use pocketmine\plugin\PluginManager;
 use pocketmine\scheduler\ClosureTask;
 
 use function file_get_contents;
@@ -67,11 +68,9 @@ final class refBunLoader extends PluginBase{
             }
 
             public function getPluginDescription(string $file) : ?PluginDescription{
-                if(is_file($ymlFile = $file . "/plugin.yml")){
-                    if(!empty($yml = file_get_contents($ymlFile))){
-                        $description = new PluginDescription($yml);
-                        return $description->getName() === "refBun" ? $description : null;
-                    }
+                if(is_file($ymlFile = $file . "/plugin.yml") && !empty($yml = file_get_contents($ymlFile))){
+                    $description = new PluginDescription($yml);
+                    return $description->getName() === "refBun" ? $description : null;
                 }
 
                 return null;
@@ -90,12 +89,15 @@ final class refBunLoader extends PluginBase{
     }
 
     protected function onDisable() : void{
-        (function(refBunLoader $plugin){ //HACK : Closure bind hack to access inaccessible members
-            /** @see \pocketmine\plugin\PluginManager::$plugins */
-            unset($this->plugins[$plugin->getDescription()->getName()]);
-
-            /** @see \pocketmine\plugin\PluginManager::$fileAssociations */
-            unset($this->fileAssociations[$plugin->pluginLoaderClass]);
-        })->call($this->getServer()->getPluginManager(), $this);
+        Closure::bind( //HACK: Closure bind hack to access inaccessible members
+            closure: function(PluginManager $pluginManager){
+                unset(
+                    $pluginManager->plugins[$this->getDescription()->getName()],
+                    $pluginManager->fileAssociations[$this->pluginLoaderClass]
+                );
+            },
+            newThis: $this,
+            newScope: PluginManager::class
+        )($this->getServer()->getPluginManager());
     }
 }

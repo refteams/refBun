@@ -27,9 +27,11 @@ declare(strict_types=1);
 
 namespace ref\bundle\loader;
 
+use Closure;
 use pocketmine\plugin\PluginDescription;
 use pocketmine\plugin\PluginEnableOrder;
 use pocketmine\plugin\PluginLoader;
+use pocketmine\plugin\PluginManager;
 use pocketmine\Server;
 use ref\bundle\traits\SingletonFactoryTrait;
 
@@ -41,25 +43,32 @@ use function is_file;
 class FolderPluginLoader implements PluginLoader{
     use SingletonFactoryTrait;
 
-    /** @noinspection PhpUndefinedFieldInspection */
     public function init() : void{
         $server = Server::getInstance();
         $pluginManager = $server->getPluginManager();
-        $fileAssociations = [];
-        (function(FolderPluginLoader $loader) use (&$fileAssociations){ //HACK : Closure bind hack to access inaccessible members
-            /** @see \pocketmine\plugin\PluginManager::$fileAssociations */
-            $fileAssociations = $this->fileAssociations;
-            $this->fileAssociations = [$loader::class => $loader];
-        })->call($pluginManager, $this);
+
+        $fileAssociations = Closure::bind( //HACK: Closure bind hack to access inaccessible members
+            closure: function() use ($pluginManager) : array{
+                $originalFileAssociations = $pluginManager->fileAssociations;
+                $pluginManager->fileAssociations = [$this::class => $this];
+
+                return $originalFileAssociations;
+            },
+            newThis: $this,
+            newScope: PluginManager::class
+        )();
 
         $pluginManager->loadPlugins($server->getPluginPath());
         $server->enablePlugins(PluginEnableOrder::STARTUP());
 
-        (function(FolderPluginLoader $loader) use ($fileAssociations){ //HACK : Closure bind hack to access inaccessible members
-            /** @see \pocketmine\plugin\PluginManager::$fileAssociations */
-            $this->fileAssociations = array_merge($fileAssociations, $this->fileAssociations);
-            unset($this->fileAssociations[$loader::class]);
-        })->call($pluginManager, $this);
+        Closure::bind( //HACK: Closure bind hack to access inaccessible members
+            closure: function() use ($pluginManager, $fileAssociations) : void{
+                $pluginManager->fileAssociations = array_merge($fileAssociations, $pluginManager->fileAssociations);
+                unset($pluginManager->fileAssociations[$this::class]);
+            },
+            newThis: $this,
+            newScope: PluginManager::class
+        )();
     }
 
     public function canLoadPlugin(string $path) : bool{
